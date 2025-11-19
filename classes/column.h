@@ -51,4 +51,31 @@ void insert_card_in_Column(Column_s* column, Card_s* card);
  */
 void print_all_Cards(Column_s column);
 
+/**
+ * @brief Funzione che estrae una Card da una lista di una Column
+ * 
+ * La funzione estrae una Card dalla corrispondente lista della column
+ * con id specificato nei parametri
+ * 
+ * @param id id della Card da estrarre
+ * @param column colonna da dove estrarre la card
+ * 
+ * @return ritorna il riferimento alla Card se esiste, altrimenti NULL 
+ */
+Card_s* extract_card_with_id(int id, Column_s* column);
+
+/**
+ * @brief Funzione che scambia una card dalla coda di una colonna ad un'altra
+ * 
+ * La funzione scambia la Card con identificativo specificato dalla colonna 
+ * sorgente, se esiste, a quella destinataria
+ * 
+ * @param id id della Card da spostare
+ * @param src Column da dove estrarre la card
+ * @param dest Column dove inserire la Card
+ * 
+ * @return ritorna 0 se l'operazione ha successo, -1 altrimenti
+ */
+int swap_card_between_Column(int card_id, Column_s *src, Column_s *dest);
+
 #endif

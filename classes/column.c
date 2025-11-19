@@ -40,6 +40,36 @@ void insert_card_in_Column(Column_s* column, Card_s* card){
 
 }
 
+Card_s* extract_card_with_id(int id, Column_s* column){
+
+    Card_s* it_card;
+    Card_s* prec_card;
+    for(
+        it_card = column->_card, prec_card = NULL;
+        it_card != NULL && it_card->_id != id;
+        prec_card = it_card,it_card = it_card->_next
+    );
+
+    // Non ho trovato l'elemento
+    if (it_card == NULL) return NULL;
+    else if (prec_card == NULL) column->_card = column->_card->_next;
+    else if (it_card->_next != NULL) prec_card->_next = it_card->_next;
+    else prec_card->_next = NULL;
+
+    it_card->_next = NULL;
+
+    return it_card;
+}
+
+int swap_card_between_Column(int card_id, Column_s *src, Column_s *dest){
+
+    Card_s* switching_card = extract_card_with_id(card_id, src);
+    if (switching_card == NULL) return -1;
+    insert_card_in_Column(dest, switching_card);  
+    return 1;
+
+}
+
 /**
  * @brief Implementazione della funzione print_all_Cards
  */
