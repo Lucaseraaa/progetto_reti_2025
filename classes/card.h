@@ -14,16 +14,17 @@
 #include <time.h>
 #include "structs/enums.h"
 
+
 /**
  * @brief Struttura dati che identifica una Card
  */
-typedef struct{
+typedef struct {
     int _id;
     Column _colonna;
     char* _testo_attivita;
     int _utente;
     struct tm _timestamp;
-    Card_s* _next;
+    struct Card_s* _next;
 } Card_s;
 
 
