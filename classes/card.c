@@ -8,7 +8,7 @@
 /**
  * @brief Implementazione della Card_init
  */
-Card_s* Card_init(int id, Column colonna, const char* testo, int utente){
+Card_s* Card_init(int id, Column_type colonna, const char* testo, int utente){
     
     // Definisco il tempo
     time_t rawtime;
@@ -48,4 +48,10 @@ void Card_delete(Card_s* c){
         free(c->_testo_attivita); // Libero il testo allocato nello heap
         free(c); 
     }
+}
+
+void print_card(Card_s* c){
+    
+    printf("Carta: %d\nUtente: %d\nTesto: %s\n", c->_id, c->_utente, c->_testo_attivita);
+
 }

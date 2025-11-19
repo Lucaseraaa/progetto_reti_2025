@@ -1,19 +1,5 @@
 
-/**
- * @file structs.h
- * @brief Strutture dati per il progetto
- */
-/*
-#ifndef STRUCTS_H
-#define STRUCTS_H
-#include "enums.h"
-#include "classes/card.h"
-#include <time.h>
 
-
-/**
- * @brief Struttura dati che identifica una Lavagna
- */
 /*
 typedef struct {
     int _id;

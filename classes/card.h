@@ -18,7 +18,7 @@
 /**
  * @brief Struttura dati che identifica una Card
  */
-typedef struct {
+typedef struct Card_s{
     int _id;
     Column_type _colonna;
     char* _testo_attivita;
@@ -54,5 +54,13 @@ Card_s* Card_init(int id, Column_type colonna, const char* testo, int utente);
  */
 void Card_delete(Card_s* c);
 
+/**
+ * @brief Funzione di debug che stampa una Card
+ * 
+ * La funzione, data una Card, permette di stampare i suoi attributi
+ * 
+ * @param c Riferimento alla Card da stampare
+ */
+void print_card(Card_s* c);
 
 #endif
