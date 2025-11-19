@@ -1,7 +1,7 @@
 /**
  * @file card.h
  * 
- * Modulo che contiene le funzioni per interagire con le struct Card
+ * Modulo che contiene le funzioni per interagire con le struct Card_s
  * 
  * @author Luca Serafini
  * @date Novembre 2025
@@ -23,6 +23,7 @@ typedef struct{
     char* _testo_attivita;
     int _utente;
     struct tm _timestamp;
+    Card_s* _next;
 } Card_s;
 
 

@@ -11,19 +11,6 @@
 #include <time.h>
 
 
-#define COLUMN 3
-*/
-
-/**
- * @brief Struttura che identifica una colonna
- */
-/*
- typedef struct {
-    Column _colonna;
-    Card *_card;
-} Colonna;
-*/
-
 /**
  * @brief Struttura dati che identifica una Lavagna
  */

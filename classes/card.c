@@ -32,6 +32,9 @@ Card_s* Card_init(int id, Column colonna, const char* testo, int utente){
 
     // Salvo la data
     c->_timestamp = *localtime(&rawtime);
+
+    // Assegno a NULL il next
+    c->_next = NULL;
     
     return c;
 
