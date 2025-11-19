@@ -6,9 +6,9 @@
 /**
  * @brief Implementazione della funzione Colonna_init
  */
-Colonna_s Colonna_init(Column column){
+Column_s Colonna_init(Column_type column){
 
-    Colonna_s colonna;
+    Column_s colonna;
 
     colonna._column = column;
     colonna._card = NULL;

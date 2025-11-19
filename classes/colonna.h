@@ -16,10 +16,10 @@
  * @brief Struttura che identifica una colonna
 */
  typedef struct {
-    Column _column;
+    Column_type _column;
     Card_s *_card; // Lista di card
     int _card_number; // Salva il numero di card in lista
-} Colonna_s;
+} Column_s;
 
 /**
  * @brief Funzione che inizializza una variabile Colonna_s
@@ -28,6 +28,6 @@
  * 
  * @return un'istanza di Colonna_s
  */
-Colonna_s Colonna_init(Column column);
+Column_s Colonna_init(Column_type column);
 
 #endif

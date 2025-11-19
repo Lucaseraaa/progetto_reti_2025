@@ -12,6 +12,6 @@ typedef enum {
     TO_DO,
     DOING,
     DONE
-} Column;
+} Column_type;
 
 #endif

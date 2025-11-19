@@ -20,7 +20,7 @@
  */
 typedef struct {
     int _id;
-    Column _colonna;
+    Column_type _colonna;
     char* _testo_attivita;
     int _utente;
     struct tm _timestamp;
@@ -43,7 +43,7 @@ typedef struct {
  * 
  * @note quando si desidera eliminare la card va deallocata tramite la funzione delete_card
  */
-Card_s* Card_init(int id, Column colonna, const char* testo, int utente);
+Card_s* Card_init(int id, Column_type colonna, const char* testo, int utente);
 
 /**
  * @brief Funzione utilizzata per deallocare una Card
