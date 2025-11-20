@@ -7,8 +7,8 @@
  * @date Novembre 2025
  */
 
-#ifndef COLONNA_H
-#define COLONNA_H
+#ifndef COLUMN_H
+#define COLUMN_H
 #include "classes/card.h"
 #include "structs/enums.h"
 

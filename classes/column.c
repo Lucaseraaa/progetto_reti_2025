@@ -35,6 +35,7 @@ void insert_card_in_Column(Column_s* column, Card_s* card){
     for(it_card = column->_card; it_card->_next != NULL; it_card = it_card->_next);
 
     it_card->_next = card;
+    column->_card_number++; // Incremento la dimensione della Column
 
     return;
 
@@ -57,6 +58,8 @@ Card_s* extract_card_with_id(int id, Column_s* column){
     else prec_card->_next = NULL;
 
     it_card->_next = NULL;
+
+    if (it_card != NULL) column->_card_number--;
 
     return it_card;
 }
