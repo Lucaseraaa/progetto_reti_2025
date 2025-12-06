@@ -9,6 +9,7 @@
 
 #ifndef BOARD_H
 #define BOARD_H
+
 #include "classes/column.h"
 #include "structs/enums.h"
 #include "classes/user.h"

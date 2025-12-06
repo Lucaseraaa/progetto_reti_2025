@@ -14,4 +14,6 @@ typedef enum {
     DONE
 } Column_type;
 
+typedef int User_t;
+
 #endif
