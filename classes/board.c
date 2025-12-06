@@ -35,6 +35,23 @@ void append_card(Board_s *board, int card_id, char* descrizione){
 
 }
 
+/**
+ * @brief implementazione della assign_card_to_User
+ */
+int assign_card_to_User(Board_s *board, User_t usr_id){
+    
+    Column_s *column = &board->_colonne[TO_DO];
+
+    // Controllo che esista la card da assegnare
+    int card_id = find_free_card(column->_card, usr_id);
+    if (card_id == -1) return -1;
+
+    swap_card_between_Column(card_id, &board->_colonne[TO_DO], &board->_colonne[DOING]);
+
+    return 0;
+
+}
+
 // gcc -I. -Iclasses -Istructs test.c classes/*.c -o test
 
 void print_Board(Board_s* board){

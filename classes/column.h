@@ -79,4 +79,5 @@ Card_s* extract_card_with_id(int id, Column_s* column);
  */
 int swap_card_between_Column(int card_id, Column_s *src, Column_s *dest);
 
+
 #endif

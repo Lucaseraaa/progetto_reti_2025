@@ -55,6 +55,19 @@ Card_s* Card_init(int id, Column_type colonna, const char* testo, int utente);
 void Card_delete(Card_s* c);
 
 /**
+ * @brief Funzione che cerca una carta libera e l'assegna all'utente specificato
+ * 
+ * La funzione controlla che esista almeno un elemento in lista, se si lo assegna all'utente
+ * e ne ritorna l'id
+ * 
+ * @param c puntatore alla lista di card
+ * @param usr_id id dell'utente che vuole appropiarsi della card
+ * 
+ * @return ritorna l'id della card se c'è n'è una disponibile, -1 altrimenti
+ */
+int find_free_card(Card_s* c, User_t usr_id);
+
+/**
  * @brief Funzione di debug che stampa una Card
  * 
  * La funzione, data una Card, permette di stampare i suoi attributi
