@@ -50,8 +50,10 @@ Board_s Board_init(int id);
  * @param board kanban dove inserire la card
  * @param card_id id della card da creare
  * @param descrizione descrizione della card da creare
+ * 
+ * @return ritorna 0 se ha successo, -1 se da errore
  */
-void append_card(Board_s *board, int card_id, char* descrizione);
+int append_card(Board_s *board, int card_id, char* descrizione);
 
 /**
  * @brief funzione che assegna una card ad un utente, spostandola da TO_DO a DOING

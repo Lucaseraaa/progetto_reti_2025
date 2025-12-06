@@ -21,6 +21,8 @@ Column_s Column_init(Column_type column){
  */
 void insert_card_in_Column(Column_s* column, Card_s* card){
 
+    column->_card_number++; // Incremento la dimensione della Column
+    
     // Nel caso non faccia parte della colonna, lo faccio diventare
     card->_colonna = column->_column;
 
@@ -35,7 +37,6 @@ void insert_card_in_Column(Column_s* column, Card_s* card){
     for(it_card = column->_card; it_card->_next != NULL; it_card = it_card->_next);
 
     it_card->_next = card;
-    column->_card_number++; // Incremento la dimensione della Column
 
     return;
 

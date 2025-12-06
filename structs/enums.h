@@ -14,6 +14,6 @@ typedef enum {
     DONE
 } Column_type;
 
-typedef int User_t;
+typedef unsigned int User_t;
 
 #endif
