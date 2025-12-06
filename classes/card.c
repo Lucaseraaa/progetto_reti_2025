@@ -58,7 +58,12 @@ int find_free_card(Card_s* c, User_t usr_id){
     if (c != NULL){
 
         // TODO timestamp
+        time_t rawtime;
+        time(&rawtime);
+        
         c->_utente = usr_id;
+        c->_timestamp = *localtime(&rawtime);
+        
         return c->_id;
     
     }
