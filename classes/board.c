@@ -13,6 +13,8 @@ Board_s Board_init(int id){
     Board_s kanban;
     
     kanban._id = id;
+    kanban._connected_user = 0;
+    kanban._usr = NULL;
 
     // Inizializzo delle column vuote
     for (int i = 0; i < 3; i++) kanban._colonne[i] = Column_init(i);
@@ -56,6 +58,7 @@ int assign_card_to_User(Board_s *board, User_t usr_id){
 }
 
 // gcc -I. -Iclasses -Istructs test.c classes/*.c -o test
+// gcc -I. -Iclasses -Istructs -Ifunctions test.c classes/*.c functions/*.c -o test
 
 void print_Board(Board_s* board){
 

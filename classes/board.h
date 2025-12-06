@@ -24,7 +24,8 @@
  */
 typedef struct Board_s{
     int _id;
-    User_t* usr;
+    int _connected_user;
+    User_s* _usr;
     Column_s _colonne[COLUMN_NUMBER]; // Utilizzo un array perche nel caso di aggiunta di altri stati
                             // di una colonna la soluzione è più scalabile
     

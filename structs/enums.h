@@ -5,6 +5,8 @@
 #ifndef enums_h
 #define enums_h
 
+#define MIN_PORT 5679
+
 /**
  * @brief enum che definisce i possibili stati delle colonne
  */
