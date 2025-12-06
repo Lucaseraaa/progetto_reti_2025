@@ -19,6 +19,7 @@
     Column_type _column;
     Card_s *_card; // Lista di card
     int _card_number; // Salva il numero di card in lista
+
 } Column_s;
 
 /**

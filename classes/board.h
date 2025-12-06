@@ -41,6 +41,18 @@ typedef struct Board_s{
  */
 Board_s Board_init(int id);
 
+/**
+ * @brief funzione che crea una card e la inserisce nella colonna "TO_DO"
+ * 
+ * La funzione inizializza la card, la assegna a se stessa (per convenzione user = 0) e la inserisce nella colonna
+ * del TO_DO
+ * 
+ * @param board kanban dove inserire la card
+ * @param card_id id della card da creare
+ * @param descrizione descrizione della card da creare
+ */
+void append_card(Board_s *board, int card_id, char* descrizione);
+
 void print_Board(Board_s* board);
 
 #endif

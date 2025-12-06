@@ -8,7 +8,7 @@
 /**
  * @brief Implementazione della Card_init
  */
-Card_s* Card_init(int id, Column_type colonna, const char* testo, int utente){
+Card_s* Card_init(int id, Column_type colonna, const char* testo, User_t utente){
     
     // Definisco il tempo
     time_t rawtime;

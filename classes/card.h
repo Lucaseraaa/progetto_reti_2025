@@ -22,7 +22,7 @@ typedef struct Card_s{
     int _id;
     Column_type _colonna;
     char* _testo_attivita;
-    int _utente;
+    User_t _utente;
     struct tm _timestamp;
     struct Card_s* _next;
 } Card_s;

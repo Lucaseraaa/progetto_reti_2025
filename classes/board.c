@@ -21,6 +21,19 @@ Board_s Board_init(int id){
 
 }
 
+/**
+ * @brief implementaziione della append_card
+ */
+void append_card(Board_s *board, int card_id, char* descrizione){
+    
+    // Prendo la colonna dei TO_DO
+    Column_s *column = &board->_colonne[TO_DO];
+
+    Card_s *new_card = Card_init(card_id, TO_DO, descrizione, 0); // Utente 0 è la lavagna 
+
+    insert_card_in_Column(column, new_card);
+
+}
 
 // gcc -I. -Iclasses -Istructs test.c classes/*.c -o test
 
