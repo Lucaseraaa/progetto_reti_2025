@@ -33,9 +33,22 @@ int user_register(Board_s *kanban, User_t port);
  * 
  * @param kanban lavagna dove trovare la card
  * @param port porta dell'utente richiedente
+ * @param card_id variabile utilizzata per salvare l'id della card
  * 
  * @return ritorna 0 nel caso di successo, -1 in caso contrario
  */
-int user_assign_card(Board_s* kanban, User_t port);
+int user_assign_card(Board_s* kanban, User_t port, int* card_id);
+
+/**
+ * @brief funzione che sposta la card da TO_DO a DOING per un'utente o annulla l'operazione
+ * 
+ * La funzione permette all'utente di accettare o rifiutare (nel caso si sia disconnesso) una card.
+ * 
+ * @param kanban lavagna da utilizzare
+ * @param port porta dell'utente
+ * @param card_id id della card da modificare
+ * @param status posto a 0 per confermare l'operazione (TO_DO -> DOING), viceversa qualsiasi altro valore
+ */
+void user_confirm_card(Board_s* kanban, User_t port, int card_id, int status);
 
 #endif
