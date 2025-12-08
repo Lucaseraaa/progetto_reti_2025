@@ -51,6 +51,20 @@ void Card_delete(Card_s* c){
 }
 
 /**
+ * @brief Implementazione della get_Card_by_id
+ */
+Card_s* get_Card_by_id(Card_s* c, int id){
+
+    for(Card_s* crd = c; crd != NULL; crd = crd->_next){
+        if(crd->_id == id){
+            return crd;
+        }
+    }
+    return NULL;
+
+}
+
+/**
  * @brief Implementazione della find_free_card
  */
 int find_free_card(Card_s* c, User_t usr_id){
@@ -71,6 +85,7 @@ int find_free_card(Card_s* c, User_t usr_id){
 
     return -1;
 }
+
 
 void print_card(Card_s* c){
     

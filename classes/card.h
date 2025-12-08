@@ -55,6 +55,19 @@ Card_s* Card_init(int id, Column_type colonna, const char* testo, User_t utente)
 void Card_delete(Card_s* c);
 
 /**
+ * @brief Funzione che permette di restituire la reference ad una card tramite il suo id
+ * 
+ * La funzione scorre tutte le card e trova quella con id specificato, altrimenti restituisce
+ * NULL
+ * 
+ * @param c puntatore alla lista della card
+ * @param id id della card che si vuole ricevere
+ * 
+ * @return puntatore alla card se esiste, altrimenti NULL
+ */
+Card_s* get_Card_by_id(Card_s* c, int id);
+
+/**
  * @brief Funzione che cerca una carta libera e l'assegna all'utente specificato
  * 
  * La funzione scorre la lista delle card per trovarne una disponibile da assegnare all'utente

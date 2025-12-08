@@ -16,8 +16,6 @@ typedef enum {
     DONE
 } Column_type;
 
-typedef unsigned int User_t;
-
 /**
  * @brief enum che definisce i possibili stati di un'utente in una card
  */
@@ -26,5 +24,7 @@ typedef enum {
     TO_DO,
     DOING
 } User_card_status;
+
+typedef unsigned int User_t;
 
 #endif

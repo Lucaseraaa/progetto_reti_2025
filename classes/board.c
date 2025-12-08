@@ -64,6 +64,15 @@ int confirm_card_to_User(Board_s *board, int card_id){
 
 }
 
+/**
+ * @brief implementazione della unassign_card_to_user
+ */
+void unassign_card_to_user(Board_s* board, int card_id){
+
+    
+
+}
+
 // gcc -I. -Iclasses -Istructs test.c classes/*.c -o test
 // gcc -I. -Iclasses -Istructs -Ifunctions test.c classes/*.c functions/*.c -o test
 
