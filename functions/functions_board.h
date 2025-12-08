@@ -26,6 +26,19 @@
 int user_register(Board_s *kanban, User_t port);
 
 /**
+ * @brief la funzione gestisce l'exit di un utente
+ * 
+ * La funzione permette di rimuovere un utente dalla lista nella kanban. Vengono contestualmente riadattate le strutture dati
+ * corrispondenti, ed eventualmente riallocate le risorse. 
+ * 
+ * @param kanban lavagna
+ * @param port porta dell'utente
+ * 
+ * @return la funzione ritorna 0 se la funzione ha successo, -1 viceversa
+ */
+int user_exit(Board_s *kanban, User_t port);
+
+/**
  * @brief Funzione che assegna ad un utente una card
  * 
  * La funzione assegna ad un'utente una card, che viene lasciata nella lista TO_DO, in attesa di riscontro

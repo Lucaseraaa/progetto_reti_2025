@@ -67,8 +67,39 @@ void user_confirm_card(Board_s* kanban, User_t port, int card_id, int status){
         // Status != 0 --> l'utente si è disconnesso o non ha accettato
         unassign_card_to_user(kanban, card_id); 
         set_User_card(user, USR_NOTHING);
-        set_User_card(user, 0);
+        set_User_card(user, -1);
 
     }
     
+}
+
+/**
+ * @brief implementazione della user_exit
+ */
+int user_exit(Board_s *kanban, User_t port){
+
+    // Controllo se l'utente esiste
+    User_s* user = get_User_by_port(kanban->_usr, port);
+    if (user== NULL) return -1;
+
+    // Controllo se l'utente sta scrivendo una kanban
+    int card_id = get_User_card(user);
+
+    if (card_id != -1){
+
+        // Devo riportare la card ad uno stato consistente
+        User_card_status status = get_User_status(user);
+        if (status == USR_TO_DO){
+            edit_Card_user(kanban->_colonne[TO_DO]._card, card_id, 0);
+        }else if (status == USR_DOING){
+            edit_Card_user(kanban->_colonne[TO_DO]._card, card_id, 0);
+            swap_card_between_Column(card_id, &kanban->_colonne[DOING], &kanban->_colonne[DONE]);
+        }
+        
+    }
+
+    // Elimino l'utente
+    extract_User(&kanban->_usr, port);
+    kanban->_connected_user--;
+
 }

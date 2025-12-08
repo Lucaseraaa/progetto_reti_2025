@@ -77,6 +77,24 @@ int extract_User(User_s** user_list, User_t usr);
 User_s* get_User_by_port(User_s* top, User_t port);
 
 /**
+ * @brief Ottiene lo stato relativo all'utente
+ * 
+ * @param user utente 
+ * 
+ * @return stato dell'utente
+ */
+User_card_status get_User_status(User_s* user);
+
+/**
+ * @brief Ottiene la card relativa all'utente
+ * 
+ * @param user utente 
+ * 
+ * @return id della card dell'utente
+ */
+int get_User_card(User_s* user);
+
+/**
  * @brief La funzione permette di modificare la card dell'utente
  * 
  * La funzione assegna all'utente nella lista la card ad esso assegnata

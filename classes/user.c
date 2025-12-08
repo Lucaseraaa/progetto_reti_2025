@@ -100,6 +100,24 @@ User_s* get_User_by_port(User_s* top, User_t port){
 /**
  * @brief implementazione della set_User_status
  */
+User_card_status get_User_status(User_s* user){
+    
+    return user->_status;
+    
+}
+
+/**
+ * @brief implementazione della set_User_status
+ */
+int get_User_card(User_s* user){
+
+    return user->_actual_managed_card;
+    
+}
+
+/**
+ * @brief implementazione della set_User_status
+ */
 int set_User_status(User_s* user, User_card_status status){
 
     user->_status = status;
