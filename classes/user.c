@@ -85,6 +85,18 @@ int extract_User(User_s **user_list, User_t usr){
 }
 
 /**
+ * @brief implementazione della get_Users
+ */
+void get_Users(User_s* top, User_t users[], int users_number){
+    
+    User_s* s = top;
+    for(int i = 0; i < users_number; i++, s = s -> _next){
+        users[i] = s->_user;
+    }
+
+}
+
+/**
  * @brief implementazione della get_User_by_port
  */
 User_s* get_User_by_port(User_s* top, User_t port){

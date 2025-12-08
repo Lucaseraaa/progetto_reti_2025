@@ -119,6 +119,11 @@ int set_User_card(User_s* user, int card_id);
 int set_User_status(User_s* user, User_card_status status);
 
 /**
+ * @brief 
+ */
+void get_Users(User_s* top, User_t users[], int users_number);
+
+/**
  * @brief debug print function
  */
 void prova_print(User_s *user_list);
