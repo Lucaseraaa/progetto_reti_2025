@@ -81,35 +81,67 @@ void unassign_card_to_user(Board_s* board, int card_id){
 
 void print_Board(Board_s* board){
 
-    printf("| - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |\n");
-    printf("|                                                Lavagna - %d                                               |\n", board->_id);
-    printf("| - - - - - - - - - - - - - - - - - | - - - - - - - - - - - - - - - - - | - - - - - - - - - - - - - - - - - |\n");
+    printf("\nLavagna (%d)\n", board->_id);
+    char* column_names[3] = {"TO-DO", "DOING", "DONE"};
 
-    for (int i = 0; i < COLUMN_NUMBER; i++){
+    for(int i = 0; i < 3; i++){
+
+        Card_s* cards;
         
-        Column_s column = board->_colonne[i];
-        printf("COLONNA NUMBER: %d\n", column._card_number);
-        for (Card_s* scorri = column._card; scorri != NULL; scorri = scorri->_next){
+        printf("\nColonna: %s\n", column_names[i]);
+        for (cards = board->_colonne[i]._card; cards != NULL;cards = cards->_next){
+            printf("\nTask %d", cards->_id);
+            if(cards->_utente != 0 && i == 0) printf(" - in attesa di essere confermato da %d", cards->_utente);
+            else if(i == 1) printf(" - preso da %d", cards->_utente);
+            printf("\n%s\n", cards->_testo_attivita);
+        }
+    
+    }
+    
+}
+
+/**
+ * @brief implementazione della board_to_string
+ */
+char* board_to_string(Board_s* board) {
+
+    // Alloco il buffer per la stringa
+    char* buffer = (char*)malloc(4096 * sizeof(char));
+    if (buffer == NULL) {
+        return NULL;
+    }
+    
+    char temp[512];
+    buffer[0] = '\0';
+    
+    // Intestazione
+    sprintf(temp, "\nLavagna (%d)\n", board->_id);
+    strcat(buffer, temp);
+    
+    char* column_names[3] = {"TO-DO", "DOING", "DONE"};
+    
+    for(int i = 0; i < 3; i++) { 
+        Card_s* cards;
+        sprintf(temp, "\nColonna: %s\n", column_names[i]);
+        strcat(buffer, temp);
+        
+        for (cards = board->_colonne[i]._card; cards != NULL; cards = cards->_next) {
+            sprintf(temp, "\nTask %d", cards->_id);
+            strcat(buffer, temp);
             
-            // Stampo il Task num
-            printf("| Task %d\n", scorri->_id);
-
-            char* task = scorri->_testo_attivita;
-            int task_len = strlen(task);
-            int init = 0;
-
-            while(task_len != 0){
-                printf("%.*s", init, task+init+task_len-1);
-                task_len -= (task_len >= 107) ? 107 : task_len;
-                printf("\n");
+            if(cards->_utente != 0 && i == 0) {
+                sprintf(temp, " - in attesa di essere confermato da %d", cards->_utente);
+                strcat(buffer, temp);
+            }
+            else if(i == 1) {
+                sprintf(temp, " - preso da %d", cards->_utente);
+                strcat(buffer, temp);
             }
             
-
+            sprintf(temp, "\n%s\n", cards->_testo_attivita);
+            strcat(buffer, temp);
         }
-
     }
-
-    printf("|               To Do               |               Doing               |               Done!               |\n");
-    printf("| - - - - - - - - - - - - - - - - - | - - - - - - - - - - - - - - - - - | - - - - - - - - - - - - - - - - - |\n");
     
+    return buffer;
 }

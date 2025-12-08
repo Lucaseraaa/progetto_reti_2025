@@ -15,7 +15,7 @@
 #include "classes/user.h"
 
 #define COLUMN_NUMBER 3
-#define COLUMN_NAMES ["TO_DO", "DOING", "DONE"]
+#define COLUMN_NAMES {"TO_DO", "DOING", "DONE"}
 #define MAX_CARD_LEN 30
 
 
@@ -92,6 +92,20 @@ int confirm_card_to_User(Board_s *board, int card_id);
  * @param card_id id della card da modificare
 */
 void unassign_card_to_user(Board_s* board, int card_id);
+
+/**
+ * @brief funzione che ritorna la stringa da stampare come "kanban"
+ * 
+ * La funzione ritorna una stringa che contiene la lavagna, per essere condivisa con i client
+ * 
+ * @param board lavagna da stampare
+ * 
+ * @return stringa contenente la lavagna
+ * 
+ * @note Una volta utilizzata la stringa, chiamare la free() su di essa per evitare
+ *       memory leak
+ */
+char* board_to_string(Board_s* board);
 
 void print_Board(Board_s* board);
 
