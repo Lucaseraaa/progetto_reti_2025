@@ -17,6 +17,11 @@
  * 
  * La funzione inserisce l'utente nella lista corrispettiva e incrementa i numero di utenti
  * atttivi
+ * 
+ * @param kanban kanban dove inserire l'utente
+ * @param port porta dell'utente (ID)
+ * 
+ * @return ritorna 0 se l'operazione ha avuto successo, -1 altrimenti
  */
 int user_register(Board_s *kanban, User_t port);
 

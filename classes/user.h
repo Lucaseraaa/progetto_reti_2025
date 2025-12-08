@@ -16,6 +16,8 @@ typedef struct User_s{
 
     User_t _user; // Id dell'utente (numero di porta)
 
+    int _actual_managed_card;
+
     struct User_s* _next; // Lista degli utenti
 
 }User_s;
