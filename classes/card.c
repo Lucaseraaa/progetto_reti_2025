@@ -86,6 +86,19 @@ int find_free_card(Card_s* c, User_t usr_id){
     return -1;
 }
 
+/**
+ * @brief implementazione della edit_Card_user
+ */
+int edit_Card_user(Card_s* top, int id, User_t user){
+
+    Card_s* card = get_Card_by_id(top, id);
+
+    if (card == NULL) return -1;
+    
+    card->_utente = user;
+    return 0;
+    
+}
 
 void print_card(Card_s* c){
     

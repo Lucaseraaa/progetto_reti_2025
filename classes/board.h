@@ -82,6 +82,17 @@ int assign_card_to_User(Board_s *board, User_t usr_id, int* card_id);
  */
 int confirm_card_to_User(Board_s *board, int card_id);
 
+/** 
+ * @brief funzione che toglie ad un utente la gestione della card
+ * 
+ * La funzione permette di rimuovere da una card il suo campo utente, riassegnandola alla
+ * lavagna
+ * 
+ * @param board board di riferimento
+ * @param card_id id della card da modificare
+*/
+void unassign_card_to_user(Board_s* board, int card_id);
+
 void print_Board(Board_s* board);
 
 #endif

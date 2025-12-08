@@ -69,7 +69,10 @@ int confirm_card_to_User(Board_s *board, int card_id){
  */
 void unassign_card_to_user(Board_s* board, int card_id){
 
-    
+    Column_s *column = &board->_colonne[TO_DO];
+
+    // Riassegno alla lavagna la card
+    edit_Card_user(column->_card, card_id, 0);
 
 }
 

@@ -89,4 +89,17 @@ int find_free_card(Card_s* c, User_t usr_id);
  */
 void print_card(Card_s* c);
 
+/**
+ * @brief Funzione che modifica l'user in una card
+ * 
+ * La funzione cerca la card con un determinato id e l'assegna all'utente specificato
+ * 
+ * @param top puntatore alla cima della lista
+ * @param id id della card da modificare
+ * @param user utente a cui assegnare la card
+ * 
+ * @return ritorna 0 se l'operazione ha successo, -1 viceversa
+ */
+int edit_Card_user(Card_s* top, int id, User_t user);
+
 #endif

@@ -20,9 +20,9 @@ typedef enum {
  * @brief enum che definisce i possibili stati di un'utente in una card
  */
 typedef enum {
-    NOTHING,
-    TO_DO,
-    DOING
+    USR_NOTHING,
+    USR_TO_DO,
+    USR_DOING
 } User_card_status;
 
 typedef unsigned int User_t;
