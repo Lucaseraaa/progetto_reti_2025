@@ -13,6 +13,7 @@ User_s* User_init(User_t usr){
     // Creazione dell'user
     new_user->_user = usr;
     new_user->_actual_managed_card = -1;
+    new_user->_status = NOTHING;
     new_user->_next = NULL;
     return new_user;
 }
