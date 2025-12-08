@@ -55,17 +55,18 @@ void Card_delete(Card_s* c){
  */
 int find_free_card(Card_s* c, User_t usr_id){
 
-    if (c != NULL){
-
-        // TODO timestamp
-        time_t rawtime;
-        time(&rawtime);
+    for(Card_s* card = c; card != NULL; card = card->_next){
         
-        c->_utente = usr_id;
-        c->_timestamp = *localtime(&rawtime);
+        // Caso in cui l'utente non è ancora assegnato alla card
+        if(card->_utente == 0){
+            time_t rawtime;
+            time(&rawtime);
         
-        return c->_id;
-    
+            card->_utente = usr_id;
+            card->_timestamp = *localtime(&rawtime);
+        
+            return card->_id;
+        }
     }
 
     return -1;

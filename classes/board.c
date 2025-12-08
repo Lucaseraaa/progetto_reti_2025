@@ -43,17 +43,24 @@ int append_card(Board_s *board, int card_id, char* descrizione){
 /**
  * @brief implementazione della assign_card_to_User
  */
-int assign_card_to_User(Board_s *board, User_t usr_id){
+int assign_card_to_User(Board_s *board, User_t usr_id, int* card_id){
     
     Column_s *column = &board->_colonne[TO_DO];
 
     // Controllo che esista la card da assegnare
-    int card_id = find_free_card(column->_card, usr_id);
-    if (card_id == -1) return -1;
-
-    swap_card_between_Column(card_id, &board->_colonne[TO_DO], &board->_colonne[DOING]);
+    *card_id = find_free_card(column->_card, usr_id);
+    if (*card_id == -1) return -1;
 
     return 0;
+
+}
+
+/**
+ * @brief implementazione della confirm_card_to_User
+ */
+int confirm_card_to_User(Board_s *board, int card_id){
+
+    return swap_card_between_Column(card_id, &board->_colonne[TO_DO], &board->_colonne[DOING]);
 
 }
 

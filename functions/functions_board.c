@@ -19,7 +19,7 @@ int user_register(Board_s *kanban, User_t port){
     int s = insert_User_in_list(users, port);
 
     if(s == -1){
-        printf("L'utente con porta %d non è stato inserito per mancanza di spazio\n", port);
+        printf("L'utente con porta %d non è stato allocato per mancanza di spazio\n", port);
         return -1;
     }
 

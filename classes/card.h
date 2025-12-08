@@ -57,8 +57,8 @@ void Card_delete(Card_s* c);
 /**
  * @brief Funzione che cerca una carta libera e l'assegna all'utente specificato
  * 
- * La funzione controlla che esista almeno un elemento in lista, se si lo assegna all'utente
- * e ne ritorna l'id
+ * La funzione scorre la lista delle card per trovarne una disponibile da assegnare all'utente
+ * con id usr_id
  * 
  * @param c puntatore alla lista di card
  * @param usr_id id dell'utente che vuole appropiarsi della card

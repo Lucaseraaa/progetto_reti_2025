@@ -70,7 +70,7 @@ int swap_card_between_Column(int card_id, Column_s *src, Column_s *dest){
     Card_s* switching_card = extract_card_with_id(card_id, src);
     if (switching_card == NULL) return -1;
     insert_card_in_Column(dest, switching_card);  
-    return 1;
+    return 0;
 
 }
 

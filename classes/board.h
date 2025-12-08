@@ -57,17 +57,30 @@ Board_s Board_init(int id);
 int append_card(Board_s *board, int card_id, char* descrizione);
 
 /**
- * @brief funzione che assegna una card ad un utente, spostandola da TO_DO a DOING
+ * @brief funzione che assegna una card ad un utente
  * 
- * La funzione cerca se esiste una card libera, se esiste la sposta in DOING e 
- * l'assegna ad all'utente selezionato
+ * La funzione cerca se esiste una card libera, se esiste la assegna all'utente selezionato
+ * ma la lascia in doing
  * 
  * @param board kanban di riferimento
  * @param usr_id utente a cui assegnare la card
+ * @param card_id parametro utilizzato per ritornare l'id della card selezionata
  * 
  * @return ritorna 0 se l'operazione ha successo, -1 se non esiste nessuna card
  */
-int assign_card_to_User(Board_s *board, User_t usr_id);
+int assign_card_to_User(Board_s *board, User_t usr_id, int* card_id);
+
+/**
+ * @brief funzione che conferma la card ad un utente, spostandola in DOING
+ * 
+ * La funzione sposta la card identificata da card_id dalla lista TO_DO a DOING
+ * 
+ * @param board board di riferimento
+ * @param card_id id della card di riferimento
+ * 
+ * @return ritorna 0 se la funzione ha avuto successo, -1 altrimenti
+ */
+int confirm_card_to_User(Board_s *board, int card_id);
 
 void print_Board(Board_s* board);
 
