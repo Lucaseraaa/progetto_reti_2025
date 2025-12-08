@@ -67,6 +67,40 @@ int insert_User_in_list(User_s** users, User_t usr);
 int extract_User(User_s** user_list, User_t usr);
 
 /**
+ * @brief La funzione ottiene il riferimento ad un'utente tramite il suo id
+ *
+ * @param top riferimento alla lista degli utenti
+ * @param port porta dell'utente da ottenere
+ * 
+ * @return la funzione ritorna il riferimento all'utente se esiste, altrimenti NULL
+ */
+User_s* get_User_by_port(User_s* top, User_t port);
+
+/**
+ * @brief La funzione permette di modificare la card dell'utente
+ * 
+ * La funzione assegna all'utente nella lista la card ad esso assegnata
+ * 
+ * @param user utente a cui modificare lo stato
+ * @param card_id id della card
+ * 
+ * @return la funzione ritorna 0 se ha successo, -1 altrimenti
+ */
+int set_User_card(User_s* user, int card_id);
+
+/**
+ * @brief La funzione permette di modificare lo stato dell'utente
+ * 
+ * La funzione assegna all'utente nella lista lo stato in cui si deve trovare
+ * 
+ * @param user utente a cui modificare lo stato
+ * @param status stato che deve essere modificato
+ * 
+ * @return la funzione ritorna 0 se ha successo, -1 altrimenti
+ */
+int set_User_status(User_s* user, User_card_status status);
+
+/**
  * @brief debug print function
  */
 void prova_print(User_s *user_list);

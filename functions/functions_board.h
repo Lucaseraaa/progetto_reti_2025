@@ -25,5 +25,17 @@
  */
 int user_register(Board_s *kanban, User_t port);
 
+/**
+ * @brief Funzione che assegna ad un utente una card
+ * 
+ * La funzione assegna ad un'utente una card, che viene lasciata nella lista TO_DO, in attesa di riscontro
+ * da parte dell'utente. Viene inoltre aggiornata la struttura dell'utente.
+ * 
+ * @param kanban lavagna dove trovare la card
+ * @param port porta dell'utente richiedente
+ * 
+ * @return ritorna 0 nel caso di successo, -1 in caso contrario
+ */
+int user_assign_card(Board_s* kanban, User_t port);
 
 #endif
