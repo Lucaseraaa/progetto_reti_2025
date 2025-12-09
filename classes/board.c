@@ -77,6 +77,7 @@ void unassign_card_to_user(Board_s* board, int card_id){
 }
 
 // gcc -I. -Iclasses -Istructs test.c classes/*.c -o test
+// gcc -I. -Iclasses -Istructs -Ifunctions -Inetwork -Iserver test.c classes/*.c functions/*.c network/*.c server/*.c -o test
 // gcc -I. -Iclasses -Istructs -Ifunctions test.c classes/*.c functions/*.c -o test
 
 void print_Board(Board_s* board){

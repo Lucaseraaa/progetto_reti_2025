@@ -5,7 +5,10 @@
 #ifndef enums_h
 #define enums_h
 
+// Trova un'altra sistemazione
 #define MIN_PORT 5679
+#define SERVER_ADDRESS "127.0.0.1"
+#define SERVER_PORT 5678
 
 /**
  * @brief enum che definisce i possibili stati delle colonne
