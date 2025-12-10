@@ -32,21 +32,23 @@ void User_delete(User_s* user){
  */
 int insert_User_in_list(User_s** users, User_t usr){
 
+    // Creazione del nuovo utente
     User_s* new_user = User_init(usr);
     if (!new_user) return -1;
 
-    // Caso lista vuota
-    if (*users == NULL){
+    if (*users == NULL || (*users)->_user >= new_user->_user) {
+        new_user->_next = *users;
         *users = new_user;
         return 0;
     }
+    User_s* current = *users;
+    while (current->_next != NULL && current->_next->_user < new_user->_user) {
+        current = current->_next;
+    }
 
-    // Trovo l'ultimo nodo
-    User_s* s = *users;
-    while (s->_next != NULL)
-        s = s->_next;
+    new_user->_next = current->_next;
+    current->_next = new_user;
 
-    s->_next = new_user;
     return 0;
 
 }

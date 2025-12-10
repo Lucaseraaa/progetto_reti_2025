@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
+#include <stdlib.h>
 
 /**
  * @brief implementazione della user_register
@@ -111,5 +112,16 @@ void board_init(Board_s *board, int id, char* cards[]){
 
     // Utilizzo la funzione messa a disposizione dalla board.h
     Board_Connection_init(board, id, cards);
-    
+
+}
+
+/**
+ * @brief implementazione della switch_card_between_columns
+ */
+int switch_card_between_columns(Board_s* board, int card_id, Column_type from, Column_type to){
+
+    if (abs(from - to) != 1) return -1;
+
+    return swap_card_between_Column(card_id, &board->_colonne[from], &board->_colonne[to]);
+
 }

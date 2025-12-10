@@ -34,6 +34,14 @@ void board_main(){
     // (Primo comando secondo specifiche) mostro la lavagna appena creata
     show_lavagna(&kabnan);
 
+    // Test
+    move_card(&kabnan, 1, TO_DO, DOING);
+    move_card(&kabnan, 2, TO_DO, DOING);
+    move_card(&kabnan, 1, DOING, DONE);
+    move_card(&kabnan, 1, TO_DO, DONE);
+
+    show_lavagna(&kabnan);
+
     // Creazione del socket per la lavagna (server)
     int server_socket = create_socket(SERVER_ADDRESS, SERVER_PORT, SOCK_STREAM, &server_addr);
     if(server_socket == -1) exit(EXIT_FAILURE);

@@ -73,4 +73,18 @@ void user_confirm_card(Board_s* kanban, User_t port, int card_id, int status);
  */
 void board_init(Board_s *board, int id, char* cards[]);
 
+/**
+ * @brief funzione che sposta una card da una colonna all'altra di una lavagna
+ * 
+ * La funzione controlla anche che si scambi una card SOLO tra colonne contigue
+ * 
+ * @param board lavagna di esecuzione
+ * @param card_id id della card da spostare
+ * @param from indice della colonna dalla quale viene una card
+ * @param to indice della colonna dalla quale la card dev'essere inserita
+ * 
+ * @return la funzione ritorna 0 se lo spostamento ha avuto successo, viceversa -1
+ */
+int switch_card_between_columns(Board_s* board, int card_id, Column_type from, Column_type to);
+
 #endif
