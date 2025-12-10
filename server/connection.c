@@ -1,7 +1,6 @@
 
 #include "server/connection.h"
 #include "network/utils.h"
-#include "classes/board.h"
 #include "functions/functions_board.h"
 #include "classes/user.h"
 
@@ -10,12 +9,27 @@
 // @note La kanban va inizializzata 
 Board_s kabnan;
 
+// Le 10 cards da inivare alla lavagna appena partita
+// I progetti verranno inizializzati con ID crescenti da 0 a 9
+char* cards[10] = {
+    "Inizio del progetto",
+    "Divisione dei ruoli",
+    "Creazione del gruppo Whatsapp",
+    "Creazione della mailing list",
+    "Scelta del nome del progetto",
+    "Schedulazione del calendario",
+    "Creazione del progetto sulla piattaforma",
+    "Divisione dei gruppi di lavoro",
+    "Acquisto dei computer",
+    "Creazione di un mockup"
+};
+
 void board_main(){
 
     struct sockaddr_in server_addr, client_addr;
     
     // Inizializzazione della kanban
-    kabnan = Board_init(SERVER_PORT);
+    Board_Connection_init(&kabnan, SERVER_PORT, cards);
 
     // Creazione del socket per la lavagna (server)
     int server_socket = create_socket(SERVER_ADDRESS, SERVER_PORT, SOCK_STREAM, &server_addr);
@@ -63,6 +77,7 @@ void board_main(){
         
         user_register(&kabnan, port);
         prova_print(kabnan._usr);
+        print_Board(&kabnan);
         
         printf("Connetto client con id %d\n", port);
         

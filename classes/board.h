@@ -109,4 +109,15 @@ char* board_to_string(Board_s* board);
 
 void print_Board(Board_s* board);
 
+/**
+ * @brief Funzione di inizializzazione della connessione della lavagna
+ * 
+ * Viene inizializzata la lavagna e gli vengono assegnate le 10 card iniziali
+ * 
+ * @param board lavagna da modificare
+ * @param id id della lavagna
+ * @param cards array delle cards con cui inizializzare la lavagna
+ */
+void Board_Connection_init(Board_s *board, int id,  char* cards[]);
+
 #endif

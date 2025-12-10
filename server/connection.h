@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include "structs/enums.h"
+#include "classes/board.h"
 
 #define PORT_BUFFER_LENGTH 5
 
@@ -29,8 +30,6 @@ typedef struct Board_Connection_s{
     User_t port;
 
 } Board_Connection_s;
-
-void Board_Connection_init();
 
 void board_main();
 
