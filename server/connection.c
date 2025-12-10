@@ -3,11 +3,12 @@
 #include "network/utils.h"
 #include "functions/functions_board.h"
 #include "classes/user.h"
+#include "server/thread.h"
 
 // Variabile condivisa: lavagna
 // Va acceduta tramite un semaforo durante le funzioni della sezione critica
 // @note La kanban va inizializzata 
-Board_s kabnan;
+Board_s kanban;
 
 // Le 10 cards da inivare alla lavagna appena partita
 // I progetti verranno inizializzati con ID crescenti da 0 a 9
@@ -29,18 +30,18 @@ void board_main(){
     struct sockaddr_in server_addr, client_addr;
     
     // Inizializzazione della kanban
-    board_init(&kabnan, SERVER_PORT, cards);
+    board_init(&kanban, SERVER_PORT, cards);
 
     // (Primo comando secondo specifiche) mostro la lavagna appena creata
-    show_lavagna(&kabnan);
+    show_lavagna(&kanban);
 
     // Test
-    move_card(&kabnan, 1, TO_DO, DOING);
-    move_card(&kabnan, 2, TO_DO, DOING);
-    move_card(&kabnan, 1, DOING, DONE);
-    move_card(&kabnan, 1, TO_DO, DONE);
+    move_card(&kanban, 1, TO_DO, DOING);
+    move_card(&kanban, 2, TO_DO, DOING);
+    move_card(&kanban, 1, DOING, DONE);
+    move_card(&kanban, 1, TO_DO, DONE);
 
-    show_lavagna(&kabnan);
+    show_lavagna(&kanban);
 
     // Creazione del socket per la lavagna (server)
     int server_socket = create_socket(SERVER_ADDRESS, SERVER_PORT, SOCK_STREAM, &server_addr);
@@ -59,6 +60,7 @@ void board_main(){
     }
 
     printf("Lavagna in ascolto all'indirizzo %s e sulla porta %d\n", SERVER_ADDRESS, SERVER_PORT);
+    stampa();
 
     // Ciclo infinito del server
     while(1){
@@ -86,8 +88,8 @@ void board_main(){
 
         User_t port = (User_t)atoi(port_str);
         
-        user_register(&kabnan, port);
-        prova_print(kabnan._usr);
+        user_register(&kanban, port);
+        prova_print(kanban._usr);
         
         printf("Connetto client con id %d\n", port);
         

@@ -32,18 +32,37 @@ void User_delete(User_s* user){
  */
 int insert_User_in_list(User_s** users, User_t usr){
 
-    // Creazione del nuovo utente
+    // Inizializzazione dell'utente
     User_s* new_user = User_init(usr);
     if (!new_user) return -1;
 
-    if (*users == NULL || (*users)->_user >= new_user->_user) {
+    if (*users == NULL) {
+        *users = new_user;
+        return 0;
+    }
+
+    if ((*users)->_user == new_user->_user) {
+        User_delete(new_user); // Pulizia dello Heap
+        return -1;
+    }
+
+    if ((*users)->_user > new_user->_user) {
         new_user->_next = *users;
         *users = new_user;
         return 0;
     }
+
+    
     User_s* current = *users;
+
+
     while (current->_next != NULL && current->_next->_user < new_user->_user) {
         current = current->_next;
+    }
+
+    if (current->_next != NULL && current->_next->_user == new_user->_user) {
+        User_delete(new_user); // Pulizia dello heap
+        return -1;
     }
 
     new_user->_next = current->_next;
@@ -103,7 +122,7 @@ void get_Users(User_s* top, User_t users[], int users_number){
  */
 User_s* get_User_by_port(User_s* top, User_t port){
 
-    for(User_s* s = top; s != NULL; s = s->_next){
+    for(User_s* s = top; s != NULL && s->_user <= port; s = s->_next){
         if(s->_user == port) return s;
     }
 

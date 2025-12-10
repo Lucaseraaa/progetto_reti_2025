@@ -49,6 +49,7 @@ void User_delete(User_s* user);
  * @brief funzione che crea un utente e lo inserisce in lista utenti della board
  * 
  * L'inserimento dell'utente avviene in ordine di porta
+ * Viene svolto anche il controllo sulla duplicazione delle porte: in caso di duplicati la funzione fallisce
  * 
  * @param users lista degli utenti della lavagna
  * @param usr id del nuovo utente
