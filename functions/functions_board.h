@@ -64,4 +64,13 @@ int user_assign_card(Board_s* kanban, User_t port, int* card_id);
  */
 void user_confirm_card(Board_s* kanban, User_t port, int card_id, int status);
 
+/**
+ * @brief funzione che inizializza la kanban con le prime 10 card
+ * 
+ * @param board kanban da modificare
+ * @param id id della lavagna
+ * @param cards array di cards da inserire inizialmente nella lavagna
+ */
+void board_init(Board_s *board, int id, char* cards[]);
+
 #endif

@@ -103,3 +103,13 @@ int user_exit(Board_s *kanban, User_t port){
     kanban->_connected_user--;
 
 }
+
+/**
+ * @brief implementazione della board_init
+ */
+void board_init(Board_s *board, int id, char* cards[]){
+
+    // Utilizzo la funzione messa a disposizione dalla board.h
+    Board_Connection_init(board, id, cards);
+    
+}

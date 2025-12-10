@@ -29,7 +29,10 @@ void board_main(){
     struct sockaddr_in server_addr, client_addr;
     
     // Inizializzazione della kanban
-    Board_Connection_init(&kabnan, SERVER_PORT, cards);
+    board_init(&kabnan, SERVER_PORT, cards);
+
+    // (Primo comando secondo specifiche) mostro la lavagna appena creata
+    show_lavagna(&kabnan);
 
     // Creazione del socket per la lavagna (server)
     int server_socket = create_socket(SERVER_ADDRESS, SERVER_PORT, SOCK_STREAM, &server_addr);
@@ -77,7 +80,6 @@ void board_main(){
         
         user_register(&kabnan, port);
         prova_print(kabnan._usr);
-        print_Board(&kabnan);
         
         printf("Connetto client con id %d\n", port);
         

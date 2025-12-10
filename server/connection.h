@@ -20,6 +20,7 @@
 #include <errno.h>
 #include "structs/enums.h"
 #include "classes/board.h"
+#include "server/command.h"
 
 #define PORT_BUFFER_LENGTH 5
 
