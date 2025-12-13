@@ -32,4 +32,14 @@
  */
 int create_socket(const char* address, int port, enum __socket_type type, struct sockaddr_in* server_address);
 
+/**
+ * @brief funzione utilizzata per creare un socket per la lavagna e metterlo in listen
+ * 
+ * @param sv_addr riferimento al descrittore dell sockaddr del server
+ * @param listerner riferimento al listener
+ * 
+ * @return 0 se la funzione ha successo, -1 viceversa
+ */
+int generate_listener(struct sockaddr_in* sv_addr, int* listener);
+
 #endif

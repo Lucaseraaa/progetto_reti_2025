@@ -1,12 +1,21 @@
-#include <stdio.h>
+
 #include <stdlib.h>
+#include <stdio.h>
+#include <errno.h>
+#include <string.h>
+#include <stdlib.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
 #include "classes/user.h"
+#include "structs/enums.h"
+#include <arpa/inet.h>
+#include <unistd.h>
 
 
 /**
  * @brief implementazione della User_init
  */
-User_s* User_init(User_t usr){
+User_s* User_init(User_t usr, int descp){
     
     User_s* new_user = malloc(sizeof(User_s));
     if (new_user == NULL) return NULL;
@@ -16,6 +25,7 @@ User_s* User_init(User_t usr){
     new_user->_actual_managed_card = -1;
     new_user->_status = USR_NOTHING;
     new_user->_next = NULL;
+    new_user->_socket = descp;
     
     return new_user;
 }
@@ -24,16 +34,19 @@ User_s* User_init(User_t usr){
  * @brief implementazione della User_delete
  */
 void User_delete(User_s* user){
+    
+    close(user->_socket);
     free(user);
+
 }
 
 /**
  * @brief implementazione della insert_User_in_list 
  */
-int insert_User_in_list(User_s** users, User_t usr){
+int insert_User_in_list(User_s** users, User_t usr, int descp){
 
     // Inizializzazione dell'utente
-    User_s* new_user = User_init(usr);
+    User_s* new_user = User_init(usr, descp);
     if (!new_user) return -1;
 
     if (*users == NULL) {
@@ -131,6 +144,28 @@ User_s* get_User_by_port(User_s* top, User_t port){
 }
 
 /**
+ * @brief implementazione della get_User_by_socket
+ */
+User_s* get_User_by_socket(User_s* top, int sock){
+
+    for(User_s* s = top; s != NULL; s = s->_next){
+        if(s->_socket == sock) return s;
+    }
+
+    return NULL;
+
+}
+
+/**
+ * @brief implementazione della set_User_status
+ */
+User_t get_User_port(User_s* user){
+    
+    return user->_user;
+
+}
+
+/**
  * @brief implementazione della set_User_status
  */
 User_card_status get_User_status(User_s* user){
@@ -172,6 +207,6 @@ int set_User_card(User_s* user, int card_id){
 void prova_print(User_s *user_list){
 
     for(User_s* s = user_list; s != NULL; s = s->_next){
-        printf("Utente %d\n", s->_user);
+        printf("Utente %d con socket %d\n", s->_user, s->_socket);
     }
 }

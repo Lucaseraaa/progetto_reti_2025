@@ -18,9 +18,11 @@ typedef struct User_s{
 
     int _actual_managed_card; // carta attualmente utilizzata dall'utente
 
-    User_card_status _status; // Stao della carta dell'utente
+    User_card_status _status; // Stato della carta dell'utente
 
     struct User_s* _next; // Lista degli utenti
+
+    int _socket; // Descrittore del socket relativo all'utente
 
 }User_s;
 
@@ -31,15 +33,16 @@ typedef struct User_s{
  * La funzione crea un'utente nello heap e lo ritorna
  * 
  * @param usr id dell'utente da creare
+ * @param descp descrittore del socket dell'utente
  * 
  * @return la funzione ritorna il riferimento all'User nel caso abbia successo, NULL altrimenti
  */
-User_s* User_init(User_t usr);
+User_s* User_init(User_t usr, int descp);
 
 /**
  * @brief distruttore dell'User
  * 
- * La dunzione libera lo spazio occupato da un User
+ * La dunzione libera lo spazio occupato da un User e chiude il socket aperto
  * 
  * @param user utente da eliminare
  */
@@ -53,10 +56,11 @@ void User_delete(User_s* user);
  * 
  * @param users lista degli utenti della lavagna
  * @param usr id del nuovo utente
+ * @param descp descrittore del socket dell'utente
  * 
  * @return ritorna 0 se ha successo, -1 altrimenti
  */
-int insert_User_in_list(User_s** users, User_t usr);
+int insert_User_in_list(User_s** users, User_t usr, int descp);
 
 /**
  * @brief La funzione estrae un'utente dalla lista
@@ -78,6 +82,25 @@ int extract_User(User_s** user_list, User_t usr);
  * @return la funzione ritorna il riferimento all'utente se esiste, altrimenti NULL
  */
 User_s* get_User_by_port(User_s* top, User_t port);
+
+/**
+ * @brief La funzione ottiene il riferimento ad un'utente tramite il suo socket
+ *
+ * @param top riferimento alla lista degli utenti
+ * @param port socket dell'utente
+ * 
+ * @return la funzione ritorna il riferimento all'utente se esiste, altrimenti NULL
+ */
+User_s* get_User_by_socket(User_s* top, int sock);
+
+/**
+ * @brief Ottiene la porta dell'utente
+ * 
+ * @param user utente
+ * 
+ * @return porta dell'utente
+ */
+User_t get_User_port(User_s* user);
 
 /**
  * @brief Ottiene lo stato relativo all'utente

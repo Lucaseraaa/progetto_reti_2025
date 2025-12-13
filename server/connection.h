@@ -18,6 +18,9 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <netinet/in.h>
+#include <sys/select.h>
+
 #include "structs/enums.h"
 #include "classes/board.h"
 #include "server/command.h"
@@ -34,4 +37,5 @@ typedef struct Board_Connection_s{
 
 void board_main();
 
+void select_main();
 #endif

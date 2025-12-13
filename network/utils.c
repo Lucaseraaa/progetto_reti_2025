@@ -28,3 +28,34 @@ int create_socket(const char* address, int port, enum __socket_type type, struct
 
     return socket_dscp;
 }
+
+/**
+ * @brief implementazione della generate_listener
+ */
+int generate_listener(struct sockaddr_in* sv_addr, int* listener){
+
+    // Creazione del socket
+    *listener = socket(AF_INET, SOCK_STREAM|SOCK_NONBLOCK, 0);
+    if(*listener == -1){
+        perror("Errore nella creazione del socket");
+        return -1;
+    }
+
+    // Bind
+    sv_addr->sin_family = AF_INET;
+    sv_addr->sin_addr.s_addr = INADDR_ANY;
+    sv_addr->sin_port = htons(5678);
+    
+    if (bind(*listener, (struct sockaddr*) sv_addr, sizeof(*sv_addr)) == -1) {
+        perror("Errore nella bind");
+        return -1;
+    }
+
+    if(listen(*listener, 10)){
+        perror("Errore nella listen");
+        return -1;
+    }
+
+    return 0;
+
+}

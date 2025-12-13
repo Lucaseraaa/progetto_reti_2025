@@ -1,4 +1,3 @@
-
 #include "server/connection.h"
 #include "network/utils.h"
 #include "functions/functions_board.h"
@@ -25,10 +24,10 @@ char* cards[10] = {
     "Creazione di un mockup"
 };
 
-void board_main(){
+void select_main(){
 
-    struct sockaddr_in server_addr, client_addr;
-    
+    /* STEP 1: INIZIALIZZAZIONE DELLA KANBAN */
+
     // Inizializzazione della kanban
     board_init(&kanban, SERVER_PORT, cards);
 
@@ -41,60 +40,118 @@ void board_main(){
     move_card(&kanban, 1, DOING, DONE);
     move_card(&kanban, 1, TO_DO, DONE);
 
-    // Mostra la lavagna modificata
-    show_lavagna(&kanban);
+    /* STEP 2: CREAZIONE DEL SERVER */
 
-    // Creazione del socket per la lavagna (server)
-    int server_socket = create_socket(SERVER_ADDRESS, SERVER_PORT, SOCK_STREAM, &server_addr);
-    if(server_socket == -1) exit(EXIT_FAILURE);
+    // Inizializzazione delle strutture dati necessarie
+    fd_set master;
+    fd_set read_fds;
+    
+    // Indirizzi client/server
+    struct sockaddr_in server_addr, client_addr;
 
-    if (bind(server_socket, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0){
-        perror("Errore nel bind");
-        close(server_socket);
-        exit(EXIT_FAILURE);
+    // Socket per l'ascolto
+    int listener;
+    int newfd;
+    int fdmax;
+
+    // Buffer
+    char buf[1024];
+    int nbytes;
+    int addrlen;
+    int i;
+
+    // Azzero i set
+    FD_ZERO(&master);
+    FD_ZERO(&read_fds);
+
+    if (generate_listener(&server_addr, &listener) == -1) {
+        perror("Fallimento del main");
+        exit(EXIT_FAILURE); 
     }
 
-    if (listen(server_socket, 10) < 0){
-        perror("Errore nella listen");
-        close(server_socket);
-        exit(EXIT_FAILURE);
-    }
+    FD_SET(listener, &master);
+    fdmax = listener;
+    
+    /* STEP 3: CICLO INFINITO DELLA SELECT */
 
-    printf("Lavagna in ascolto all'indirizzo %s e sulla porta %d\n", SERVER_ADDRESS, SERVER_PORT);
-    //stampa(); // --> stama che dipende dai thread
+    for(;;){
+        read_fds = master; 
+        select(fdmax+1, &read_fds, NULL, NULL, NULL);
+        for(int i = 0; i <= fdmax; i++){
+            
+            // Trovato un descrittore pronto
+            if(FD_ISSET(i, &read_fds)){
+                
+                // Sono nel listener, un utente sta cercando di connettersi
+                if(i == listener){
 
-    // Ciclo infinito del server
-    while(1){
-        
-        socklen_t client_len = sizeof(client_addr);
-        int client_socket = accept(server_socket, (struct sockaddr*)&client_addr, &client_len);
+                    // Connetto il nuovo client
+                    addrlen = sizeof(client_addr);
+                    newfd = accept(listener, (struct sockaddr*)&client_addr, &addrlen);
 
-        // Non riesco a collegare il client
-        if(client_socket < 0){
-            perror("Il socket dell'utente ha dato errore");
-            continue;
+                    // Inserisco il nuovo utente nella lista
+                    // Richiedo il numero di porta dal client
+                    char port_str[PORT_BUFFER_LENGTH];
+                    int port_read = read(newfd, port_str, PORT_BUFFER_LENGTH);
+                    if (port_read < 0){
+
+                        // Controllo che la porta sia corretta
+                        printf("Il client non è riuscito a connettersi!\n");
+                        close(newfd);
+                        continue;
+
+                    }
+                    
+                    // Conversione della porta
+                    User_t port = (User_t)atoi(port_str);
+                    if (user_register(&kanban, port, newfd) == -1){
+
+                        printf("Il client non può connettersi\n");
+                        close(newfd);
+                        continue;
+
+                    }
+                    
+                    // DEBUG
+                    prova_print(kanban._usr);
+
+                    // Connetto il client alla select
+                    FD_SET(newfd, &master);
+                    if(newfd>fdmax) fdmax = newfd;
+
+                }
+                else 
+                {
+                    // Sono in un altro socket
+                    // Implica che è necessariamente una richiesta di un utente
+
+                    int n = recv(i, buf, sizeof(buf), 0);
+
+                    if (n == 0) {
+                        // Caso 1: Il client ha chiuso la connessione (EOF)
+                        printf("Client socket %d disconnesso.\n", i);
+                        user_exit(&kanban, i);
+                        FD_CLR(i, &master); // Importante: smetti di monitorarlo!
+                    }
+                    else if (n < 0) {
+                        // Caso 2: Errore
+                        perror("Recv error");
+                        close(i);
+                        FD_CLR(i, &master);
+                    }
+                    else {
+                        // Caso 3: Dati veri (o briciole rimaste)
+                        printf("CIAO - Dati ricevuti: %d bytes, ovvero: %s\n", n, buf);
+                    }
+
+                }
+            }
         }
 
-        printf("Client connesso\n");
-
-        Board_Connection_s* connection = malloc(sizeof(Board_Connection_s));
-        char port_str[PORT_BUFFER_LENGTH];
-
-        int port_read = read(client_socket, port_str, PORT_BUFFER_LENGTH);
-        
-        if(port_read < 0){
-            perror("Non riesco a connettere il client");
-            continue;
-        }
-
-        User_t port = (User_t)atoi(port_str);
-        
-        user_register(&kanban, port);
-        prova_print(kanban._usr);
-        
-        printf("Connetto client con id %d\n", port);
-        
-        close(client_socket);
-
     }
+
+}
+
+void board_main(){
+
 }   

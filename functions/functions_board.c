@@ -7,7 +7,7 @@
 /**
  * @brief implementazione della user_register
  */
-int user_register(Board_s *kanban, User_t port){
+int user_register(Board_s *kanban, User_t port, int descp){
     
     // Controllo che l'utente abbia inserito la porta corretta
     if (port < MIN_PORT) {
@@ -17,7 +17,7 @@ int user_register(Board_s *kanban, User_t port){
     // Inserimento dell'utente in lista
     User_s **users = &kanban->_usr;
     
-    int s = insert_User_in_list(users, port);
+    int s = insert_User_in_list(users, port, descp);
 
     if(s == -1){
         printf("L'utente con porta %d non è stato allocato \n", port);
@@ -77,10 +77,12 @@ void user_confirm_card(Board_s* kanban, User_t port, int card_id, int status){
 /**
  * @brief implementazione della user_exit
  */
-int user_exit(Board_s *kanban, User_t port){
+int user_exit(Board_s *kanban, int sock){
 
     // Controllo se l'utente esiste
-    User_s* user = get_User_by_port(kanban->_usr, port);
+    User_s* user = get_User_by_socket(kanban->_usr, sock);
+    int port = get_User_port(user); // Ottengo la porta dell'utente
+
     if (user== NULL) return -1;
 
     // Controllo se l'utente sta scrivendo una kanban
@@ -102,6 +104,8 @@ int user_exit(Board_s *kanban, User_t port){
     // Elimino l'utente
     extract_User(&kanban->_usr, port);
     kanban->_connected_user--;
+
+    printf("L'utente %d è uscito dal gruppo!\n", port);
 
 }
 

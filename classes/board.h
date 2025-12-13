@@ -51,10 +51,11 @@ Board_s Board_init(int id);
  * @param board kanban dove inserire la card
  * @param card_id id della card da creare
  * @param descrizione descrizione della card da creare
+ * @param type colonna in cui insrire la card
  * 
  * @return ritorna 0 se ha successo, -1 se da errore
  */
-int append_card(Board_s *board, int card_id, char* descrizione);
+int append_card(Board_s *board, int card_id, char* descrizione, Column_type type);
 
 /**
  * @brief funzione che assegna una card ad un utente

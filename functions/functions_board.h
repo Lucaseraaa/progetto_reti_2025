@@ -20,10 +20,11 @@
  * 
  * @param kanban kanban dove inserire l'utente
  * @param port porta dell'utente (ID)
+ * @param descp descrittore del socket del client
  * 
  * @return ritorna 0 se l'operazione ha avuto successo, -1 altrimenti
  */
-int user_register(Board_s *kanban, User_t port);
+int user_register(Board_s *kanban, User_t port, int descp);
 
 /**
  * @brief la funzione gestisce l'exit di un utente
@@ -32,11 +33,11 @@ int user_register(Board_s *kanban, User_t port);
  * corrispondenti, ed eventualmente riallocate le risorse. 
  * 
  * @param kanban lavagna
- * @param port porta dell'utente
+ * @param sock socket dell'utente
  * 
  * @return la funzione ritorna 0 se la funzione ha successo, -1 viceversa
  */
-int user_exit(Board_s *kanban, User_t port);
+int user_exit(Board_s *kanban, int sock);
 
 /**
  * @brief Funzione che assegna ad un utente una card
