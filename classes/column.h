@@ -34,14 +34,16 @@ Column_s Column_init(Column_type column);
 /**
  * @brief Funzione che inserisce un nuovo elemento in una coda di Card_s di una Column_s
  * 
- * L'inserimento viene effettuato semopre in coda, e il prametro colonna della Card_s
- * viene sempre sostituito da quello della card
+ * L'inserimento viene effettuato in ordine di _id e il prametro colonna della Card_s
+ * viene sempre sostituito da quello della card. Se esiste già una card con lo stesso id
+ * essa non verrà inserita
  * 
  * @param column colonna dove inserire la carta
  * @param card carta da inserire nella coda delle colonne
  * 
+ * @return la funzione ritorna 0 in caso di successo, -1 viceversa 
  */
-void insert_card_in_Column(Column_s* column, Card_s* card);
+int insert_card_in_Column(Column_s* column, Card_s* card);
 
 /**
  * @brief funzione di debug per stampare tutte le carde di una Column_s

@@ -87,4 +87,18 @@ void board_init(Board_s *board, int id, char* cards[]);
  */
 int switch_card_between_columns(Board_s* board, int card_id, Column_type from, Column_type to);
 
+/**
+ * @brief funzione che permette di inserire una card in una determinata colonna
+ * 
+ * L'inserimento avviene in ordine di _id, la card è sempre inizializzata ad utente 0
+ * 
+ * @param board lavagna di inserimento
+ * @param id id della card 
+ * @param card_text testo della card
+ * @param c colonna dove inserire la card
+ * 
+ * @return la funzione ritorna 0 in caso di successo, -1 viceversa
+ */
+int insert_card(Board_s* board, int id, char* card_text, Column_type c);
+
 #endif

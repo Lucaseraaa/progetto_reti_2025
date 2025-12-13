@@ -20,7 +20,7 @@ int user_register(Board_s *kanban, User_t port){
     int s = insert_User_in_list(users, port);
 
     if(s == -1){
-        printf("L'utente con porta %d non è stato allocato per mancanza di spazio\n", port);
+        printf("L'utente con porta %d non è stato allocato \n", port);
         return -1;
     }
 
@@ -103,6 +103,18 @@ int user_exit(Board_s *kanban, User_t port){
     extract_User(&kanban->_usr, port);
     kanban->_connected_user--;
 
+}
+
+/**
+ * @brief implementazione della setup_card
+ */
+int insert_card(Board_s* board, int id, char* card_text, Column_type c){
+
+    Column_s* column = &board->_colonne[c];
+    Card_s *new_card = Card_init(id, c, card_text, 0);
+    if (new_card == NULL) return -1;
+    return insert_card_in_Column(column, new_card);
+     
 }
 
 /**

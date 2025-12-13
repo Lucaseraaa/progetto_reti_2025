@@ -41,6 +41,7 @@ void board_main(){
     move_card(&kanban, 1, DOING, DONE);
     move_card(&kanban, 1, TO_DO, DONE);
 
+    // Mostra la lavagna modificata
     show_lavagna(&kanban);
 
     // Creazione del socket per la lavagna (server)
@@ -60,7 +61,7 @@ void board_main(){
     }
 
     printf("Lavagna in ascolto all'indirizzo %s e sulla porta %d\n", SERVER_ADDRESS, SERVER_PORT);
-    stampa();
+    //stampa(); // --> stama che dipende dai thread
 
     // Ciclo infinito del server
     while(1){

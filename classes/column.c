@@ -19,29 +19,55 @@ Column_s Column_init(Column_type column){
 /**
  * @brief implementazione della funzione insert_card_in_Column
  */
-void insert_card_in_Column(Column_s* column, Card_s* card){
+int insert_card_in_Column(Column_s* column, Card_s* card) {
 
-    column->_card_number++; // Incremento la dimensione della Column
-    
-    // Nel caso non faccia parte della colonna, lo faccio diventare
+    // Aggiorno la colonna della card
     card->_colonna = column->_column;
+    card->_next = NULL;
 
-    // Caso semplice, la lista è vuota
-    if (column->_card == NULL){
+    // Caso lista vuota
+    if (column->_card == NULL) {
         column->_card = card;
-        return;
+        column->_card_number++;
+        return 0;
     }
 
-    // Trovo l'ultima card 
-    Card_s *it_card;
-    for(it_card = column->_card; it_card->_next != NULL; it_card = it_card->_next);
+    Card_s *prev = NULL;
+    Card_s *cur = column->_card;
 
-    it_card->_next = card;
+    // Trovo la posizione corretta
+    while (cur != NULL) {
 
-    return;
+        // Controllo duplicato
+        if (cur->_id == card->_id) {
+            return -1;   
+        }
 
+        if (card->_id < cur->_id) {
+            break;
+        }
+
+        prev = cur;
+        cur = cur->_next;
+    }
+
+    // Inserimento in testa
+    if (prev == NULL) {
+        card->_next = column->_card;
+        column->_card = card;
+    }
+    
+    // Inserimento in mezzo o in coda
+    else {
+        prev->_next = card;
+        card->_next = cur;
+    }
+
+    // Incremento il numero di card nella colonna
+    column->_card_number++;
+
+    return 0;
 }
-
 Card_s* extract_card_with_id(int id, Column_s* column){
 
     Card_s* it_card;

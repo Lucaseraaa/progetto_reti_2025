@@ -26,10 +26,10 @@ Board_s Board_init(int id){
 /**
  * @brief implementaziione della append_card
  */
-int append_card(Board_s *board, int card_id, char* descrizione){
+int append_card(Board_s *board, int card_id, char* descrizione, Column_type type){
     
     // Prendo la colonna dei TO_DO
-    Column_s *column = &board->_colonne[TO_DO];
+    Column_s *column = &board->_colonne[type];
 
     Card_s *new_card = Card_init(card_id, TO_DO, descrizione, 0); // Utente 0 è la lavagna 
     
@@ -153,6 +153,6 @@ char* board_to_string(Board_s* board) {
 void Board_Connection_init(Board_s *board, int id, char* cards[]){
     
     *board = Board_init(id);
-    for (int i = 0; i < 10; i++) append_card(board, i, cards[i]);
+    for (int i = 0; i < 10; i++) append_card(board, i, cards[i], TO_DO);
 
 }
