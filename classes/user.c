@@ -35,7 +35,7 @@ User_s* User_init(User_t usr, int descp){
  */
 void User_delete(User_s* user){
     
-    close(user->_socket);
+    printf("Operaziione di chiusora del socket: %d\n", close(user->_socket));
     free(user);
 
 }

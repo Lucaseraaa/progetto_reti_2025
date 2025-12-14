@@ -11,8 +11,17 @@
 #define COMMAND_h
 
 #include <stdio.h>
+#include <arpa/inet.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <string.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <netinet/in.h>
+#include <sys/select.h>
 #include "functions/functions_board.h" 
-
 
 /**
  * @brief Funzione che mostra la lavagna
@@ -22,6 +31,11 @@
  * @param board riferimento alla lavagna da stampare
  */
 void show_lavagna(Board_s* board);
+
+/**
+ * @brief funzione che restituisce all'utente la lavagna in formato stringa
+ */
+int get_lavagna(User_s* user);
 
 /**
  * @brief Funzione che sposta una card da una colonna all'altra di una lavagna
@@ -34,5 +48,27 @@ void show_lavagna(Board_s* board);
  * @return 0 se ha avuto successo, -1 viceversa
  */
 int move_card(Board_s* board, int card_id, Column_type from, Column_type to);
+
+/**
+ * @brief Funzione che elimina l'utente dalla lavagna, riassegnando tutte le sue strutture dati
+ * 
+ * @param user utente da eliminare
+ * 
+ * @return 0 se ha successo, -1 viceversa
+ */
+int quit(User_s* user);
+
+/**
+ * @brief funzione utilizzata per gestire i comandi
+ * 
+ * La funzione riceve un comando da un utente e lo gestisce 
+ * 
+ * @param command comando ricevuto dall'utente
+ * @param sock socket dell'utente 
+ * 
+ * @return 0 se la funzione ha avuto successo, 1 se l'utente ha chiamato la QUIT, -1 viceversa
+ */
+int handle_command(char* command, int sock);
+
 
 #endif

@@ -56,6 +56,7 @@ void select_main(){
 
     // Buffer
     char buf[1024];
+    memset(buf, 0, 1024);
     int nbytes;
     int addrlen;
     int i;
@@ -79,6 +80,8 @@ void select_main(){
         select(fdmax+1, &read_fds, NULL, NULL, NULL);
         for(int i = 0; i <= fdmax; i++){
             
+            memset(buf, 0, 1024);
+
             // Trovato un descrittore pronto
             if(FD_ISSET(i, &read_fds)){
                 
@@ -115,6 +118,8 @@ void select_main(){
                     // DEBUG
                     prova_print(kanban._usr);
 
+                    // Invio la lavagna al client
+
                     // Connetto il client alla select
                     FD_SET(newfd, &master);
                     if(newfd>fdmax) fdmax = newfd;
@@ -130,7 +135,10 @@ void select_main(){
                     if (n == 0) {
                         // Caso 1: Il client ha chiuso la connessione (EOF)
                         printf("Client socket %d disconnesso.\n", i);
-                        user_exit(&kanban, i);
+                        
+                        char* exit = "QUIT";
+                        handle_command(exit, i);
+
                         FD_CLR(i, &master); // Importante: smetti di monitorarlo!
                     }
                     else if (n < 0) {
@@ -140,8 +148,13 @@ void select_main(){
                         FD_CLR(i, &master);
                     }
                     else {
-                        // Caso 3: Dati veri (o briciole rimaste)
-                        printf("CIAO - Dati ricevuti: %d bytes, ovvero: %s\n", n, buf);
+                        
+                        printf("COMANDO: %s con dimensione %d\n", buf, n);
+                        buf[n] = '\0'; // Terminatore di stringa
+
+                        int handle_return = handle_command(buf, i);
+                        if (handle_return == 1) FD_CLR(i, &master); // Elimino l'utente dal pool
+                    
                     }
 
                 }

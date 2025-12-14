@@ -77,10 +77,10 @@ void user_confirm_card(Board_s* kanban, User_t port, int card_id, int status){
 /**
  * @brief implementazione della user_exit
  */
-int user_exit(Board_s *kanban, int sock){
+int user_exit(Board_s *kanban, User_s* user){
 
     // Controllo se l'utente esiste
-    User_s* user = get_User_by_socket(kanban->_usr, sock);
+    int sock = user->_socket;
     int port = get_User_port(user); // Ottengo la porta dell'utente
 
     if (user== NULL) return -1;
@@ -105,8 +105,8 @@ int user_exit(Board_s *kanban, int sock){
     extract_User(&kanban->_usr, port);
     kanban->_connected_user--;
 
-    printf("L'utente %d è uscito dal gruppo!\n", port);
-
+    printf("L'utente %d con socket %d è uscito dal gruppo!\n", port, sock);
+    return 0;
 }
 
 /**

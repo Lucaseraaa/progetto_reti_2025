@@ -33,11 +33,11 @@ int user_register(Board_s *kanban, User_t port, int descp);
  * corrispondenti, ed eventualmente riallocate le risorse. 
  * 
  * @param kanban lavagna
- * @param sock socket dell'utente
+ * @param user utente da eliminare
  * 
  * @return la funzione ritorna 0 se la funzione ha successo, -1 viceversa
  */
-int user_exit(Board_s *kanban, int sock);
+int user_exit(Board_s *kanban, User_s* user);
 
 /**
  * @brief Funzione che assegna ad un utente una card
