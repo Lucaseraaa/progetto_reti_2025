@@ -25,7 +25,7 @@ typedef struct Timer_s {
 
     int _param; // Parametro della funzione
 
-    Timer_s* _next; // Puntatore al prossimo elemento della lista
+    struct Timer_s* _next; // Puntatore al prossimo elemento della lista
     
 } Timer_s;
 

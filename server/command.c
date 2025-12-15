@@ -101,15 +101,25 @@ void handle_card(){
  */
 int ack_card(User_s* user){
 
-    printf("ACK CARD\n");
-    printf("[INIZIO] Utente con %d\n", user->_status);
     if(user_confirm_card(&kanban, get_User_port(user), 0) == -1) {
         printf("L'utente %d non può fare ACK\n", get_User_port(user));
         return -1;
     }
-    printf("[FINE] Utente con %d\n", user->_status);
-    show_lavagna();
+    // show_lavagna();
     return 0;
+
+}
+
+/**
+ * @brief implementazione della CARD_DONE
+ */
+int card_done(User_s* user){
+
+    int doing_card_id = get_User_card(user);
+    int a = switch_card_between_columns(&kanban, doing_card_id, DOING, DONE);
+    printf("CARD_DONE RISULTATO: %d\n", a);
+    show_lavagna();
+    return a;
 
 }
 
@@ -118,16 +128,18 @@ int ack_card(User_s* user){
  */
 int handle_command(char* command, int sock){
 
+    // Ottengo il rifermento all'utente che deve compiere il comando
     User_s* user = get_User_by_socket(kanban._usr, sock);
-    
     if (user == NULL) {
-        perror("Utente non trovato");
+        perror("Utente non trovato\n");
         return -1;
     }
 
+    // Lista delle istruzioni e delle funzioni associate
     if(strcmp(command, "SHOW_LAVAGNA") == 0) return get_lavagna(user);
     else if (strcmp(command, "QUIT") == 0) return quit(user);
     else if (strcmp(command, "ACK_CARD") == 0) return ack_card(user);
+    else if (strcmp(command, "CARD_DONE") == 0) return card_done(user);
 
     return 0;
 

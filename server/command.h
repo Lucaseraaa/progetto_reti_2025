@@ -74,6 +74,16 @@ void handle_card();
 int ack_card(User_s* user);
 
 /**
+ * @brief funzione che permette di spostare la card di un utente dal doing al done
+ * 
+ * @param user utente a cui spostare la card
+ * 
+ * @return 0 se la funzione ha successo, -1 altrimenti
+ *  
+ */
+int card_done(User_s* user);
+
+/**
  * @brief funzione utilizzata per gestire i comandi
  * 
  * La funzione riceve un comando da un utente e lo gestisce 

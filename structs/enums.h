@@ -32,6 +32,7 @@ typedef unsigned int User_t;
 
 typedef enum {
     PING, 
+    PONG,
     HANDLE
 } Timer_Operation_Type;
 
