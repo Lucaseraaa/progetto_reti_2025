@@ -30,4 +30,9 @@ typedef enum {
 
 typedef unsigned int User_t;
 
+typedef enum {
+    PING, 
+    HANDLE
+} Timer_Operation_Type;
+
 #endif
