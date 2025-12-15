@@ -33,10 +33,10 @@ int user_register(Board_s *kanban, User_t port, int descp){
 /**
  * @brief implementazione della user_assign_card 
  */
-int user_assign_card(Board_s* kanban, User_t port, int* card_id){
+int user_assign_card(Board_s* kanban, User_s* user, int* card_id){
 
     // Ottengo l'utente con porta port
-    User_s* user = get_User_by_port(kanban->_usr, port);
+    User_t port = get_User_port(user);
 
     int cid;
     if (assign_card_to_User(kanban, port, &cid) == -1) return -1;
@@ -53,13 +53,19 @@ int user_assign_card(Board_s* kanban, User_t port, int* card_id){
 /**
  * @brief implementazione della user_confirm_card
  */
-void user_confirm_card(Board_s* kanban, User_t port, int card_id, int status){
+int user_confirm_card(Board_s* kanban, User_t port, int status){
 
     User_s* user = get_User_by_port(kanban->_usr, port);
+
+    if(user == NULL) return -1;
+    int card_id = get_User_card(user);
+
+    printf("Card id: %d\n", card_id);
 
     if (status == 0){
 
         // Status == 0 --> l'utente ha accettato la card
+        printf("L'utente ha accettato la card\n");
         confirm_card_to_User(kanban, card_id);
         set_User_status(user, USR_DOING);
 
@@ -71,6 +77,8 @@ void user_confirm_card(Board_s* kanban, User_t port, int card_id, int status){
         set_User_card(user, -1);
 
     }
+
+    return 0;
     
 }
 

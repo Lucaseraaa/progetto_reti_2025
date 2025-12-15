@@ -7,9 +7,9 @@ extern Board_s kanban;
 /**
  * @brief implementazione della SHOW_LAVAGNA
  */
-void show_lavagna(Board_s* board){
+void show_lavagna(){
 
-    print_Board(board);
+    print_Board(&kanban);
 
 }
 
@@ -42,6 +42,8 @@ int get_lavagna(User_s* user){
         return -1;
     }
 
+    free(board);
+    
     return 0;
 }
 
@@ -67,6 +69,49 @@ int move_card(Board_s* board, int card_id, Column_type from, Column_type to){
     return r;
 }
 
+/**
+ * @brief implementazione della HANDLE_CARD
+ */
+void handle_card(){
+
+    // Scorro tutti gli utenti per assegnare una card
+    for(User_s* user = kanban._usr; user != NULL; user = user->_next){
+
+        int card_id;
+        printf("HANDLE CARD\n");
+        // Se l'utente ha già una card, non lo considero
+        if (get_User_status(user) != USR_NOTHING) continue;
+        printf("HANDLE SUCCESSO\n");
+        int s = user_assign_card(&kanban, user, &card_id);
+        printf("Ritorno dall'operazione: %d\n", s);
+        if (s != 0) continue;
+
+        // Invio la card all'utente
+        int user_socket = user->_socket;
+          
+        // Invio la lista degli utenti
+
+        printf("L'utente %d ha assegnata la card %d\n", user->_user, card_id);
+    }
+
+}
+
+/**
+ * @brief implementazione della ACK_CARD
+ */
+int ack_card(User_s* user){
+
+    printf("ACK CARD\n");
+    printf("[INIZIO] Utente con %d\n", user->_status);
+    if(user_confirm_card(&kanban, get_User_port(user), 0) == -1) {
+        printf("L'utente %d non può fare ACK\n", get_User_port(user));
+        return -1;
+    }
+    printf("[FINE] Utente con %d\n", user->_status);
+    show_lavagna();
+    return 0;
+
+}
 
 /**
  * @brief implementazione della handle_command
@@ -82,6 +127,7 @@ int handle_command(char* command, int sock){
 
     if(strcmp(command, "SHOW_LAVAGNA") == 0) return get_lavagna(user);
     else if (strcmp(command, "QUIT") == 0) return quit(user);
+    else if (strcmp(command, "ACK_CARD") == 0) return ack_card(user);
 
     return 0;
 

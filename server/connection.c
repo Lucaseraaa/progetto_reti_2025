@@ -123,6 +123,9 @@ void select_main(){
                     // Connetto il client alla select
                     FD_SET(newfd, &master);
                     if(newfd>fdmax) fdmax = newfd;
+                    handle_card();
+
+                    show_lavagna();
 
                 }
                 else 

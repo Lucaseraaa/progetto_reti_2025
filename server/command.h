@@ -28,9 +28,8 @@
  * 
  * La funzione scrive a schermo l'attuale configurazione della lavagna
  * 
- * @param board riferimento alla lavagna da stampare
  */
-void show_lavagna(Board_s* board);
+void show_lavagna();
 
 /**
  * @brief funzione che restituisce all'utente la lavagna in formato stringa
@@ -57,6 +56,22 @@ int move_card(Board_s* board, int card_id, Column_type from, Column_type to);
  * @return 0 se ha successo, -1 viceversa
  */
 int quit(User_s* user);
+
+/**
+ * @brief funzione che permette di assegnare ad ogni utente che non ne ha una attualmente, una card
+ * 
+ * La funzione scorre la lista di utenti attivi e gli assegna una card, nel caso non ne stiano gestendo altre
+ */
+void handle_card();
+
+/**
+ * @brief funzione che permette di fare ACK alla card presa in consegna dall'utente
+ * 
+ * @param user utente a cui confermare la card
+ * 
+ * @return 0 se ha avuto successo, -1 viceversa
+ */
+int ack_card(User_s* user);
 
 /**
  * @brief funzione utilizzata per gestire i comandi
