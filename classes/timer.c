@@ -60,7 +60,7 @@ int get_next_timer(Timer_s* list){
 /**
  * @brief implementazione della insert_Timer_in_list
  */
-int insert_Timer_in_list(Timer_s** list, time_t timestamp, void* function, int param, Timer_Operation_Type type){
+int insert_Timer_in_list(Timer_s** list, time_t timestamp, void* function, User_t param, Timer_Operation_Type type){
 
     // Creo il nuovo timer
     Timer_s* new_timer = Timer_init(timestamp, function, param, type);
@@ -93,6 +93,48 @@ int insert_Timer_in_list(Timer_s** list, time_t timestamp, void* function, int p
 
     }
 
+}
+
+/**
+ * @brief implementazione della remove_all_Timer_in_list
+ */
+int remove_all_Timer_in_list(Timer_s** list, User_t user){
+    
+    printf("Rimozione degli eventi per l'utente %d\n", user);
+    
+    Timer_s *current = *list;
+    Timer_s *prev = NULL;
+
+    while (current != NULL) {
+        
+        if (current->_param == user) {
+            
+            if (prev == NULL) {
+                    
+                // Rimozione in testa
+                *list = current->_next;
+
+            } else {
+
+                // Rimozione in altri punti
+                prev->_next = current->_next;
+
+            }
+            
+            Timer_delete(current);
+            
+            return 0;
+            
+        }
+
+        // Avanziamo nella lista
+        prev = current;
+        current = current->_next;
+    
+    }
+
+    // Elemento non trovato
+    return -1;
 }
 
 /**

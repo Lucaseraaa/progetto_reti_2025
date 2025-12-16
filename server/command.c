@@ -32,14 +32,14 @@ int get_lavagna(User_s* user){
 
     // Invio la lunghezza della lavagna attuale
     int n = write(sock, board_len_str, strlen(board_len_str));
-    if (n != strlen(board_len_str)){
+    if (n != (int)strlen(board_len_str)){
         perror("Errore nell'invio della lunghezza della lavagna");
         return -1;
     } 
 
     // Invio la lavanga
     int k = write(sock, board, strlen(board));
-    if (k != strlen(board)){
+    if (k != (int)strlen(board)){
         perror("Errore nell'invio della lavagna");
         return -1;
     }
@@ -52,9 +52,13 @@ int get_lavagna(User_s* user){
 
 int quit(User_s* user){
 
+    // Rimozione dei timer dell'utente
+    remove_all_Timer_in_list(&timer, get_User_port(user));
+
     // L'utente viene eliminato
     int exit = user_exit(&kanban, user);
-    printf("Ritorno: %d", exit);
+    printf("Ritorno: %d\n", exit);
+    
     if (exit == 0) return 1;
     else return -1;
     
@@ -129,6 +133,7 @@ int ack_card(User_s* user){
 int card_done(User_s* user){
 
     int doing_card_id = get_User_card(user);
+    remove_all_Timer_in_list(&timer, get_User_port(user));
     return switch_card_between_columns(&kanban, doing_card_id, DOING, DONE);
     
 }

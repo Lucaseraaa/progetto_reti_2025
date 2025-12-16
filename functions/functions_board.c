@@ -79,7 +79,9 @@ int user_confirm_card(Board_s* kanban, User_t port, int status){
         set_User_card(user, -1);
 
     }
-
+    
+    remove_all_Timer_in_list(&timer, get_User_port(user));
+    
     return 0;
     
 }
@@ -139,6 +141,12 @@ void timer_handler(int n){
     // Estraggo il timer in testa ed eseguo la funzione designata
     int r = execute_Timer_head_function(&timer);
 
+    if (r == -1){
+        // Caso in cui non ci sono eventi
+        // Potrei aver eliminato l'unico evento dal Timer
+        return;
+    }
+
     // In base al valore di r decido cosa fare
     if (r == 0){
         // In questo caso la lista contiene altri elementi dopo l'estrazione
@@ -164,7 +172,8 @@ void board_init(Board_s *board, int id, char* cards[]){
  */
 int switch_card_between_columns(Board_s* board, int card_id, Column_type from, Column_type to){
 
-    if (abs(from - to) != 1) return -1;
+    int diff = (int)from - (int)to;
+    if (abs(diff) != 1) return -1;
 
     return swap_card_between_Column(card_id, &board->_colonne[from], &board->_colonne[to]);
 

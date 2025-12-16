@@ -87,12 +87,22 @@ int get_next_timer(Timer_s* list);
  * @param list lista dove inserkire il nuovo timer
  * @param remining_time tempo rimasto al timer
  * @param function puntatore alla funzione da eseguire allo scadere del timer
- * @param param parametro della funzione
+ * @param param parametro della funzione, ovvero la porta dell'utente
  * @param type tipo di operazione da svolgere
  * 
  * @return 1 se avviene inserimento in testa, 0 se ha successo senza inserimento in testa, -1 se ci sono errori
  */
-int insert_Timer_in_list(Timer_s** list, time_t timestamp, void* function, int param, Timer_Operation_Type type);
+int insert_Timer_in_list(Timer_s** list, time_t timestamp, void* function, User_t param, Timer_Operation_Type type);
+
+/**
+ * @brief funzione che rimuove tutti gli eventi nel timer relativi ad un utente
+ * 
+ * @param list timer
+ * @param user porta dell'utente
+ * 
+ * @return
+ */
+int remove_all_Timer_in_list(Timer_s** list, User_t user);
 
 /**
  * @brief funzione che permette di eseguire la funzione in testa alla lista
