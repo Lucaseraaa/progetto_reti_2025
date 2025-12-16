@@ -29,20 +29,31 @@ void Timer_delete(Timer_s* t){
 /**
  * @brief implementazione della Timer_extract
  */
-Timer_s* Timer_extract(Timer_s* list){
+Timer_s* Timer_extract(Timer_s** list){
     
     // Lista vuota, non si fa nulla
-    if (list == NULL) return NULL;
+    if (*list == NULL) return NULL;
 
-    if (list->_next == NULL) {
-        Timer_s* ref = list;
-        list = NULL;
+    if ((*list)->_next == NULL) {
+        Timer_s* ref = *list;
+        (*list) = NULL;
         return ref;
     }  
 
-    Timer_s* ref = list;
-    list = list->_next;
+    Timer_s* ref = (*list);
+    (*list) = (*list)->_next;
     return ref;
+
+}
+
+/**
+ * @brief implementazione della get_next_timer
+ */
+int get_next_timer(Timer_s* list){
+
+    time_t first_timestamp = list->_timestamp;
+
+    return first_timestamp - time(NULL);
 
 }
 
@@ -87,7 +98,7 @@ int insert_Timer_in_list(Timer_s** list, time_t timestamp, void* function, int p
 /**
  * @brief implementazione della execute_Timer_head_function
  */
-int execute_Timer_head_function(Timer_s* list){
+int execute_Timer_head_function(Timer_s** list){
 
     Timer_s* timer = Timer_extract(list);
     if(timer == NULL) return -1;
@@ -98,7 +109,7 @@ int execute_Timer_head_function(Timer_s* list){
     // Deallocazione del timer
     Timer_delete(timer);
 
-    if (list == NULL) return 1;
+    if (*list == NULL) return 1;
     else return 0;
 
 }

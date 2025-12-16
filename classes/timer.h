@@ -15,6 +15,10 @@
 #include <time.h>
 #include "structs/enums.h"
 
+#define PING_TIME 10
+#define PONG_TIME 30
+#define ACK_TIME 120
+
 // Struttura dati relativa al timer
 typedef struct Timer_s {
 
@@ -59,7 +63,19 @@ void Timer_delete(Timer_s* t);
  * 
  * @return NULL se la lista è vuota, riferimento all'elemento se ha successo
  */
-Timer_s* Timer_extract(Timer_s* list);
+Timer_s* Timer_extract(Timer_s** list);
+
+/**
+ * @brief funzione che ritorna il tempo che deve passare per il prossimo alert
+ * 
+ * La funzione fa una differenza tra il timestamp attuale e quello indicato nel primo elemento del timer
+ * di modo da ottenere il tempo da aspettare per il prossimo alert 
+ * 
+ * @param list timer
+ * 
+ * @return la funzione ritorna il tempo 
+ */
+int get_next_timer(Timer_s* list);
 
 /**
  * @brief funzione utilizzata per inserire un timer nella lista
@@ -85,7 +101,7 @@ int insert_Timer_in_list(Timer_s** list, time_t timestamp, void* function, int p
  * 
  * @return la funzione ritorna -1 in caso di errore, 1 nel caso in cui dopo l'estrazione la lista diventa vuota, 0 negli altri casi
  */
-int execute_Timer_head_function(Timer_s* list);
+int execute_Timer_head_function(Timer_s** list);
 
 void print_timer_list(Timer_s* list);
 

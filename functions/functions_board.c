@@ -4,6 +4,7 @@
 #include <errno.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sys/signal.h>
 
 /**
  * @brief implementazione della user_register
@@ -131,6 +132,24 @@ int insert_card(Board_s* board, int id, char* card_text, Column_type c){
 }
 
 /**
+ * @brief implementazione della timer_handler
+ */
+void timer_handler(int n){
+
+    // Estraggo il timer in testa ed eseguo la funzione designata
+    int r = execute_Timer_head_function(&timer);
+
+    // In base al valore di r decido cosa fare
+    if (r == 0){
+        // In questo caso la lista contiene altri elementi dopo l'estrazione
+        // Devo rigenerare l'alert
+        print_timer_list(timer);
+        alarm(get_next_timer(timer));
+    }else printf("Il timer non ha registrato altri eventi!\n");
+
+}
+
+/**
  * @brief implementazione della board_init
  */
 void board_init(Board_s *board, int id, char* cards[]){
@@ -151,12 +170,17 @@ int switch_card_between_columns(Board_s* board, int card_id, Column_type from, C
 
 }
 
-void foo(){}
+/**
+ * @brief implementazione della generate_event_in_timer
+ */
+void generate_event_in_Timer(Timer_s** timer, User_t port, Timer_Operation_Type operation_type, void* operation_function, int add_time){
 
-void generate_ping_in_Timer(Timer_s** timer, User_t port){
+    // Inserimento dell'evento in lista 
+    time_t event_time = time(NULL) + add_time;
+    int ins = insert_Timer_in_list(timer, event_time, operation_function, port, operation_type);
     
-    time_t now = time(NULL);
-    insert_Timer_in_list(timer, now + 120, foo, port, PING);
+    if (ins == 1) alarm(add_time); // Nel caso in cui aggiunga un elemento in testa, resetto il timer
+    
     print_timer_list(*timer);
 
 }

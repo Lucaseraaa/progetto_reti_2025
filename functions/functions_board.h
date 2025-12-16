@@ -13,6 +13,9 @@
 #include "classes/board.h"
 #include "classes/timer.h"
 
+// Riferimento esterno al timer
+extern Timer_s* timer;
+
 /**
  * @brief Funzione che registra un'utente
  * 
@@ -104,7 +107,29 @@ int switch_card_between_columns(Board_s* board, int card_id, Column_type from, C
  */
 int insert_card(Board_s* board, int id, char* card_text, Column_type c);
 
+/**
+ * @brief funzione handler per gestire gli alert 
+ * 
+ * La funzione estrae in testa il timer e chiama la funzione gestita da quell'evento
+ * 
+ * @param n id del segnale
+ */
+void timer_handler(int n);
 
-void generate_ping_in_Timer(Timer_s** timer, User_t port);
+/**
+ * @brief Funzione che permette di generare un evento nel timer
+ * 
+ * La funzione inserisce un evento nel Timer contestualmente ai dati passati. Nel caso in cui sia inserito un evento per primo avvia un timer,
+ * se ce ne sono altri lo reimposta
+ * 
+ * @param timer reference al timer
+ * @param port porta dell'utente di riferimento
+ * @param operation_type tipo di operazione da svolgere
+ * @param oparion_function funzione da eseguire allo scadere del timer
+ * @param add_time tempo da aggiungere al timestamp attuale per ottenere quello dell'evento
+ * 
+ */
+void generate_event_in_Timer(Timer_s** timer, User_t port, Timer_Operation_Type operation_type, void* operation_function, int add_time);
+
 
 #endif

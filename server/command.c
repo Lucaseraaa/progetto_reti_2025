@@ -99,6 +99,15 @@ void handle_card(){
 }
 
 /**
+ * @brief implementazione della PING_USER
+ */
+void* ping_user(User_t user){
+
+    printf("L'utente non ha ancora restituito la card!\n");
+
+}
+
+/**
  * @brief implementazione della ACK_CARD
  */
 int ack_card(User_s* user){
@@ -108,7 +117,7 @@ int ack_card(User_s* user){
         return -1;
     }
 
-    generate_ping_in_Timer(&timer, get_User_port(user));
+    generate_event_in_Timer(&timer, get_User_port(user), PING, ping_user, PING_TIME);
 
     return 0;
 

@@ -20,8 +20,9 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <netinet/in.h>
+#include <signal.h>
+#include <sys/wait.h>
 #include <sys/select.h>
-
 #include "structs/enums.h"
 #include "classes/board.h"
 #include "server/command.h"

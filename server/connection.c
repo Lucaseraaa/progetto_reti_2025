@@ -39,6 +39,9 @@ void select_main(){
     // Inizializzo il timer
     timer = NULL;
 
+    // Sovrascriviamo la funzione dell'alarm
+    signal(SIGALRM, timer_handler);
+
     // (Primo comando secondo specifiche) mostro la lavagna appena creata
     show_lavagna(&kanban);
 
