@@ -1,4 +1,5 @@
 #include "functions/functions_board.h"
+#include "classes/timer.h"
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
@@ -147,5 +148,15 @@ int switch_card_between_columns(Board_s* board, int card_id, Column_type from, C
     if (abs(from - to) != 1) return -1;
 
     return swap_card_between_Column(card_id, &board->_colonne[from], &board->_colonne[to]);
+
+}
+
+void foo(){}
+
+void generate_ping_in_Timer(Timer_s** timer, User_t port){
+    
+    time_t now = time(NULL);
+    insert_Timer_in_list(timer, now + 120, foo, port, PING);
+    print_timer_list(*timer);
 
 }

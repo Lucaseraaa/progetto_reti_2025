@@ -1,8 +1,10 @@
 #include <string.h>
 #include "command.h"
+#include "classes/timer.h"
 
 char* columns_name[] = {"TO-DO", "DOING", "DONE"};
 extern Board_s kanban;
+extern Timer_s* timer;
 
 /**
  * @brief implementazione della SHOW_LAVAGNA
@@ -105,7 +107,9 @@ int ack_card(User_s* user){
         printf("L'utente %d non può fare ACK\n", get_User_port(user));
         return -1;
     }
-    // show_lavagna();
+
+    generate_ping_in_Timer(&timer, get_User_port(user));
+
     return 0;
 
 }
@@ -116,11 +120,8 @@ int ack_card(User_s* user){
 int card_done(User_s* user){
 
     int doing_card_id = get_User_card(user);
-    int a = switch_card_between_columns(&kanban, doing_card_id, DOING, DONE);
-    printf("CARD_DONE RISULTATO: %d\n", a);
-    show_lavagna();
-    return a;
-
+    return switch_card_between_columns(&kanban, doing_card_id, DOING, DONE);
+    
 }
 
 /**
@@ -131,7 +132,7 @@ int handle_command(char* command, int sock){
     // Ottengo il rifermento all'utente che deve compiere il comando
     User_s* user = get_User_by_socket(kanban._usr, sock);
     if (user == NULL) {
-        perror("Utente non trovato\n");
+        perror("Utente non trovato");
         return -1;
     }
 

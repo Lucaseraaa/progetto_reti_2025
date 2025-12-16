@@ -3,11 +3,16 @@
 #include "functions/functions_board.h"
 #include "classes/user.h"
 #include "server/thread.h"
+#include "classes/timer.h"
 
 // Variabile condivisa: lavagna
 // Va acceduta tramite un semaforo durante le funzioni della sezione critica
 // @note La kanban va inizializzata 
 Board_s kanban;
+
+// Variabile condivisa timer
+// Va acceduta tramite un semaforo durante le funzioni della sezione critica
+Timer_s *timer;
 
 // Le 10 cards da inivare alla lavagna appena partita
 // I progetti verranno inizializzati con ID crescenti da 0 a 9
@@ -30,6 +35,9 @@ void select_main(){
 
     // Inizializzazione della kanban
     board_init(&kanban, SERVER_PORT, cards);
+
+    // Inizializzo il timer
+    timer = NULL;
 
     // (Primo comando secondo specifiche) mostro la lavagna appena creata
     show_lavagna(&kanban);

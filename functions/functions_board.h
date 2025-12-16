@@ -10,7 +10,8 @@
 #ifndef FUNCTION_BOARD_H
 #define FUNCTION_BOARD_H
 
-#include"classes/board.h"
+#include "classes/board.h"
+#include "classes/timer.h"
 
 /**
  * @brief Funzione che registra un'utente
@@ -102,5 +103,8 @@ int switch_card_between_columns(Board_s* board, int card_id, Column_type from, C
  * @return la funzione ritorna 0 in caso di successo, -1 viceversa
  */
 int insert_card(Board_s* board, int id, char* card_text, Column_type c);
+
+
+void generate_ping_in_Timer(Timer_s** timer, User_t port);
 
 #endif

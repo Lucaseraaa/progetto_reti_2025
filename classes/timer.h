@@ -15,19 +15,22 @@
 #include <time.h>
 #include "structs/enums.h"
 
+// Struttura dati relativa al timer
 typedef struct Timer_s {
 
     time_t _timestamp; // Timestamp di quando avviare una funzione
 
     void* _function; // Puntatore alla funzione
 
-    Timer_Operation_Type operation; // Tipo di operazione
+    Timer_Operation_Type _operation; // Tipo di operazione
 
-    int _param; // Parametro della funzione
+    User_t _param; // Parametro della funzione
 
     struct Timer_s* _next; // Puntatore al prossimo elemento della lista
     
 } Timer_s;
+
+typedef void (*TimerCallback)(int);
 
 /**
  * @brief Funzione che inizializza un timer
@@ -41,6 +44,22 @@ typedef struct Timer_s {
  */
 
 Timer_s* Timer_init(time_t timestamp, void* function, int param, Timer_Operation_Type type);
+
+/**
+ * @brief funzione che elimina il timer, deallocando le strutture dati
+ * 
+ * @param t elemento da deallocare
+ */
+void Timer_delete(Timer_s* t);
+
+/**
+ * @brief funzione che estrae un elemento dalla testa di una lista timer
+ * 
+ * @param lista di estrazione
+ * 
+ * @return NULL se la lista è vuota, riferimento all'elemento se ha successo
+ */
+Timer_s* Timer_extract(Timer_s* list);
 
 /**
  * @brief funzione utilizzata per inserire un timer nella lista
@@ -57,6 +76,17 @@ Timer_s* Timer_init(time_t timestamp, void* function, int param, Timer_Operation
  * 
  * @return 1 se avviene inserimento in testa, 0 se ha successo senza inserimento in testa, -1 se ci sono errori
  */
-int insert_Timer_in_list(Timer_s* list, time_t timestamp, void* function, int param, Timer_Operation_Type type);
+int insert_Timer_in_list(Timer_s** list, time_t timestamp, void* function, int param, Timer_Operation_Type type);
+
+/**
+ * @brief funzione che permette di eseguire la funzione in testa alla lista
+ * 
+ * @param list lista da cui estrarre la funzione
+ * 
+ * @return la funzione ritorna -1 in caso di errore, 1 nel caso in cui dopo l'estrazione la lista diventa vuota, 0 negli altri casi
+ */
+int execute_Timer_head_function(Timer_s* list);
+
+void print_timer_list(Timer_s* list);
 
 #endif
