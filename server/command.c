@@ -53,7 +53,7 @@ int get_lavagna(User_s* user){
 int quit(User_s* user){
 
     // Rimozione dei timer dell'utente
-    remove_all_Timer_in_list(&timer, get_User_port(user));
+    remove_all_Timer_in_list(&timer, get_User_port(user), NONE);
 
     // L'utente viene eliminato
     int exit = user_exit(&kanban, user);
@@ -96,9 +96,30 @@ void handle_card(){
         int user_socket = user->_socket;
           
         // Invio la lista degli utenti
+        insert_Timer_in_list(&timer, time(NULL) + ACK_TIME, ack_alert, get_User_port(user), ACK_TIME);
 
         printf("L'utente %d ha assegnata la card %d\n", user->_user, card_id);
     }
+
+}
+
+/**
+ * @brief implementazione della ack_alert
+ */
+void* ack_alert(User_t user){
+
+    printf("RIMOZIONE DELL'UTENTE %d DAL POOL A CAUSA DI ACK MANCATA\n", user);
+    quit(get_User_by_port(kanban._usr, user));
+
+}
+
+/**
+ * @brief implementazione della PONG_USER
+ */
+void* pong_user(User_t user){
+
+    printf("RIMOZIONE DELL'UTENTE %d DAL POOL\n", user);
+    quit(get_User_by_port(kanban._usr, user));
 
 }
 
@@ -107,7 +128,8 @@ void handle_card(){
  */
 void* ping_user(User_t user){
 
-    printf("L'utente non ha ancora restituito la card!\n");
+    printf("EFFETTUO PING DELL'UTENTE %d\n", user);
+    insert_Timer_in_list(&timer, time(NULL) + PONG_TIME, pong_user, user, PONG);
 
 }
 
@@ -133,9 +155,32 @@ int ack_card(User_s* user){
 int card_done(User_s* user){
 
     int doing_card_id = get_User_card(user);
-    remove_all_Timer_in_list(&timer, get_User_port(user));
+    remove_all_Timer_in_list(&timer, get_User_port(user), NONE);
     return switch_card_between_columns(&kanban, doing_card_id, DOING, DONE);
     
+}
+
+/**
+ * @brief implementazione della PONG_LAVAGNA
+ */
+int pong_lavagna(User_s* user){
+
+
+    printf("L'utente %d ha chiamato la PONG_LAVAGNA\n", get_User_port(user));
+
+    // La funzione controlla se l'utente ha la card in doing
+    if(user->_status = USR_DOING){
+
+        // In tal caso prova ad eliminare la PONG
+        int pong_delete = remove_all_Timer_in_list(&timer, get_User_port(user), PONG);
+
+        // Nel caso di rimozione della PONG, devo rifare partire la PING
+        if (pong_delete == 0) insert_Timer_in_list(&timer, time(NULL)+PING_TIME, ping_user, get_User_port(user), PING);
+        
+        return pong_delete;
+
+    }else return -1;
+
 }
 
 /**
@@ -155,6 +200,7 @@ int handle_command(char* command, int sock){
     else if (strcmp(command, "QUIT") == 0) return quit(user);
     else if (strcmp(command, "ACK_CARD") == 0) return ack_card(user);
     else if (strcmp(command, "CARD_DONE") == 0) return card_done(user);
+    else if (strcmp(command, "PONG_LAVAGNA") == 0) return pong_lavagna(user);
 
     return 0;
 

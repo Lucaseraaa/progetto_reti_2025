@@ -15,8 +15,8 @@
 #include <time.h>
 #include "structs/enums.h"
 
-#define PING_TIME 10
-#define PONG_TIME 30
+#define PING_TIME 5
+#define PONG_TIME 20
 #define ACK_TIME 120
 
 // Struttura dati relativa al timer
@@ -97,12 +97,15 @@ int insert_Timer_in_list(Timer_s** list, time_t timestamp, void* function, User_
 /**
  * @brief funzione che rimuove tutti gli eventi nel timer relativi ad un utente
  * 
+ * Tramire il parametro type si deve specificare NONE se si vuole eliminare un evento qualsiasi, oppure il tipo se serve specifico
+ * 
  * @param list timer
  * @param user porta dell'utente
+ * @param type tipo di evento
  * 
- * @return
+ * @return 0 se ha successo, -1 viceversa
  */
-int remove_all_Timer_in_list(Timer_s** list, User_t user);
+int remove_all_Timer_in_list(Timer_s** list, User_t user, Timer_Operation_Type type);
 
 /**
  * @brief funzione che permette di eseguire la funzione in testa alla lista

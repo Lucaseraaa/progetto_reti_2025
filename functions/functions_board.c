@@ -80,7 +80,7 @@ int user_confirm_card(Board_s* kanban, User_t port, int status){
 
     }
     
-    remove_all_Timer_in_list(&timer, get_User_port(user));
+    remove_all_Timer_in_list(&timer, get_User_port(user), NONE);
     
     return 0;
     

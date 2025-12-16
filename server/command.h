@@ -58,6 +58,15 @@ int move_card(Board_s* board, int card_id, Column_type from, Column_type to);
 int quit(User_s* user);
 
 /**
+ * @brief Funzione handler per la ACK mancata
+ * 
+ * La funzione elimina l'utente se non risponde all'ACK entro il tempo prestabilito
+ * 
+ * @param user utente da eliminare
+ */
+void* ack_alert(User_t user);
+
+/**
  * @brief funzione che permette di assegnare ad ogni utente che non ne ha una attualmente, una card
  * 
  * La funzione scorre la lista di utenti attivi e gli assegna una card, nel caso non ne stiano gestendo altre
@@ -82,6 +91,17 @@ int ack_card(User_s* user);
  *  
  */
 int card_done(User_s* user);
+
+/**
+ * @brief la funzione permette di fare il pong alla lavagna
+ * 
+ * Nel caso in cui ci l'utente abbia una card in DOING fa il pong per resettare il ping ed evitare problemi
+ * 
+ * @param user utente
+ * 
+ * @return 0 se ha successo, -1 viceversa
+ */
+int pong_lavagna(User_s* user);
 
 /**
  * @brief funzione utilizzata per gestire i comandi

@@ -98,16 +98,16 @@ int insert_Timer_in_list(Timer_s** list, time_t timestamp, void* function, User_
 /**
  * @brief implementazione della remove_all_Timer_in_list
  */
-int remove_all_Timer_in_list(Timer_s** list, User_t user){
+int remove_all_Timer_in_list(Timer_s** list, User_t user, Timer_Operation_Type type){
     
     printf("Rimozione degli eventi per l'utente %d\n", user);
-    
+
     Timer_s *current = *list;
     Timer_s *prev = NULL;
 
     while (current != NULL) {
         
-        if (current->_param == user) {
+        if (current->_param == user && (type == NONE || current->_operation == type)) {
             
             if (prev == NULL) {
                     
