@@ -72,11 +72,12 @@ void client_main(int user){
             exit(EXIT_FAILURE);
         }
 
-        printf("RISULTATO FINALE: %d\n", user_connect(&user_data, users_number, users, user_socket));
+        user_connect(&user_data, users_number, users, user_socket);
 
     }else user_connect(&user_data, users_number, NULL, user_socket);
-    
-    print_debug(&user_data);
+
+    // Ricevo la lavagna da stampare
+    show_lavagna();
 
     sleep(20);
 

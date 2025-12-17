@@ -26,13 +26,12 @@ int get_lavagna(User_s* user){
     // Scrivo sul socket
     int sock = user->_socket; // todo: cambia con setter
 
-    int board_len = strlen(board);
-    char board_len_str[5]; // Dichiaro la lunghezza massima della lavagna
-    sprintf(board_len_str, "%d", board_len);
+    int board_len = htonl(strlen(board));
 
     // Invio la lunghezza della lavagna attuale
-    int n = write(sock, board_len_str, strlen(board_len_str));
-    if (n != (int)strlen(board_len_str)){
+    int n = write(sock, &board_len, sizeof(int));
+
+    if (n != sizeof(int)){
         perror("Errore nell'invio della lunghezza della lavagna");
         return -1;
     } 

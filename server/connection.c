@@ -150,9 +150,11 @@ void select_main(){
                     // Connetto il client alla select
                     FD_SET(newfd, &master);
                     if(newfd>fdmax) fdmax = newfd;
-                    // handle_card();
+                    
+                    // Invio la lavagna all'utente
+                    handle_command("SHOW_LAVAGNA", newfd);
 
-                    // show_lavagna();
+                    // handle_card();
 
                 }
                 else 

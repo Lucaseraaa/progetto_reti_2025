@@ -22,6 +22,8 @@
 #define LOCALHOST "127.0.0.1"
 #define SERVER_PORT 5678
 
+#include "user/command.h"
+
 /**
  * @brief funzione main del client user
  * 
