@@ -13,7 +13,7 @@ int user_register(Board_s *kanban, User_t port, int descp){
     
     // Controllo che l'utente abbia inserito la porta corretta
     if (port < MIN_PORT) {
-        printf("Devi inserire una porta maggiore di 5678\n");
+        printf("Devi inserire una porta maggiore di 5678, %d non va bene!\n", port);
         return -1;
     }
     // Inserimento dell'utente in lista
