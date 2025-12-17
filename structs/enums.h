@@ -37,4 +37,16 @@ typedef enum {
     NONE
 } Timer_Operation_Type;
 
+/**
+ * @brief Struttura dati utilizzata per evidenziare lo stato attuale dell'utente
+ */
+typedef enum {
+
+    DIS, // Utente disconnesso
+    CONN, // Utente connessio e senza card
+    CARD, // Utente che ha preso una card
+    PING_USER // Utente che ha ricevuto una PING
+
+} User_Status;
+
 #endif

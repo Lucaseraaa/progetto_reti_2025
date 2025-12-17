@@ -107,6 +107,7 @@ void select_main(){
                     // Richiedo il numero di porta dal client
                     char port_str[PORT_BUFFER_LENGTH];
                     int port_read = read(newfd, port_str, PORT_BUFFER_LENGTH);
+
                     if (port_read < 0){
 
                         // Controllo che la porta sia corretta
@@ -127,16 +128,31 @@ void select_main(){
                     }
                     
                     // DEBUG
-                    prova_print(kanban._usr);
+                    // prova_print(kanban._usr);
+                    
+                    int connected_users = kanban._connected_user;
+                    printf("UINIZ: %d\n", connected_users);
+                    int connected_users_net = htonl(connected_users - 1);
+                    printf("UINIV: %d\n", connected_users_net);
 
-                    // Invio la lavagna al client
+                    // Invio il numero di utenti
+                    int suser = send(newfd, &connected_users_net, sizeof(connected_users), 0);
+                    printf("Utenti inviati: %d con successo %d\n", connected_users_net, suser);
+
+                    // Genero l'array e ci scrivo gli utenti
+                    User_t users[connected_users - 1];
+                    get_Users(kanban._usr, users, connected_users - 1, port);
+
+                    // Invio gli utenti
+                    suser = send(newfd, users, (connected_users-1)*sizeof(User_t), 0);
+                    printf("Array Utenti inviati: con successo %d\n", suser);
 
                     // Connetto il client alla select
                     FD_SET(newfd, &master);
                     if(newfd>fdmax) fdmax = newfd;
-                    handle_card();
+                    // handle_card();
 
-                    show_lavagna();
+                    // show_lavagna();
 
                 }
                 else 

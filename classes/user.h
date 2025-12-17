@@ -145,9 +145,14 @@ int set_User_card(User_s* user, int card_id);
 int set_User_status(User_s* user, User_card_status status);
 
 /**
- * @brief 
+ * @brief funzione utilizzata per ottenere un array contenente tutti gli utenti, apparte quello corrente
+ * 
+ * @param top riferimento alla lista di utenti
+ * @param users lista da modificare
+ * @param users_number numero di utenti che conta la lista
+ * @param current_user utente corrente
  */
-void get_Users(User_s* top, User_t users[], int users_number);
+void get_Users(User_s* top, User_t users[], int users_number, User_t current_user);
 
 /**
  * @brief debug print function

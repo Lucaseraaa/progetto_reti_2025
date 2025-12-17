@@ -1,14 +1,24 @@
 #include "user/connection.h"
 #include "network/utils.h"
+#include "classes/user_data.h"
+#include "structs/enums.h"
 
 // Compila
-// gcc -W -I. -Inetwork -Iuser testu.c network/*.c user/*.c -o testu 
+// gcc -W -I. -Inetwork -Iclasses -Iuser testu.c network/*.c classes/*.c user/*.c -o testu 
+
+// Dichiarazione della User_Data_s per mentenere i dati necessari a comunicare con la lavagna
+// e con gli altri host
+// @note dev'essere inizializzata
+User_Data_s user_data;
+
 
 void client_main(int user){
 
+    // Inizializzazione dell'istanza user_data
+    User_Data_init(&user_data, user);
+
     // Buffer per inserire i comandi
     char comando[COMMAND_SIZE];
-    memset(comando, 0, COMMAND_SIZE);
 
     // Strutture necessarie per il socket
     struct sockaddr_in server_addr;
@@ -40,7 +50,35 @@ void client_main(int user){
     sprintf(string_port, "%d", user);
 
     // Pubblico nel server il mio numero di porta
-    send(user_socket, string_port, strlen(string_port), 0);
+    send(user_socket, string_port, strlen(string_port), MSG_WAITALL);
 
+    // Ricevo il numero di utenti
+    int users_number;
+    if (recv(user_socket, &users_number, sizeof(users_number), 0) < 0){
+        printf("Dati non arrivati correttamente\n");
+        exit(EXIT_FAILURE);
+    }
+    users_number = ntohl(users_number);  // Conversione 
+    printf("Ci sono %d utenti\n", users_number);
 
+    // Verifico che non sia il primo utente
+    if (users_number > 0){
+        
+        // Dichiarazione array utenti e richiesta
+        User_t users[users_number];
+    
+        if(recv(user_socket, &users, users_number*sizeof(User_t), 0) < 0){
+            printf("Dati non arrivati correttamente\n");
+            exit(EXIT_FAILURE);
+        }
+
+        printf("RISULTATO FINALE: %d\n", user_connect(&user_data, users_number, users, user_socket));
+
+    }else user_connect(&user_data, users_number, NULL, user_socket);
+    
+    print_debug(&user_data);
+
+    sleep(20);
+
+    user_close(&user_data);
 }
