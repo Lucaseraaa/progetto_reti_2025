@@ -122,18 +122,20 @@ void select_main(){
                     if (user_register(&kanban, port, newfd) == -1){
 
                         printf("Il client non può connettersi\n");
+                        
+                        // Invio all'utente -1, per terminare la comunicazione
+                        int term = htonl(-1);
+                        send(newfd, &term, sizeof(int), 0);
+
+                        // Chiudo la connessione conl'utente
                         close(newfd);
                         continue;
 
                     }
-                    
-                    // DEBUG
-                    // prova_print(kanban._usr);
-                    
+
+                    // Ottengo gli utenti connessi
                     int connected_users = kanban._connected_user;
-                    printf("UINIZ: %d\n", connected_users);
                     int connected_users_net = htonl(connected_users - 1);
-                    printf("UINIV: %d\n", connected_users_net);
 
                     // Invio il numero di utenti
                     int suser = send(newfd, &connected_users_net, sizeof(connected_users), 0);
@@ -154,7 +156,7 @@ void select_main(){
                     // Invio la lavagna all'utente
                     handle_command("SHOW_LAVAGNA", newfd);
 
-                    // handle_card();
+                    handle_card();
 
                 }
                 else 
@@ -181,8 +183,8 @@ void select_main(){
                     }
                     else {
                         
-                        printf("COMANDO: %s con dimensione %d\n", buf, n);
-                        buf[n] = '\0'; // Terminatore di stringa
+                        printf("Richiesto comando dal client: %s\n", buf);
+                        // buf[n] = '\0'; // Terminatore di stringa
 
                         int handle_return = handle_command(buf, i);
                         if (handle_return == 1) FD_CLR(i, &master); // Elimino l'utente dal pool

@@ -58,7 +58,19 @@ void client_main(int user){
         printf("Dati non arrivati correttamente\n");
         exit(EXIT_FAILURE);
     }
+
     users_number = ntohl(users_number);  // Conversione 
+
+    // Ho inserito un numero scorretto di porta, chiudo la connessione e fallisco
+    if(users_number == -1) {
+        
+        printf("Il numero di porta %d non va bene, termino!\n", user);
+        close(user_socket);
+        exit(EXIT_FAILURE);
+
+    }
+
+
     printf("Ci sono %d utenti\n", users_number);
 
     // Verifico che non sia il primo utente
@@ -77,9 +89,9 @@ void client_main(int user){
     }else user_connect(&user_data, users_number, NULL, user_socket);
 
     // Ricevo la lavagna da stampare
-    show_lavagna();
+    show_lavagna(0);
 
-    sleep(20);
+    listen_to_server();
 
-    user_close(&user_data);
+    // user_close(&user_data);
 }

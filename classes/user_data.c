@@ -70,6 +70,17 @@ int user_connect(User_Data_s* ud, int connected_user, User_t users[], int user_s
     
 }
 
+/**
+ * @brief implementazione della user_handle_card
+ */
+int user_handle_card(User_Data_s* ud, int card_id){
+    
+    if(ud->_status != CONN) return -1;
+
+    ud->_card_id = card_id;
+    return 0;
+
+}
 
 void print_debug(User_Data_s* ud){
 
@@ -81,3 +92,4 @@ void print_debug(User_Data_s* ud){
         printf("%d\n", ud->_others[i]);
     }
 }
+

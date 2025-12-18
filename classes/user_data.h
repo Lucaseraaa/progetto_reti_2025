@@ -17,6 +17,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <sys/select.h>
 #include "structs/enums.h"
 
 typedef struct User_Data_s{
@@ -70,6 +71,15 @@ void user_close(User_Data_s* ud);
  * @return 0 se ha successo, -1 viceversa
  */
 int user_connect(User_Data_s* ud, int connected_user, User_t users[], int user_sock);
+
+/**
+ * @brief Funzione che assegna una carta all'utente, da ACK-are
+ * 
+ * Ci si deve trovare all'intero dello stato CONN per poter utilizzare questa funzione
+ * 
+ * @param card_id id della carta
+ */
+int user_handle_card(User_Data_s* ud, int card_id);
 
 void print_debug(User_Data_s* ud);
 

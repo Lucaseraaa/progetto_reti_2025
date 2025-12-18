@@ -10,7 +10,10 @@
 #ifndef USER_COMMAND_H
 #define USER_COMMAND_h
 
+#include  <string.h>
 #include "classes/user_data.h"
+
+#define COMMAND_LEN 15
 
 extern User_Data_s user_data;
 
@@ -19,5 +22,6 @@ extern User_Data_s user_data;
  */
 void show_lavagna();
 
+void listen_to_server();
 
 #endif

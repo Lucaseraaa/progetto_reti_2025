@@ -84,15 +84,25 @@ void handle_card(){
 
         int card_id;
         printf("HANDLE CARD\n");
+
         // Se l'utente ha già una card, non lo considero
         if (get_User_status(user) != USR_NOTHING) continue;
-        printf("HANDLE SUCCESSO\n");
+        
         int s = user_assign_card(&kanban, user, &card_id);
         printf("Ritorno dall'operazione: %d\n", s);
+
         if (s != 0) continue;
 
         // Invio la card all'utente
+        char* handle_card_command = "HANDLE_CARD\0"; 
         int user_socket = user->_socket;
+        
+        // Invio il comando HANDLE_CARD
+        send(user_socket, handle_card_command, strlen(handle_card_command), 0);
+        
+        // Invio l'id della card
+        int card_id_snd = htonl(card_id);
+        send(user_socket, &card_id_snd, sizeof(int), 0);
           
         // Invio la lista degli utenti
         insert_Timer_in_list(&timer, time(NULL) + ACK_TIME, ack_alert, get_User_port(user), ACK_TIME);
