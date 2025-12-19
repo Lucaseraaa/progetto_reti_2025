@@ -18,6 +18,18 @@
 extern User_Data_s user_data;
 
 /**
+ * @brief funzione utilizzato per inviare comandi sulla lavagna
+ * 
+ * La funzione verifica solamente se il comando può essere inviato in un particolare stato
+ * 
+ * @param command comando da inviare
+ * 
+ * @note il comando dev'essere precedentemente controllato prima di essere inviato
+ */
+void send_command(char* command);
+
+
+/**
  * @brief funzione che permette di ricevere la lavagna e stamparla
  */
 void show_lavagna();

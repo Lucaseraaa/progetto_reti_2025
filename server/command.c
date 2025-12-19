@@ -210,7 +210,8 @@ int handle_command(char* command, int sock){
     else if (strcmp(command, "ACK_CARD") == 0) return ack_card(user);
     else if (strcmp(command, "CARD_DONE") == 0) return card_done(user);
     else if (strcmp(command, "PONG_LAVAGNA") == 0) return pong_lavagna(user);
-
+    else {printf("Comando non riconosciuto\n"); return -1;}
+    
     return 0;
 
 }

@@ -89,7 +89,7 @@ void client_main(int user){
     }else user_connect(&user_data, users_number, NULL, user_socket);
 
     // Ricevo la lavagna da stampare
-    show_lavagna(0);
+    show_lavagna();
 
     listen_to_server();
 

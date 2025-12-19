@@ -127,7 +127,7 @@ void select_main(){
                         int term = htonl(-1);
                         send(newfd, &term, sizeof(int), 0);
 
-                        // Chiudo la connessione conl'utente
+                        // Chiudo la connessione con l'utente
                         close(newfd);
                         continue;
 
@@ -183,9 +183,9 @@ void select_main(){
                     }
                     else {
                         
-                        printf("Richiesto comando dal client: %s\n", buf);
-                        // buf[n] = '\0'; // Terminatore di stringa
-
+                        buf[n] = '\0'; // Terminatore di stringa
+                        printf("Richiesto comando dal client: %s con dimensione %ld\n ", buf, sizeof(buf));
+                        
                         int handle_return = handle_command(buf, i);
                         if (handle_return == 1) FD_CLR(i, &master); // Elimino l'utente dal pool
                     

@@ -12,7 +12,7 @@ void print_conn(int card_id){
     printf("- SHOW_LAVAGNA: utilizzato per stampare la lavagna\n- CREATE_CARD: utilizzato per creare una card\n");
 
     // Stampo l'ACK
-    if (card_id != -1) printf("- ACK: per accettare la carta %d\n", card_id);
+    if (card_id != -1) printf("- ACK_CARD: per accettare la carta %d\n", card_id);
 
     // QUIT
     printf("- QUIT: esci\n");

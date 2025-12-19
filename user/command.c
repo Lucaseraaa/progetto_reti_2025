@@ -2,16 +2,23 @@
 #include "user/print.h"
 
 /**
+ * @brief implementazione della send_command
+ */
+void send_command(char* command){
+
+    int user_socket = user_data._board_socket;
+    send(user_socket, command, strlen(command), 0);
+    printf("Comando %s inviato!\n", command);
+
+}
+
+/**
  * @brief implementazione della show_lavagna
  */
-void show_lavagna(int request){
+void show_lavagna(){
 
     // Ottengo il socket dell'utente 
     int user_socket = user_data._board_socket;
-
-    char* show_lavagna = "SHOW_LAVAGNA\0";
-    printf("LUNGHEZZA: %ld\n", strlen(show_lavagna));
-    if (request == 1) send(user_socket, show_lavagna, strlen(show_lavagna), 0);
     
     int board_size;
     recv(user_socket, &board_size, sizeof(int), 0);
@@ -50,8 +57,6 @@ void handle_card(int user_socket){
  */
 void quit(int user_socket){
 
-    char* quit = "QUIT";
-    send(user_socket, &quit, sizeof(quit), 0);
     user_close(&user_data);
     exit(0);
 
@@ -107,8 +112,9 @@ void listen_to_server(){
 
                 printf("Comando richiesto: %s\n", input);
 
-                if (strcmp(input, "QUIT") == 0) quit(user_socket);
-                else if (strcmp(input, "SHOW_LAVAGNA") == 0) show_lavagna(1);
+                if (strcmp(input, "QUIT") == 0) {send_command("QUIT\0"); quit(user_socket);}
+                else if (strcmp(input, "SHOW_LAVAGNA") == 0) {send_command("SHOW_LAVAGNA\0"); show_lavagna(1);}
+                else if (strcmp(input, "ACK_CARD") == 0) {send_command("ACK_CARD\0");}
 
             }
         }   

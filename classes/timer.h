@@ -15,8 +15,8 @@
 #include <time.h>
 #include "structs/enums.h"
 
-#define PING_TIME 5
-#define PONG_TIME 20
+#define PING_TIME 120
+#define PONG_TIME 30
 #define ACK_TIME 120
 
 // Struttura dati relativa al timer
