@@ -38,6 +38,9 @@ void show_lavagna(){
 
 }
 
+/**
+ * @brief implementazione della HANDLE_CARD
+ */
 void handle_card(int user_socket){
 
     // Voglio ricevere l'id della card
@@ -47,8 +50,6 @@ void handle_card(int user_socket){
 
     // Assegnazione della card
     user_handle_card(&user_data, card_id);
-
-    printf("Ti è stata assegnata la card %d\nPuoi confermarla con il comando:\n-ACK\n", card_id);
 
 }
 
@@ -62,6 +63,66 @@ void quit(int user_socket){
 
 }
 
+
+/**
+ * @brief implementazione della handle_board_request
+ */
+void handle_board_request(char* command, int user_socket){
+
+    // Controllo le richieste provenienti dalla lavagna
+    if (strcmp(command, "HANDLE_CARD") == 0) {
+
+        handle_card(user_socket);
+    
+    }else if (strcmp(command, "PING_USER") == 0){
+
+        // Mi pongo in stato PING_USER
+        user_data._status = PING_USER; 
+
+    }
+}   
+
+/**
+ * @brief implementazione della handle_command
+ */
+void handle_command(char* command, int user_sock, User_Status status){
+
+    // Controllo i comandi
+    if (strcmp(command, "QUIT") == 0) {
+
+        // Quit può essere sempre eseguito
+        send_command(command);
+        quit(user_sock);
+
+    }else if (strcmp(command, "SHOW_LAVAGNA") == 0){
+    
+        // show_lavagna può essere sempre eseguita
+        send_command(command);
+        show_lavagna();
+
+    }else if (strcmp(command, "ACK_CARD") == 0 && status == CONN){
+
+        // L'ACK si può effettuare solo durante lo stato "CONN"
+        send_command(command);
+        user_data._status = CARD;
+
+    }else if (strcmp(command, "PONG_LAVAGNA") == 0 && status == PING_USER){
+
+        // pong_lavagna si può inviare solo durante lo stato di PING
+        send_command(command);
+        user_data._status = CARD;
+
+    }else if (strcmp(command, "CARD_DONE") == 0 && ( status == CARD || status == PING_USER)){
+
+        // card_done si può inviare solo durante card/ping
+        send_command(command);
+
+    }else{
+        printf("Il comando %s non può essere inviato in questo momento, perchè non esiste o perchè non ti trovi nello stato corretto, riprova!\n", command);
+    }
+
+}
+
 /**
  * @brief Funzione che attende che si verifichi un evento dal server
  * 
@@ -72,6 +133,9 @@ void listen_to_server(){
     int user_socket = user_data._board_socket;
     char command[COMMAND_LEN];
     char input[COMMAND_LEN];
+
+    // Stampo i comandi per la prima volta
+    handle_print(user_data._status, user_data._card_id);
 
     for(;;){
 
@@ -90,15 +154,21 @@ void listen_to_server(){
         if (FD_ISSET(user_socket, &readfds)) {
             memset(command, 0, COMMAND_LEN);
             int n = recv(user_socket, command, COMMAND_LEN - 1, 0);
+            
+            // Esco dal pool
             if (n <= 0) {
-                printf("Connessione chiusa dal server\n");
-                break;
+                printf("Connessione chiusa dal server per inattività\n");
+                close(user_socket);
+                exit(EXIT_FAILURE);
             }
 
+            // Sanificazione server
             command[n] = '\0';
             
             // Gestione output server
-            if (strcmp(command, "HANDLE_CARD") == 0) handle_card(user_socket);
+            printf("Ricevuto comando %s dal server\n", command);
+            handle_board_request(command, user_socket);
+            handle_print(user_data._status, user_data._card_id);
             
         }
 
@@ -109,19 +179,15 @@ void listen_to_server(){
 
                 // Sanificazione input manuale
                 input[strcspn(input, "\n")] = 0; // Sanificazione dell'input
-
+                
+                // Gestione input utente
                 printf("Comando richiesto: %s\n", input);
-
-                if (strcmp(input, "QUIT") == 0) {send_command("QUIT\0"); quit(user_socket);}
-                else if (strcmp(input, "SHOW_LAVAGNA") == 0) {send_command("SHOW_LAVAGNA\0"); show_lavagna(1);}
-                else if (strcmp(input, "ACK_CARD") == 0) {send_command("ACK_CARD\0");}
+                handle_command(input, user_socket, user_data._status);
+                handle_print(user_data._status, user_data._card_id);
 
             }
         }   
-
-        // Stampo i comandi che può effettuare l'utente
-        handle_print(user_data._status, user_data._card_id);
-    
+        
     }
 
 }

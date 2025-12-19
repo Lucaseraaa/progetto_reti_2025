@@ -138,6 +138,14 @@ void* pong_user(User_t user){
 void* ping_user(User_t user){
 
     printf("EFFETTUO PING DELL'UTENTE %d\n", user);
+
+    // Ottengo l'utente
+    User_s* user_ = get_User_by_port(kanban._usr, user);
+    
+    // Invio il comando
+    char* command = "PING_USER\0";
+    send(user_->_socket, command, strlen(command), 0);
+    
     insert_Timer_in_list(&timer, time(NULL) + PONG_TIME, pong_user, user, PONG);
 
 }

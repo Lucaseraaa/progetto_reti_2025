@@ -37,7 +37,5 @@ typedef struct Board_Connection_s{
 
 } Board_Connection_s;
 
-void board_main();
-
 void select_main();
 #endif

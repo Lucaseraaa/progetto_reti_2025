@@ -142,8 +142,11 @@ int remove_all_Timer_in_list(Timer_s** list, User_t user, Timer_Operation_Type t
  */
 int execute_Timer_head_function(Timer_s** list){
 
+    printf("ESECUZIONE DEL TIMER\n");
     Timer_s* timer = Timer_extract(list);
+    print_timer_list(*list);
     if(timer == NULL) return -1;
+    printf("Eseguo la funzione di tipo %d sull'utente %d\n", timer->_operation, timer->_param);
 
     TimerCallback callback = (TimerCallback) timer->_function;
     callback(timer->_param);

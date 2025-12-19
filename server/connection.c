@@ -45,12 +45,6 @@ void select_main(){
     // (Primo comando secondo specifiche) mostro la lavagna appena creata
     show_lavagna(&kanban);
 
-    // Test
-    move_card(&kanban, 1, TO_DO, DOING);
-    move_card(&kanban, 2, TO_DO, DOING);
-    move_card(&kanban, 1, DOING, DONE);
-    move_card(&kanban, 1, TO_DO, DONE);
-
     /* STEP 2: CREAZIONE DEL SERVER */
 
     // Inizializzazione delle strutture dati necessarie
@@ -198,7 +192,3 @@ void select_main(){
     }
 
 }
-
-void board_main(){
-
-}   

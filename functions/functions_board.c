@@ -115,6 +115,8 @@ int user_exit(Board_s *kanban, User_s* user){
 
     // Elimino l'utente
     extract_User(&kanban->_usr, port);
+
+    // Riduco il numero di utenti
     kanban->_connected_user--;
 
     printf("L'utente %d con socket %d è uscito dal gruppo!\n", port, sock);

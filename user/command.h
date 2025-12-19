@@ -28,6 +28,14 @@ extern User_Data_s user_data;
  */
 void send_command(char* command);
 
+/**
+ * @brief funzione che gestisce gli output da parte del server
+ * 
+ * @param command comando inviato dal server
+ * @param user_socket socket di comunicazione
+ */
+void handle_board_request(char* command, int user_socket);
+
 
 /**
  * @brief funzione che permette di ricevere la lavagna e stamparla
