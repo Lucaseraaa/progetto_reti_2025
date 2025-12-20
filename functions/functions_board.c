@@ -141,8 +141,9 @@ int insert_card(Board_s* board, int id, char* card_text, Column_type c){
 void timer_handler(int n){
 
     // Estraggo il timer in testa ed eseguo la funzione designata
+    printf("VADO NEL TIMER\n");
     int r = execute_Timer_head_function(&timer);
-
+    printf("HO ESTRATTO: %d\n", r);
     if (r == -1){
         // Caso in cui non ci sono eventi
         // Potrei aver eliminato l'unico evento dal Timer
@@ -190,6 +191,7 @@ void generate_event_in_Timer(Timer_s** timer, User_t port, Timer_Operation_Type 
     time_t event_time = time(NULL) + add_time;
     int ins = insert_Timer_in_list(timer, event_time, operation_function, port, operation_type);
     
+    printf("INS IMPORTANTE: %d\n", ins);
     if (ins == 1) alarm(add_time); // Nel caso in cui aggiunga un elemento in testa, resetto il timer
     
     print_timer_list(*timer);

@@ -24,6 +24,23 @@ Board_s Board_init(int id){
 }
 
 /**
+ * @brief implementazione della check_if_id_exists_in_board
+ */
+int check_if_id_exists_in_board(Board_s* board, int id){
+
+    for(int i = 0; i < 3; i++){
+
+        for(Card_s* crd = board->_colonne[i]._card; crd != NULL; crd = crd->_next){
+            if(crd->_id == id) return 0;
+        }
+
+    }
+
+    return -1;
+
+}
+
+/**
  * @brief implementaziione della append_card
  */
 int append_card(Board_s *board, int card_id, char* descrizione, Column_type type){
@@ -31,11 +48,18 @@ int append_card(Board_s *board, int card_id, char* descrizione, Column_type type
     // Prendo la colonna dei TO_DO
     Column_s *column = &board->_colonne[type];
 
+    // Controllo se l'id esiste già
+    if (check_if_id_exists_in_board(board, card_id) == 0) return -1;
+
     Card_s *new_card = Card_init(card_id, TO_DO, descrizione, 0); // Utente 0 è la lavagna 
     
     if (new_card == NULL) return -1;
 
-    insert_card_in_Column(column, new_card);
+    if (insert_card_in_Column(column, new_card) != 0){
+        Card_delete(new_card);
+        return -1;
+    }
+
     return 0;
 
 }

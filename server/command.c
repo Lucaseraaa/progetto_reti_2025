@@ -75,6 +75,16 @@ int move_card(Board_s* board, int card_id, Column_type from, Column_type to){
 }
 
 /**
+ * @brief implementazione della ack_alert
+ */
+void* ack_alert(User_t user){
+
+    printf("RIMOZIONE DELL'UTENTE %d DAL POOL A CAUSA DI ACK MANCATA\n", user);
+    quit(get_User_by_port(kanban._usr, user));
+
+}
+
+/**
  * @brief implementazione della HANDLE_CARD
  */
 void handle_card(){
@@ -105,22 +115,14 @@ void handle_card(){
         send(user_socket, &card_id_snd, sizeof(int), 0);
           
         // Invio la lista degli utenti
-        insert_Timer_in_list(&timer, time(NULL) + ACK_TIME, ack_alert, get_User_port(user), ACK_TIME);
+        generate_event_in_Timer(&timer, get_User_port(user), ACK_TIME, ack_alert, ACK_TIME);
+        print_timer_list(timer);
 
         printf("L'utente %d ha assegnata la card %d\n", user->_user, card_id);
     }
 
 }
 
-/**
- * @brief implementazione della ack_alert
- */
-void* ack_alert(User_t user){
-
-    printf("RIMOZIONE DELL'UTENTE %d DAL POOL A CAUSA DI ACK MANCATA\n", user);
-    quit(get_User_by_port(kanban._usr, user));
-
-}
 
 /**
  * @brief implementazione della PONG_USER
@@ -201,6 +203,37 @@ int pong_lavagna(User_s* user){
 }
 
 /**
+ * @brief implementazione della CREATE_CARD
+ */
+int create_card(User_s* user){
+
+    int task_id;
+    char task_body[1024];
+    
+    // Estraggo il socket
+    int u_sock = user->_socket;
+
+    recv(u_sock, &task_id, sizeof(int), 0);
+    task_id = ntohl(task_id);
+
+    printf("Richiesto task %d\n", task_id);
+
+    int n = recv(u_sock, &task_body, 1024, 0);
+    task_body[n] = '\0';  // sanificazione
+
+    printf("Richiesto task body: %s\n", task_body);
+
+    int r = append_card(&kanban, task_id, task_body, TO_DO);
+    int r_snd = htonl(r);
+
+    // Rispondo all'utente con il successo dell'operazione
+    send(u_sock, &r_snd, sizeof(int), 0);
+
+    return r;
+
+}
+
+/**
  * @brief implementazione della handle_command
  */
 int handle_command(char* command, int sock){
@@ -218,6 +251,7 @@ int handle_command(char* command, int sock){
     else if (strcmp(command, "ACK_CARD") == 0) return ack_card(user);
     else if (strcmp(command, "CARD_DONE") == 0) return card_done(user);
     else if (strcmp(command, "PONG_LAVAGNA") == 0) return pong_lavagna(user);
+    else if (strcmp(command, "CREATE_CARD")== 0) create_card(user);  
     else {printf("Comando non riconosciuto\n"); return -1;}
     
     return 0;

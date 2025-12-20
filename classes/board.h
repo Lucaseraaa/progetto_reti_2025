@@ -43,6 +43,16 @@ typedef struct Board_s{
 Board_s Board_init(int id);
 
 /**
+ * @brief funzione che cerca in tutti i task se esiste un task con id specificato
+ * 
+ * @param board lavagna in cui cercare
+ * @param id da cercare
+ * 
+ * @return 0 se esiste, -1 se non esiste
+ */
+int check_if_id_exists_in_board(Board_s* board, int id);
+
+/**
  * @brief funzione che crea una card e la inserisce nella colonna "TO_DO"
  * 
  * La funzione inizializza la card, la assegna a se stessa (per convenzione user = 0) e la inserisce nella colonna

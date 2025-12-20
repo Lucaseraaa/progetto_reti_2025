@@ -68,6 +68,7 @@ int insert_card_in_Column(Column_s* column, Card_s* card) {
 
     return 0;
 }
+
 Card_s* extract_card_with_id(int id, Column_s* column){
 
     Card_s* it_card;

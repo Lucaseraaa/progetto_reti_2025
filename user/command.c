@@ -54,6 +54,41 @@ void handle_card(int user_socket){
 }
 
 /**
+ * @brief Implementazione della create_card
+ */
+void create_card(int user_socket){
+
+    char task_id_str[5];
+    int task_id;
+    char task[1024];
+
+    printf("Inserisci l'id del task da inserire:\n");
+    fgets(task_id_str, 5, stdin);
+    task_id = atoi(task_id_str);
+
+    printf("Scrivi la card da inserire:\n");
+    fgets(task, 1024, stdin);
+    task[strcspn(task, "\n")] = '\0'; // sanificazione
+
+    // Invio il numero del task
+    task_id = htonl(task_id);
+    send(user_socket, &task_id, sizeof(int), 0);
+
+    // Invio il testo del task
+    send(user_socket, &task, strlen(task), 0);
+
+    // Controllo il successo dell'operazione
+    int result;
+    recv(user_socket, &result, sizeof(int), 0);
+    result = ntohl(result);
+
+    if (result == -1) printf("Il task non è stato aggiunto, esiste già un task con lo stesso id\n");
+    else printf("Il task è stato inserito correttamente in lavagna\n");
+
+
+}
+
+/**
  * @brief implementazione della QUIT
  */
 void quit(int user_socket){
@@ -116,7 +151,12 @@ void handle_command(char* command, int user_sock, User_Status status){
 
         // card_done si può inviare solo durante card/ping
         send_command(command);
+    
+    }else if (strcmp(command, "CREATE_CARD") == 0 && status != PING_USER){
 
+        send_command(command);
+        create_card(user_sock);
+    
     }else{
         printf("Il comando %s non può essere inviato in questo momento, perchè non esiste o perchè non ti trovi nello stato corretto, riprova!\n", command);
     }

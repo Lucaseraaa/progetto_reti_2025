@@ -104,6 +104,15 @@ int card_done(User_s* user);
 int pong_lavagna(User_s* user);
 
 /**
+ * @brief la funzione permette di inserire una card nella lavagna
+ * 
+ * @param user id della card da inserire
+ * 
+ * @return ritorna 0 se è riuscito ad inserirla, -1 viceversa
+ */
+int create_card(User_s* user);
+
+/**
  * @brief funzione utilizzata per gestire i comandi
  * 
  * La funzione riceve un comando da un utente e lo gestisce 

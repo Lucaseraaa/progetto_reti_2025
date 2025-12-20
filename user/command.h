@@ -29,6 +29,15 @@ extern User_Data_s user_data;
 void send_command(char* command);
 
 /**
+ * @brief funzione utilizzata creare una nuova card nella lavagna
+ * 
+ * La funzione può fallire se esiste già un'altra card con lo stesso ID
+ * 
+ * @param user_socket socket dell'utente
+ */
+void create_card(int user_socket);
+
+/**
  * @brief funzione che gestisce gli output da parte del server
  * 
  * @param command comando inviato dal server

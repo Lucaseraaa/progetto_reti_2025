@@ -17,7 +17,7 @@
 
 #define PING_TIME 5
 #define PONG_TIME 30
-#define ACK_TIME 120
+#define ACK_TIME 10
 
 // Struttura dati relativa al timer
 typedef struct Timer_s {
