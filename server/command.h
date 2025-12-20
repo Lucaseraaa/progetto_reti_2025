@@ -23,6 +23,11 @@
 #include <sys/select.h>
 #include "functions/functions_board.h" 
 
+// Variabili globali
+// Utilizzate per gestire la select
+extern fd_set master;
+extern fd_set read_fds;
+
 /**
  * @brief Funzione che mostra la lavagna
  * 
@@ -123,6 +128,5 @@ int create_card(User_s* user);
  * @return 0 se la funzione ha avuto successo, 1 se l'utente ha chiamato la QUIT, -1 viceversa
  */
 int handle_command(char* command, int sock);
-
 
 #endif

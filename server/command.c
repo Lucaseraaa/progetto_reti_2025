@@ -48,7 +48,9 @@ int get_lavagna(User_s* user){
     return 0;
 }
 
-
+/**
+ * @brief implementazione della QUIT
+ */
 int quit(User_s* user){
 
     // Rimozione dei timer dell'utente
@@ -80,8 +82,11 @@ int move_card(Board_s* board, int card_id, Column_type from, Column_type to){
 void* ack_alert(User_t user){
 
     printf("RIMOZIONE DELL'UTENTE %d DAL POOL A CAUSA DI ACK MANCATA\n", user);
-    quit(get_User_by_port(kanban._usr, user));
-
+    User_s* usr = get_User_by_port(kanban._usr, user); 
+    printf("ELIMINO\n");
+    FD_CLR(usr->_socket, &master); // Rimozione dalla lista della select
+    printf("FINE ELIMINO\n");
+    quit(usr);
 }
 
 /**
@@ -130,8 +135,11 @@ void handle_card(){
 void* pong_user(User_t user){
 
     printf("RIMOZIONE DELL'UTENTE %d DAL POOL\n", user);
-    quit(get_User_by_port(kanban._usr, user));
-
+    User_s* usr = get_User_by_port(kanban._usr, user); 
+    printf("ELIMINO\n");
+    FD_CLR(usr->_socket, &master); // Rimozione dalla lista della select
+    printf("FINE ELIMINO\n");
+    quit(usr);
 }
 
 /**
@@ -174,9 +182,21 @@ int ack_card(User_s* user){
 int card_done(User_s* user){
 
     int doing_card_id = get_User_card(user);
-    remove_all_Timer_in_list(&timer, get_User_port(user), NONE);
-    return switch_card_between_columns(&kanban, doing_card_id, DOING, DONE);
     
+    // Rimetto l'utente nella condizione di accettare una card
+    set_User_status(user, USR_NOTHING);
+    
+    // Rimuovo eventuali target relativi all'utente
+    remove_all_Timer_in_list(&timer, get_User_port(user), NONE);
+
+    // Metto la card in DONE
+    int r = switch_card_between_columns(&kanban, doing_card_id, DOING, DONE);
+    
+    // Gestisco le card
+    handle_card();
+    
+    return r;
+
 }
 
 /**

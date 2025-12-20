@@ -53,21 +53,24 @@ int user_connect(User_Data_s* ud, int connected_user, User_t users[], int user_s
     ud->_status = CONN;
     ud->_connected_users = connected_user;
 
-    printf("RICONTO GLI UTENTI: %d\n", connected_user);
     if(connected_user > 0){
 
         ud->_others = malloc(connected_user*sizeof(User_t));
-        for(int i = 0; i < ud->_connected_users; i++){
-            printf("UTENTE INSERITO: %d\n", ntohl(users[i]));
-            ud->_others[i] = ntohl(users[i]);
-        }
-    
+        for(int i = 0; i < ud->_connected_users; i++) ud->_others[i] = ntohl(users[i]);
+
     }
 
     if (user_sock != -1) ud->_board_socket = user_sock;
 
     return 0;
     
+}
+
+/**
+ * @brief implementazione della others_users
+ */
+int others_users(){
+
 }
 
 /**

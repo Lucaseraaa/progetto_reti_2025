@@ -12,7 +12,7 @@ void print_in_conn(int card_id){
     printf("- SHOW_LAVAGNA: utilizzato per stampare la lavagna\n- CREATE_CARD: utilizzato per creare una card\n");
 
     // Stampo l'ACK
-    if (card_id != -1) printf("- ACK_CARD: per accettare la carta %d\n", card_id);
+    if (card_id != -1) printf("- ACK_CARD: per accettare la carta %d, hai 120 secondi per farlo e poi verrai disconnesso\n", card_id);
 
     // QUIT
     printf("- QUIT: esci\n");
@@ -63,8 +63,8 @@ void print_in_ping(int card_id){
  */
 void handle_print(User_Status status, int card_id){
 
-    if (status == CONN) print_in_conn(status);
-    else if (status == CARD) print_in_card(status);
+    if (status == CONN) print_in_conn(card_id);
+    else if (status == CARD) print_in_card(card_id);
     else if (status == PING_USER) print_in_ping(card_id);
 
 }

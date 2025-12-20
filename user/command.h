@@ -29,6 +29,20 @@ extern User_Data_s user_data;
 void send_command(char* command);
 
 /**
+ * @brief funzione che permette di ricevere la lavagna e stamparla
+ */
+void show_lavagna();
+
+/**
+ * @brief funzione che assegna ad un utente una card
+ * 
+ * L'utente dovrà poi confermarla per poterla successivamente svolgere
+ * 
+ * @param user_socket socket dell'utente al quale assrgnare la card
+ */
+void handle_card(int user_socket);
+
+/**
  * @brief funzione utilizzata creare una nuova card nella lavagna
  * 
  * La funzione può fallire se esiste già un'altra card con lo stesso ID
@@ -44,12 +58,6 @@ void create_card(int user_socket);
  * @param user_socket socket di comunicazione
  */
 void handle_board_request(char* command, int user_socket);
-
-
-/**
- * @brief funzione che permette di ricevere la lavagna e stamparla
- */
-void show_lavagna();
 
 void listen_to_server();
 

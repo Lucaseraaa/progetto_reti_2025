@@ -98,6 +98,16 @@ void quit(int user_socket){
 
 }
 
+/**
+ * @brief implementazione della CARD_DONE
+ */
+void user_card_done(){
+    
+    user_data._status = CONN;
+    user_data._card_id = -1;
+
+}
+
 
 /**
  * @brief implementazione della handle_board_request
@@ -150,6 +160,7 @@ void handle_command(char* command, int user_sock, User_Status status){
     }else if (strcmp(command, "CARD_DONE") == 0 && ( status == CARD || status == PING_USER)){
 
         // card_done si può inviare solo durante card/ping
+        user_card_done();
         send_command(command);
     
     }else if (strcmp(command, "CREATE_CARD") == 0 && status != PING_USER){
@@ -198,7 +209,6 @@ void listen_to_server(){
             // Esco dal pool
             if (n <= 0) {
                 printf("Connessione chiusa dal server per inattività\n");
-                close(user_socket);
                 exit(EXIT_FAILURE);
             }
 

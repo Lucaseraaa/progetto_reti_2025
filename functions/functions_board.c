@@ -120,6 +120,8 @@ int user_exit(Board_s *kanban, User_s* user){
     kanban->_connected_user--;
 
     printf("L'utente %d con socket %d è uscito dal gruppo!\n", port, sock);
+    close(sock);
+    
     return 0;
 }
 

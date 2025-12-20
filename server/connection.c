@@ -29,6 +29,10 @@ char* cards[10] = {
     "Creazione di un mockup"
 };
 
+// Inizializzazione delle strutture dati necessarie
+fd_set master;
+fd_set read_fds;
+
 void select_main(){
 
     /* STEP 1: INIZIALIZZAZIONE DELLA KANBAN */
@@ -46,10 +50,6 @@ void select_main(){
     show_lavagna(&kanban);
 
     /* STEP 2: CREAZIONE DEL SERVER */
-
-    // Inizializzazione delle strutture dati necessarie
-    fd_set master;
-    fd_set read_fds;
     
     // Indirizzi client/server
     struct sockaddr_in server_addr, client_addr;
@@ -88,7 +88,7 @@ void select_main(){
             memset(buf, 0, 1024);
 
             // Trovato un descrittore pronto
-            if(FD_ISSET(i, &read_fds)){
+            if(FD_ISSET(i, &read_fds) && FD_ISSET(i, &master)){
                 
                 // Sono nel listener, un utente sta cercando di connettersi
                 if(i == listener){

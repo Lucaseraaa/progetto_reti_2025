@@ -70,9 +70,6 @@ void client_main(int user){
 
     }
 
-
-    printf("Ci sono %d utenti\n", users_number);
-
     // Verifico che non sia il primo utente
     if (users_number > 0){
         
@@ -93,5 +90,4 @@ void client_main(int user){
 
     listen_to_server();
 
-    // user_close(&user_data);
 }
