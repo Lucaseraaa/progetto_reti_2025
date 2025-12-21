@@ -118,6 +118,15 @@ int pong_lavagna(User_s* user);
 int create_card(User_s* user);
 
 /**
+ * @brief funzione che ritorna all'utente la lista degli utenti attualmente connessi
+ * 
+ * La funzione ritorna solamente gli altri, escludendo l'utente stesso
+ * 
+ * @param user utente 
+ */
+void request_user_list(User_s* user);
+
+/**
  * @brief funzione utilizzata per gestire i comandi
  * 
  * La funzione riceve un comando da un utente e lo gestisce 

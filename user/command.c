@@ -73,6 +73,9 @@ void create_card(int user_socket){
     fgets(task, 1024, stdin);
     task[strcspn(task, "\n")] = '\0'; // sanificazione
 
+    // Invio ora il comando (per evitare che ci siano blocchi nel server)
+    send_command("CREATE_CARD\0");
+
     // Invio il numero del task
     task_id = htonl(task_id);
     send(user_socket, &task_id, sizeof(int), 0);
@@ -188,7 +191,6 @@ void handle_command(char* command, int user_sock, User_Status status){
     
     }else if (strcmp(command, "CREATE_CARD") == 0 && status != PING_USER){
 
-        send_command(command);
         create_card(user_sock);
 
     }else if (strcmp(command, "REQUEST_USER_LIST") == 0 && (status == CARD || status == CONN)){

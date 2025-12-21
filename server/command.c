@@ -198,6 +198,9 @@ int card_done(User_s* user){
 
 }
 
+/**
+ * @brief implemtazione della REQUEST_USER_LIST
+ */
 void request_user_list(User_s* user){
 
     int connected_users = kanban._connected_user;
