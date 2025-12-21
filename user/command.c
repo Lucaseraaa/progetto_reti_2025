@@ -59,15 +59,17 @@ void handle_card(int user_socket){
  */
 void create_card(int user_socket){
 
-    char task_id_str[5];
+    char task_id_str[32];
     int task_id;
     char task[1024];
 
+    // Gestione task id
     printf("Inserisci l'id del task da inserire:\n");
-    fgets(task_id_str, 5, stdin);
+    fgets(task_id_str, sizeof(task_id_str), stdin);
     task_id = atoi(task_id_str);
 
-    printf("Scrivi la card da inserire:\n");
+    // Inserimento corpo
+    printf("Inserisci il corpo della card:\n");
     fgets(task, 1024, stdin);
     task[strcspn(task, "\n")] = '\0'; // sanificazione
 
@@ -75,8 +77,13 @@ void create_card(int user_socket){
     task_id = htonl(task_id);
     send(user_socket, &task_id, sizeof(int), 0);
 
+    // Invio la dimensione del corpo del testo
+    int task_len = strlen(task);
+    int net_task_len = htonl(task_len);
+    send(user_socket, &net_task_len, sizeof(int), 0);
+
     // Invio il testo del task
-    send(user_socket, &task, strlen(task), 0);
+    send(user_socket, task, task_len, 0);
 
     // Controllo il successo dell'operazione
     int result;
@@ -85,7 +92,6 @@ void create_card(int user_socket){
 
     if (result == -1) printf("Il task non è stato aggiunto, esiste già un task con lo stesso id\n");
     else printf("Il task è stato inserito correttamente in lavagna\n");
-
 
 }
 
@@ -111,24 +117,18 @@ void user_card_done(){
 
 void user_request_user_list(int user_socket){
 
-
-    printf("RICHIEDO UTENTI\n");
     // Ottengo il numero di utenti
     int n_users;
     recv(user_socket, &n_users, sizeof(int), 0);
     n_users = ntohl(n_users);
-    printf("Utenti: %d\n", n_users);
     
 
     // Ottengo l'array di utenti
     if (n_users != 0){
-        printf("NUMERO DI UTENTI: %d\n", n_users);
         User_t users[n_users];
-        recv(user_socket, &users, n_users, 0);
+        recv(user_socket, &users, n_users*sizeof(User_t), 0);
         other_users(&user_data, n_users, users);
     }
-    
-    printf("FINE RICHIESTA UTENTI\n");
 
 }
 
@@ -193,7 +193,6 @@ void handle_command(char* command, int user_sock, User_Status status){
 
     }else if (strcmp(command, "REQUEST_USER_LIST") == 0 && (status == CARD || status == CONN)){
 
-        printf("COMANDOOOO\n");
         send_command(command);
         user_request_user_list(user_sock);
 

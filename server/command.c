@@ -16,7 +16,7 @@ void show_lavagna(){
 }
 
 /**
- * @brief implementazione della get_lavagna
+ * @brief implementazione della GET_LAVAGNA
  */
 int get_lavagna(User_s* user){
 
@@ -136,11 +136,8 @@ void handle_card(){
  */
 void* pong_user(User_t user){
 
-    printf("RIMOZIONE DELL'UTENTE %d DAL POOL\n", user);
     User_s* usr = get_User_by_port(kanban._usr, user); 
-    printf("ELIMINO\n");
     FD_CLR(usr->_socket, &master); // Rimozione dalla lista della select
-    printf("FINE ELIMINO\n");
     quit(usr);
 }
 
@@ -250,7 +247,7 @@ int pong_lavagna(User_s* user){
  */
 int create_card(User_s* user){
 
-    int task_id;
+    int task_id, task_len;
     char task_body[1024];
     
     // Estraggo il socket
@@ -261,8 +258,11 @@ int create_card(User_s* user){
 
     printf("Richiesto task %d\n", task_id);
 
-    int n = recv(u_sock, &task_body, 1024, 0);
-    task_body[n] = '\0';  // sanificazione
+    recv(u_sock, &task_len, sizeof(int), 0);
+    task_len = ntohl(task_len);
+
+    int n = recv(u_sock, &task_body, task_len, 0);
+    task_body[task_len] = '\0';  // sanificazione
 
     printf("Richiesto task body: %s\n", task_body);
 
