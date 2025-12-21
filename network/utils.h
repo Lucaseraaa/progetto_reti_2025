@@ -42,4 +42,15 @@ int create_socket(const char* address, int port, enum __socket_type type, struct
  */
 int generate_listener(struct sockaddr_in* sv_addr, int* listener);
 
+/**
+ * @brief funzione che genera un socket UDP in ascolto su tutte le porta
+ * 
+ * @param udp_socket puntatore al socket da creare
+ * @param my_addr puntatore alla struttura dati del mio indirizzo
+ * @param port porta a cui esporre il socket
+ * 
+ * @return 1 se ha successo, 0 altrimenti
+ */
+int creare_udp_socket(int* udp_socket, struct sockaddr_in* my_addr, int port);
+
 #endif

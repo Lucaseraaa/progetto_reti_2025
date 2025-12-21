@@ -59,3 +59,27 @@ int generate_listener(struct sockaddr_in* sv_addr, int* listener){
     return 0;
 
 }
+
+/**
+ * @brief implementazione della create_udp_socket
+ */
+int creare_udp_socket(int* udp_socket, struct sockaddr_in* my_addr, int port){
+
+    if((udp_socket = socket(AF_INET, SOCK_DGRAM, 0)) < 0){
+        printf("Errore nella creazione del socket\n");
+        return -1;
+    }
+
+    memset(my_addr, 0, sizeof(*my_addr));
+    my_addr->sin_family = AF_INET;
+    my_addr->sin_addr.s_addr = htonl(INADDR_ANY);
+    my_addr->sin_port = htons(port);
+
+    if (bind(udp_socket, (struct sockaddr *)my_addr, sizeof(my_addr)) < 0) {
+        printf("Errore nella bind\n");
+        return -1;
+    }
+
+    return 0;
+
+}

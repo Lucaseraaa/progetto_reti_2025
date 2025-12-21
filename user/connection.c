@@ -88,6 +88,7 @@ void client_main(int user){
     // Ricevo la lavagna da stampare
     show_lavagna();
 
+    // Ciclo infinito 
     listen_to_server();
 
 }
