@@ -13,7 +13,7 @@
 #include  <string.h>
 #include "classes/user_data.h"
 
-#define COMMAND_LEN 15
+#define COMMAND_LEN 50
 
 extern User_Data_s user_data;
 
@@ -50,6 +50,13 @@ void handle_card(int user_socket);
  * @param user_socket socket dell'utente
  */
 void create_card(int user_socket);
+
+/**
+ * @brief funzione utilizzata per richiedere ed aggiornare la lista degli utenti connessi alla lavagna
+ * 
+ * @param user_socket socket dell'utente
+ */
+void user_request_user_list(int user_socket);
 
 /**
  * @brief funzione che gestisce gli output da parte del server

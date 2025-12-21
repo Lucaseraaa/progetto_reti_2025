@@ -26,20 +26,22 @@ int get_lavagna(User_s* user){
     // Scrivo sul socket
     int sock = user->_socket; // todo: cambia con setter
 
-    int board_len = htonl(strlen(board));
+    int board_len = htonl(strlen(board)+1);
 
     // Invio la lunghezza della lavagna attuale
     int n = write(sock, &board_len, sizeof(int));
 
     if (n != sizeof(int)){
         perror("Errore nell'invio della lunghezza della lavagna");
+        free(board);
         return -1;
     } 
 
     // Invio la lavanga
-    int k = write(sock, board, strlen(board));
+    int k = write(sock, board, strlen(board)+1);
     if (k != (int)strlen(board)){
         perror("Errore nell'invio della lavagna");
+        free(board);
         return -1;
     }
 
@@ -109,7 +111,7 @@ void handle_card(){
         if (s != 0) continue;
 
         // Invio la card all'utente
-        char* handle_card_command = "HANDLE_CARD\0"; 
+        char* handle_card_command = "HANDLE_CARD"; 
         int user_socket = user->_socket;
         
         // Invio il comando HANDLE_CARD
@@ -199,6 +201,27 @@ int card_done(User_s* user){
 
 }
 
+void request_user_list(User_s* user){
+
+    int connected_users = kanban._connected_user;
+    int connected_users_net = htonl(connected_users - 1);
+
+    int user_sock = user->_socket;
+
+    prova_print(kanban._usr);
+
+    // Invio il numero di utenti connessi
+    int suser = send(user_sock, &connected_users_net, sizeof(connected_users), 0);
+    if (connected_users == 0) return;
+
+    User_t users[connected_users - 1];
+    get_Users(kanban._usr, users, connected_users - 1, get_User_port(user));
+
+    // Invio gli utenti
+    suser = send(user_sock, &users, (connected_users - 1)*sizeof(User_t), 0);
+
+}
+
 /**
  * @brief implementazione della PONG_LAVAGNA
  */
@@ -272,6 +295,7 @@ int handle_command(char* command, int sock){
     else if (strcmp(command, "CARD_DONE") == 0) return card_done(user);
     else if (strcmp(command, "PONG_LAVAGNA") == 0) return pong_lavagna(user);
     else if (strcmp(command, "CREATE_CARD")== 0) create_card(user);  
+    else if (strcmp(command, "REQUEST_USER_LIST") == 0) request_user_list(user);
     else {printf("Comando non riconosciuto\n"); return -1;}
     
     return 0;

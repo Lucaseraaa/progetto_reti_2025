@@ -72,6 +72,8 @@ void user_close(User_Data_s* ud);
  */
 int user_connect(User_Data_s* ud, int connected_user, User_t users[], int user_sock);
 
+int other_users(User_Data_s* ud, int connected_user, User_t users[]);
+
 /**
  * @brief Funzione che assegna una carta all'utente, da ACK-are
  * 

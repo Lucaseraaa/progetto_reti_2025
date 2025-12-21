@@ -6,6 +6,7 @@
  */
 void send_command(char* command){
 
+    printf("PROVA\n");
     int user_socket = user_data._board_socket;
     send(user_socket, command, strlen(command), 0);
     printf("Comando %s inviato!\n", command);
@@ -34,7 +35,7 @@ void show_lavagna(){
     }
 
     // Stampo la lavagna
-    printf("%s", lavagna);
+    printf("%s\n", lavagna);
 
 }
 
@@ -108,6 +109,28 @@ void user_card_done(){
 
 }
 
+void user_request_user_list(int user_socket){
+
+
+    printf("RICHIEDO UTENTI\n");
+    // Ottengo il numero di utenti
+    int n_users;
+    recv(user_socket, &n_users, sizeof(int), 0);
+    n_users = ntohl(n_users);
+    printf("Utenti: %d\n", n_users);
+    
+
+    // Ottengo l'array di utenti
+    if (n_users != 0){
+        printf("NUMERO DI UTENTI: %d\n", n_users);
+        User_t users[n_users];
+        recv(user_socket, &users, n_users, 0);
+        other_users(&user_data, n_users, users);
+    }
+    
+    printf("FINE RICHIESTA UTENTI\n");
+
+}
 
 /**
  * @brief implementazione della handle_board_request
@@ -167,7 +190,13 @@ void handle_command(char* command, int user_sock, User_Status status){
 
         send_command(command);
         create_card(user_sock);
-    
+
+    }else if (strcmp(command, "REQUEST_USER_LIST") == 0 && (status == CARD || status == CONN)){
+
+        printf("COMANDOOOO\n");
+        send_command(command);
+        user_request_user_list(user_sock);
+
     }else{
         printf("Il comando %s non può essere inviato in questo momento, perchè non esiste o perchè non ti trovi nello stato corretto, riprova!\n", command);
     }

@@ -134,14 +134,17 @@ void select_main(){
                     // Invio il numero di utenti
                     int suser = send(newfd, &connected_users_net, sizeof(connected_users), 0);
                     printf("Utenti inviati: %d con successo %d\n", connected_users_net, suser);
+                    
+                    if (connected_users != 1){
+                        // Genero l'array e ci scrivo gli utenti
+                        User_t users[connected_users - 1];
+                        get_Users(kanban._usr, users, connected_users - 1, port);
 
-                    // Genero l'array e ci scrivo gli utenti
-                    User_t users[connected_users - 1];
-                    get_Users(kanban._usr, users, connected_users - 1, port);
-
-                    // Invio gli utenti
-                    suser = send(newfd, users, (connected_users-1)*sizeof(User_t), 0);
-                    printf("Array Utenti inviati: con successo %d\n", suser);
+                        // Invio gli utenti
+                        
+                        suser = send(newfd, users, (connected_users-1)*sizeof(User_t), 0);
+                        printf("Array Utenti inviati: con successo %d\n", suser);
+                    }
 
                     // Connetto il client alla select
                     FD_SET(newfd, &master);
