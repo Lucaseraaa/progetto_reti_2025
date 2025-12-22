@@ -10,8 +10,10 @@ void User_Data_init(User_Data_s* ud, User_t port){
     ud->_status = DIS;
     ud->_card_id = -1;
     ud->_connected_users = 0;
-    ud->_others = NULL;
     ud->_board_socket = ud->_user_socket = -1;
+
+    ud->_others = NULL;
+    ud->_users_need_review = NULL;
 
 }
 

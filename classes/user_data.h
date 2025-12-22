@@ -36,6 +36,8 @@ typedef struct User_Data_s{
 
     int _user_socket; // Socket relativo all'utente
 
+    User_t* _users_need_review; // Lista degli utenti che necessitano la review della card (in ordine di richiesta)
+
 } User_Data_s;
 
 /**
@@ -58,6 +60,13 @@ void User_Data_init(User_Data_s* ud, User_t port);
  */
 void User_Data_delete(User_Data_s* ud);
 
+/**
+ * @brief funzione utilizzata per terminare la connessione dell'utente
+ * 
+ * La funzione chiude i socket e dealloca i dati nello heap
+ * 
+ * @param ud struttura dati user_data  
+ */
 void user_close(User_Data_s* ud);
 
 /**
@@ -72,6 +81,17 @@ void user_close(User_Data_s* ud);
  */
 int user_connect(User_Data_s* ud, int connected_user, User_t users[], int user_sock);
 
+/**
+ * @brief funzione che permette di settare tutti gli utenti della kanban all'interno di ud
+ * 
+ * La funzione elimina gli utenti precedenti e li riscrive nella struttura dati
+ * 
+ * @param ud struttura dati
+ * @param connected_user numero di utenti da connettere
+ * @param users array contenente le porte degli utenti
+ * 
+ * @return la funzione ritorna 0 se ha successo, -1 altrimenti
+ */
 int other_users(User_Data_s* ud, int connected_user, User_t users[]);
 
 /**

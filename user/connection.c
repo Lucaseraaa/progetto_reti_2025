@@ -2,6 +2,7 @@
 #include "network/utils.h"
 #include "classes/user_data.h"
 #include "structs/enums.h"
+#include "user/peer.h"
 
 // Compila
 // gcc -W -I. -Inetwork -Iclasses -Iuser testu.c network/*.c classes/*.c user/*.c -o testu 
@@ -11,6 +12,9 @@
 // @note dev'essere inizializzata
 User_Data_s user_data;
 
+// Variabile utilizzata per controllare gli utenti che hanno fatto la review della propria carta
+// @note la variabile va inizializzata
+Review_User_s review;
 
 void client_main(int user){
 
@@ -20,9 +24,13 @@ void client_main(int user){
     // Buffer per inserire i comandi
     char comando[COMMAND_SIZE];
 
-    // Strutture necessarie per il socket
+    // Strutture necessarie per il socket TCP
     struct sockaddr_in server_addr;
     int user_socket;
+
+    // Strutture necessarie per il socket UDP
+    struct sockaddr_in udp_addr;
+    int udp_socket;
 
     // Inizializzazione dell'utente
     printf("Benvenuto utente %d\nSono disponibili i seguenti comandi:\n- HELLO\n", user);
@@ -87,6 +95,15 @@ void client_main(int user){
 
     // Ricevo la lavagna da stampare
     show_lavagna();
+
+    // Creazione del socket udp
+    if (creare_udp_socket(&udp_socket, &udp_addr, user) == -1){
+        close(user_socket);
+        exit(EXIT_FAILURE);
+    }
+
+    // Setto il socket UDP destinato agli utenti
+    user_data._user_socket = udp_socket;
 
     // Ciclo infinito 
     listen_to_server();
