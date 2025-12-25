@@ -25,6 +25,8 @@ typedef struct Review_User_s{
 
 }Review_User_s;
 
+extern Review_User_s review;
+
 /**
  * @brief funzione che inizializza una variabile del tipo Review_User_s
  * 
@@ -36,6 +38,13 @@ typedef struct Review_User_s{
  * @return ritorna il puntatore al nuovo elemento se ha successo, altrimenti NULL
  */
 Review_User_s* Review_User_init(User_Data_s* ud);
+
+/**
+ * @brief funzione che dealloca una variabile di tipo Review_User_s
+ * 
+ * @param ru riferimento all'oggetto da eliminare
+ */
+void Review_User_delete(Review_User_s* ru);
 
 /**
  * @brief funzione che allinea gli utenti rispetto alla User_Data_s aggiornata
@@ -58,5 +67,17 @@ int refresh_review_users(Review_User_s* ru, User_Data_s* ud);
  * @return 0 se ha successo, -1 viceversa
  */
 int review_complete(User_Data_s* ud, User_t user);
+
+
+/**
+ * @brief funzione che filtra gli utenti della Review_User
+ * 
+ * La funzione elimina dagli utenti rimanenti quelli che non sono più attivi
+ * 
+ * @param ru riferimento alla Review_User
+ * @param current_users array degli utenti correnti
+ * @param connected_count numero degli utenti presenti in current_users
+ */
+void filter_disconnected_users(Review_User_s* ru, User_t* current_users, int connected_count);
 
 #endif

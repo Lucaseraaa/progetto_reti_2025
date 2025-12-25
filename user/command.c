@@ -211,9 +211,17 @@ void handle_command(char* command, int user_sock, User_Status status){
 void listen_to_server(){
     
     // Ottengo il socket dell'utente
-    int user_socket = user_data._board_socket;
+    int board_socket = user_data._board_socket;
+    int user_socket = user_data._user_socket;
+
+    // Dichiarazione buffer
     char command[COMMAND_LEN];
     char input[COMMAND_LEN];
+    char user_buffer[COMMAND_LEN];
+
+    // Indirizzo dell'utente
+    struct sockaddr_in sender_addr;
+    socklen_t sender_len = sizeof(sender_addr);
 
     // Stampo i comandi per la prima volta
     handle_print(user_data._status, user_data._card_id);
@@ -223,15 +231,25 @@ void listen_to_server(){
         fd_set readfds;
         FD_ZERO(&readfds);
 
-        FD_SET(user_socket, &readfds); // socket
+        FD_SET(board_socket, &readfds); // socket TCP
+        FD_SET(user_socket, &readfds); // socket UDP
         FD_SET(STDIN_FILENO, &readfds); // stdin
 
-        int maxfd = (user_socket > STDIN_FILENO)
-                    ? user_socket
-                    : STDIN_FILENO;
+        int maxfd = board_socket;
+        if (user_socket > maxfd) maxfd = user_socket;
+        if (STDIN_FILENO > maxfd) maxfd = STDIN_FILENO;
         
         int activity = select(maxfd + 1, &readfds, NULL, NULL, NULL);
 
+        if (activity < 0) {
+            perror("Errore nella select");
+            continue; // O exit, a seconda di come vuoi gestire l'errore
+        }
+        
+
+        /**
+         * GESTIONE SERVER
+         */
         if (FD_ISSET(user_socket, &readfds)) {
             memset(command, 0, COMMAND_LEN);
             int n = recv(user_socket, command, COMMAND_LEN - 1, 0);
@@ -247,12 +265,36 @@ void listen_to_server(){
             
             // Gestione output server
             printf("Ricevuto comando %s dal server\n", command);
-            handle_board_request(command, user_socket);
+            handle_board_request(command, board_socket);
             handle_print(user_data._status, user_data._card_id);
             
         }
+        
+        /**
+         * GESTIONE UTENTI
+         */
+        if (FD_ISSET(user_socket, &readfds)) {
+            memset(user_buffer, 0, COMMAND_LEN);
+            
+            // Nota: recvfrom è necessario per UDP se vuoi sapere chi ti ha scritto
+            int n = recvfrom(user_socket, user_buffer, COMMAND_LEN - 1, 0, 
+                             (struct sockaddr*)&sender_addr, &sender_len);
+            
+            if (n > 0) {
+                user_buffer[n] = '\0';
+                printf("Messaggio UDP ricevuto: %s con porta: %d\n", user_buffer, sender_addr.sin_port);
+                
+                // Qui dovrai implementare la logica per gestire il messaggio UDP
+                // Es: handle_udp_request(udp_buffer, &user_data);
+                
+                handle_print(user_data._status, user_data._card_id);
+            }
+        }
 
-        /* input utente */
+
+        /**
+         * GESTIONE STDIN
+         */
         if (FD_ISSET(STDIN_FILENO, &readfds)) {
             memset(input, 0, COMMAND_LEN);
             if (fgets(input, COMMAND_LEN, stdin) != NULL) {
@@ -262,7 +304,7 @@ void listen_to_server(){
                 
                 // Gestione input utente
                 printf("Comando richiesto: %s\n", input);
-                handle_command(input, user_socket, user_data._status);
+                handle_command(input, board_socket, user_data._status);
                 handle_print(user_data._status, user_data._card_id);
 
             }

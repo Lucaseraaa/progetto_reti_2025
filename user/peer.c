@@ -22,6 +22,20 @@ Review_User_s* Review_User_init(User_Data_s* ud){
 
 }
 
+/**
+ * @brief implementazione della Review_User_delete
+ */
+void Review_User_delete(Review_User_s* ru){
+
+    free(ru->_remaning_users);
+
+    free(ru);
+
+}
+
+/**
+ * @brief implementazione della refresh_review_users
+ */
 int refresh_review_users(Review_User_s* ru, User_Data_s* ud){
 
     // Imposto il numero di utenti
@@ -37,11 +51,14 @@ int refresh_review_users(Review_User_s* ru, User_Data_s* ud){
     return 0;
 }
 
+/**
+ * @brief implementazione della review_complete
+ */
 int review_complete(User_Data_s* ud, User_t user){
     if (ud == NULL) return -1;
 
     // Utenti 
-    Review_User_s* r = &ud->_others; 
+    Review_User_s* r = &review; 
 
     if (r->_remaning_users == NULL || r->_remaning_users_number <= 0) {
         return -1; // Nessun utente da rimuovere o array non inizializzato
@@ -82,4 +99,34 @@ int review_complete(User_Data_s* ud, User_t user){
     }
 
     return 0;
+}
+
+/**
+ * @brief funzione di utilità per cercare se esiste un utente nella lista
+ */
+int is_user_in_list(User_t user, User_t* list, int list_size) {
+
+    for (int i = 0; i < list_size; i++) {
+        if (list[i] == user) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+/**
+ * @brief implementazione della filter_disconnected_users
+ */
+void filter_disconnected_users(Review_User_s* ru, User_t* current_users, int connected_count) {
+    int write_idx = 0;
+
+    // Controllo gli utenti rimasti
+    for (int i = 0; i < ru->_remaning_users_number; i++) {
+        if (is_user_in_list(ru->_remaning_users[i], current_users, connected_count)) {
+            ru->_remaning_users[write_idx++] = ru->_remaning_users[i];
+        }
+    }
+    ru->_remaning_users_number = write_idx;
+
 }
