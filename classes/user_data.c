@@ -81,10 +81,10 @@ int other_users(User_Data_s* ud, int connected_user, User_t users[]){
     if(connected_user > 0){
 
         ud->_others = malloc(connected_user*sizeof(User_t));
-        printf("Utenti: ");
+        printf("Utenti: \n");
         for(int i = 0; i < ud->_connected_users; i++) {
 
-            printf("%d, ", ntohl(users[i]));
+            printf("%d e %d, \n", ntohl(users[i]), users[i]);
             ud->_others[i] = ntohl(users[i]);
 
         }

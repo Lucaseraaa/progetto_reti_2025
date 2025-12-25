@@ -14,8 +14,10 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <string.h>
 #include "structs/enums.h"
 #include "user_data.h"
+
 
 typedef struct Review_User_s{
 
@@ -81,5 +83,15 @@ int review_complete(User_Data_s* ud, User_t user);
  * @param connected_count numero degli utenti presenti in current_users
  */
 void filter_disconnected_users(Review_User_s* ru, User_t* current_users, int connected_count);
+
+
+/**
+ * @brief funzione che invia a tutti gli utenti della Review_User un messaggio
+ * 
+ * @param ru riferimento alla review user
+ * @param user_sock socket UDP per l'invio dei messaggi
+ * @param card_id id della card della revisione
+ */
+void send_all_users_notification(Review_User_s* ru, int user_sock, int card_id);
 
 #endif

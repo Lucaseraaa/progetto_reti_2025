@@ -98,7 +98,6 @@ void handle_card(){
     for(User_s* user = kanban._usr; user != NULL; user = user->_next){
 
         int card_id;
-        printf("HANDLE CARD\n");
 
         // Se l'utente ha già una card, non lo considero
         if (get_User_status(user) != USR_NOTHING) continue;
@@ -118,7 +117,12 @@ void handle_card(){
         // Invio l'id della card
         int card_id_snd = htonl(card_id);
         if(send(user_socket, &card_id_snd, sizeof(int), 0) < 0){
-            perror("Messaggio non inviato correttamente: ");
+            
+            // In caso di errore resetto l'utente
+            perror("Messaggio non inviato correttamente");
+            user_confirm_card(&kanban, get_User_port(user), 1);
+            return;
+
         }
           
         // Invio la lista degli utenti
@@ -212,10 +216,10 @@ void request_user_list(User_s* user){
 
     // Invio il numero di utenti connessi
     int suser = send(user_sock, &connected_users_net, sizeof(connected_users), 0);
-    if (connected_users == 0) return;
+    if (connected_users == 1) return;
 
     User_t users[connected_users - 1];
-    get_Users(kanban._usr, users, connected_users - 1, get_User_port(user));
+    get_Users(kanban._usr, users, connected_users, get_User_port(user));
 
     // Invio gli utenti
     suser = send(user_sock, &users, (connected_users - 1)*sizeof(User_t), 0);

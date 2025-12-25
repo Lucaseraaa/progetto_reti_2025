@@ -132,3 +132,40 @@ void filter_disconnected_users(Review_User_s* ru, User_t* current_users, int con
     ru->_remaning_users_number = write_idx;
 
 }
+
+/**
+ * @brief implementazione della send_all_users_notification 
+ */
+void send_all_users_notification(Review_User_s* ru, int user_sock, int card_id){
+
+    if (ru->_remaning_users == 0) return;
+
+    struct sockaddr_in dest_addr;
+    memset(&dest_addr, 0, sizeof(dest_addr));
+
+    dest_addr.sin_family = AF_INET;
+    inet_pton(AF_INET, "127.0.0.1", &dest_addr.sin_addr);
+
+    // Messaggio da inviare
+    int card_id_snd = htonl(card_id);
+
+    for (int i = 0; i < ru->_remaning_users_number; i++) {
+        
+        User_t user = ru->_remaning_users[i];
+        printf("Utente con porta: %d\n", user);
+        dest_addr.sin_port = htons(user);
+
+        ssize_t sent = sendto(
+            user_sock,
+            &card_id_snd,
+            sizeof(card_id_snd),
+            0,
+            (struct sockaddr*)&dest_addr,
+            sizeof(dest_addr)
+        );
+
+        printf("MESSAGGIO INVIATO AL CLIENT %d con risultato %ld\n", user, sent);
+        perror("PERCHE ");
+    }
+
+}

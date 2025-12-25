@@ -138,6 +138,18 @@ void user_request_user_list(int user_socket){
 
 }
 
+void review_card(int board_sock, int user_sock){
+    
+    handle_command("REQUEST_USER_LIST\0", board_sock, user_data._status);
+        
+    // Salvo gli utenti attuali
+    refresh_review_users(&review, &user_data);
+
+    // Invio i messaggi di REVIEW
+    send_all_users_notification(&review, user_sock, user_data._card_id);
+
+}
+
 /**
  * @brief implementazione della handle_board_request
  */
@@ -165,14 +177,14 @@ void handle_board_request(char* command, int user_socket){
 /**
  * @brief implementazione della handle_command
  */
-void handle_command(char* command, int user_sock, User_Status status){
+void handle_command(char* command, int board_sock, User_Status status){
 
     // Controllo i comandi
     if (strcmp(command, "QUIT") == 0) {
 
         // Quit può essere sempre eseguito
         send_command(command);
-        quit(user_sock);
+        quit(board_sock);
 
     }else if (strcmp(command, "SHOW_LAVAGNA") == 0){
     
@@ -200,21 +212,16 @@ void handle_command(char* command, int user_sock, User_Status status){
     
     }else if (strcmp(command, "CREATE_CARD") == 0 && status != PING_USER){
 
-        create_card(user_sock);
+        create_card(board_sock);
 
     }else if (strcmp(command, "REQUEST_USER_LIST") == 0 && (status == CARD || status == CONN)){
 
         send_command(command);
-        user_request_user_list(user_sock);
+        user_request_user_list(board_sock);
 
     }else if (strcmp(command, "REVIEW_CARD") == 0 && status == CARD){
         
-        // Richiedo la lista degli utenti attuali
-        send_command("REQUEST_USER_LIST");
-        user_request_user_list(user_sock);
-        
-        // Salvo gli utenti attuali
-        refresh_review_users(&review, &user_data);
+        review_card(board_sock, user_data._user_socket);
 
     }else{
         printf("Il comando %s non può essere inviato in questo momento, perchè non esiste o perchè non ti trovi nello stato corretto, riprova!\n", command);
@@ -282,7 +289,6 @@ void listen_to_server(){
             
             // Gestione output server
             printf("Ricevuto comando %s dal server\n", command);
-            printf("INIZIO A SCRIVERE\n");
             handle_board_request(command, board_socket);
             handle_print(user_data._status, user_data._card_id);
             
@@ -299,13 +305,16 @@ void listen_to_server(){
                              (struct sockaddr*)&sender_addr, &sender_len);
             
             if (n > 0) {
+
                 user_buffer[n] = '\0';
-                printf("Messaggio UDP ricevuto: %s con porta: %d\n", user_buffer, sender_addr.sin_port);
+                printf("Messaggio UDP ricevuto: %s con porta: %d\n", user_buffer, ntohs(sender_addr.sin_port));
                 
                 // Qui dovrai implementare la logica per gestire il messaggio UDP
                 // Es: handle_udp_request(udp_buffer, &user_data);
-                
                 handle_print(user_data._status, user_data._card_id);
+                
+            }else{
+                printf("ERRORE\n");
             }
         }
 

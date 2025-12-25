@@ -51,6 +51,8 @@ void handle_card(int user_socket);
  */
 void create_card(int user_socket);
 
+void handle_command(char* command, int board_sock, User_Status status);
+
 /**
  * @brief funzione utilizzata per richiedere ed aggiornare la lista degli utenti connessi alla lavagna
  * 
