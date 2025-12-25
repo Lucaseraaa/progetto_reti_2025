@@ -85,9 +85,7 @@ void* ack_alert(User_t user){
 
     printf("RIMOZIONE DELL'UTENTE %d DAL POOL A CAUSA DI ACK MANCATA\n", user);
     User_s* usr = get_User_by_port(kanban._usr, user); 
-    printf("ELIMINO\n");
     FD_CLR(usr->_socket, &master); // Rimozione dalla lista della select
-    printf("FINE ELIMINO\n");
     quit(usr);
 }
 
@@ -111,7 +109,7 @@ void handle_card(){
         if (s != 0) continue;
 
         // Invio la card all'utente
-        char* handle_card_command = "HANDLE_CARD"; 
+        char* handle_card_command = "HANDLE_CARD\0"; 
         int user_socket = user->_socket;
         
         // Invio il comando HANDLE_CARD
@@ -119,7 +117,9 @@ void handle_card(){
         
         // Invio l'id della card
         int card_id_snd = htonl(card_id);
-        send(user_socket, &card_id_snd, sizeof(int), 0);
+        if(send(user_socket, &card_id_snd, sizeof(int), 0) < 0){
+            perror("Messaggio non inviato correttamente: ");
+        }
           
         // Invio la lista degli utenti
         generate_event_in_Timer(&timer, get_User_port(user), ACK_TIME, ack_alert, ACK_TIME);

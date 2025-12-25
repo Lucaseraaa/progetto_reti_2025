@@ -1,5 +1,6 @@
 #include "user/command.h"
 #include "user/print.h"
+#include "user/peer.h"
 
 /**
  * @brief implementazione della send_command
@@ -46,8 +47,10 @@ void handle_card(int user_socket){
 
     // Voglio ricevere l'id della card
     int card_id;
+    printf("PRIMA DI LEGGERE LA CARD\n");
     recv(user_socket, &card_id, sizeof(int), 0);
     card_id = ntohl(card_id); // La serializzo
+    printf("RICEVUTO DAL SERVER: %d\n", card_id);
 
     // Assegnazione della card
     user_handle_card(&user_data, card_id);
@@ -139,10 +142,14 @@ void user_request_user_list(int user_socket){
  * @brief implementazione della handle_board_request
  */
 void handle_board_request(char* command, int user_socket){
+    
+
+    printf("SONO DENTRO\n");
 
     // Controllo le richieste provenienti dalla lavagna
     if (strcmp(command, "HANDLE_CARD") == 0) {
-
+        
+        printf("GESTIONE CARD\n");
         handle_card(user_socket);
     
     }else if (strcmp(command, "PING_USER") == 0){
@@ -150,6 +157,8 @@ void handle_board_request(char* command, int user_socket){
         // Mi pongo in stato PING_USER
         user_data._status = PING_USER; 
 
+    }else{
+        printf("Il comando %s inviato dalla lavagna non esiste\n", command);
     }
 }   
 
@@ -198,6 +207,15 @@ void handle_command(char* command, int user_sock, User_Status status){
         send_command(command);
         user_request_user_list(user_sock);
 
+    }else if (strcmp(command, "REVIEW_CARD") == 0 && status == CARD){
+        
+        // Richiedo la lista degli utenti attuali
+        send_command("REQUEST_USER_LIST");
+        user_request_user_list(user_sock);
+        
+        // Salvo gli utenti attuali
+        refresh_review_users(&review, &user_data);
+
     }else{
         printf("Il comando %s non può essere inviato in questo momento, perchè non esiste o perchè non ti trovi nello stato corretto, riprova!\n", command);
     }
@@ -243,16 +261,15 @@ void listen_to_server(){
 
         if (activity < 0) {
             perror("Errore nella select");
-            continue; // O exit, a seconda di come vuoi gestire l'errore
+            continue; 
         }
         
-
         /**
          * GESTIONE SERVER
          */
-        if (FD_ISSET(user_socket, &readfds)) {
+        if (FD_ISSET(board_socket, &readfds)) {
             memset(command, 0, COMMAND_LEN);
-            int n = recv(user_socket, command, COMMAND_LEN - 1, 0);
+            int n = recv(board_socket, command, COMMAND_LEN - 1, 0);
             
             // Esco dal pool
             if (n <= 0) {
@@ -265,6 +282,7 @@ void listen_to_server(){
             
             // Gestione output server
             printf("Ricevuto comando %s dal server\n", command);
+            printf("INIZIO A SCRIVERE\n");
             handle_board_request(command, board_socket);
             handle_print(user_data._status, user_data._card_id);
             

@@ -70,12 +70,11 @@ int creare_udp_socket(int* udp_socket, struct sockaddr_in* my_addr, int port){
         return -1;
     }
 
-    memset(my_addr, 0, sizeof(*my_addr)); // Anche qui sizeof(*my_addr) è più sicuro, anche se sizeof(struct...) va bene
+    memset(my_addr, 0, sizeof(*my_addr));
     my_addr->sin_family = AF_INET;
     my_addr->sin_addr.s_addr = htonl(INADDR_ANY);
     my_addr->sin_port = htons(port);
 
-    // CORREZIONE QUI
     if (bind(*udp_socket, (struct sockaddr *)my_addr, sizeof(*my_addr)) < 0) {
         perror("Errore nella bind");
         return -1;

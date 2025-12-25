@@ -11,6 +11,7 @@ Review_User_s* Review_User_init(User_Data_s* ud){
 
     // Imposto il numero di utenti
     r->_remaning_users_number = ud->_connected_users;  
+    r->req = 0;
 
     // Inserimento delle porte
     r->_remaning_users = malloc(r->_remaning_users_number*sizeof(User_t));
@@ -40,6 +41,7 @@ int refresh_review_users(Review_User_s* ru, User_Data_s* ud){
 
     // Imposto il numero di utenti
     ru->_remaning_users_number = ud->_connected_users;  
+    ru->req = 1;
 
     // Inserimento delle porte
     free(ru->_remaning_users);

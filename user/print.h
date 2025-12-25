@@ -12,7 +12,10 @@
 
 #include <stdio.h>
 #include <unistd.h>
+#include "user/peer.h"
 #include "structs/enums.h"
+
+extern Review_User_s review;
 
 /**
  * @brief funzione per stampare i comandi nello stato di CONN

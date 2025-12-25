@@ -34,11 +34,9 @@ void print_in_card(int card_id){
     // Stampo i primi comandi
     printf("- SHOW_LAVAGNA: utilizzato per stampare la lavagna\n- CREATE_CARD: utilizzato per creare una card\n");
 
-    // Stampo l'ACK
-    printf("- CARD_DONE: conferma la card che hai in gestione\n");
-
     // Lista di utenti
-    printf("- REQUEST_USER_LIST: richiedi la lista di utenti\n");
+    if (review.req == 0) printf("- REVIEW_CARD: richiedi la revisione del tuo lavoro\n");
+    else if (review.req  == 1 && review._remaning_users_number == 0) printf("- CARD_DONE: conferma la card che hai in gestione\n"); 
 
     // QUIT
     printf("- QUIT: esci\n");

@@ -141,17 +141,14 @@ void select_main(){
                         get_Users(kanban._usr, users, connected_users - 1, port);
 
                         // Invio gli utenti
-                        
                         suser = send(newfd, users, (connected_users-1)*sizeof(User_t), 0);
                         printf("Array Utenti inviati: con successo %d\n", suser);
+
                     }
 
                     // Connetto il client alla select
                     FD_SET(newfd, &master);
                     if(newfd>fdmax) fdmax = newfd;
-                    
-                    // Invio la lavagna all'utente
-                    handle_command("SHOW_LAVAGNA", newfd);
 
                     handle_card();
 

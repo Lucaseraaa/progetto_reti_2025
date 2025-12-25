@@ -93,9 +93,6 @@ void client_main(int user){
 
     }else user_connect(&user_data, users_number, NULL, user_socket);
 
-    // Ricevo la lavagna da stampare
-    show_lavagna();
-
     // Creazione del socket udp
     if (creare_udp_socket(&udp_socket, &udp_addr, user) == -1){
         close(user_socket);

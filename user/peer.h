@@ -23,6 +23,8 @@ typedef struct Review_User_s{
 
     int _remaning_users_number; // Dimensione dell'array _remaning_users
 
+    int req;
+
 }Review_User_s;
 
 extern Review_User_s review;
