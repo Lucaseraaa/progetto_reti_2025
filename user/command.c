@@ -67,36 +67,22 @@ void handle_card(int user_socket){
 /**
  * @brief Implementazione della create_card
  */
-void create_card(int user_socket){
-
-    char task_id_str[32];
-    int task_id;
-    char task[1024];
-
-    // Gestione task id
-    printf("Inserisci l'id del task da inserire:\n");
-    fgets(task_id_str, sizeof(task_id_str), stdin);
-    task_id = atoi(task_id_str);
-
-    // Inserimento corpo
-    printf("Inserisci il corpo della card:\n");
-    fgets(task, 1024, stdin);
-    task[strcspn(task, "\n")] = '\0'; // sanificazione
+void create_card(int user_socket, int id, char* body){
 
     // Invio ora il comando (per evitare che ci siano blocchi nel server)
     send_message_to_board(user_socket, UB_CREATE_CARD);
 
     // Invio il numero del task
-    task_id = htonl(task_id);
+    int task_id = htonl(id);
     send(user_socket, &task_id, sizeof(int), 0);
 
     // Invio la dimensione del corpo del testo
-    int task_len = strlen(task);
+    int task_len = strlen(body);
     int net_task_len = htonl(task_len);
     send(user_socket, &net_task_len, sizeof(int), 0);
 
     // Invio il testo del task
-    send(user_socket, task, task_len, 0);
+    send(user_socket, body, task_len, 0);
 
     // Controllo il successo dell'operazione
     int result;
@@ -235,10 +221,17 @@ void handle_command(char* command, int board_sock, User_Status status){
         send_command(UB_CARD_DONE);
         review.req = 0;
     
-    }else if (strcmp(command, "CREATE_CARD") == 0 && status != PING_USER){
+    }else if (strncmp(command, "CREATE_CARD", 11) == 0 && status != PING_USER){
 
-        create_card(board_sock);
-
+        int id;
+        char body[1024];
+    
+        if (sscanf(command, "CREATE_CARD %d %[^\n]", &id, body) == 2) {
+            // Se sscanf restituisce 2, ha letto correttamente sia ID che Body
+            create_card(board_sock, id, body);
+        }else {
+            printf("Formato errato! Usa: CREATE_CARD <id> <descrizione del task>\n");
+        }
     }else if (strcmp(command, "REQUEST_USER_LIST") == 0 && (status == CARD || status == CONN)){
 
         send_command(UB_REQUEST_USER_LIST);

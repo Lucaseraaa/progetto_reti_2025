@@ -9,7 +9,7 @@ void print_in_conn(int card_id, User_t* user_needs_review, int user_needs_review
     printf("\nTi trovi nello stato di CONNESSIONE\nPuoi utilizzare i seguenti comandi:\n");
 
     // Stampo i primi comandi
-    printf("- SHOW_LAVAGNA: utilizzato per stampare la lavagna\n- CREATE_CARD: utilizzato per creare una card\n");
+    printf("- SHOW_LAVAGNA: utilizzato per stampare la lavagna\n- CREATE_CARD <task_id> <task_body>: utilizzato per creare una card\n");
 
     // Lista di utenti
     printf("- REQUEST_USER_LIST: richiedi la lista di utenti\n");
@@ -34,7 +34,7 @@ void print_in_card(int card_id, User_t* user_needs_review, int user_needs_review
     printf("\nTi trovi nello stato CARD e stai gestendo la card con id %d\nPuoi utilizzare i seguenti comandi:\n", card_id);
 
     // Stampo i primi comandi
-    printf("- SHOW_LAVAGNA: utilizzato per stampare la lavagna\n- CREATE_CARD: utilizzato per creare una card\n");
+    printf("- SHOW_LAVAGNA: utilizzato per stampare la lavagna\n- CREATE_CARD <task_id> <task_body>: utilizzato per creare una card\n");
 
     // Lista di utenti
     if (review.req == 0) printf("- REVIEW_CARD: richiedi la revisione del tuo lavoro\n");

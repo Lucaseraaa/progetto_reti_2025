@@ -55,8 +55,10 @@ void handle_card(int user_socket);
  * La funzione può fallire se esiste già un'altra card con lo stesso ID
  * 
  * @param user_socket socket dell'utente
+ * @param id id della card
+ * @param body body della card
  */
-void create_card(int user_socket);
+void create_card(int user_socket, int id, char* body);
 
 void handle_command(char* command, int board_sock, User_Status status);
 
