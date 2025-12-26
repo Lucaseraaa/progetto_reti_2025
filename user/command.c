@@ -3,6 +3,10 @@
 #include "user/peer.h"
 #include "network/utils.h"
 
+#define USER_REVIEW_TIMER 10
+
+int timer_scaduto = 0;
+
 /**
  * @brief implementazione della send_command
  */
@@ -168,7 +172,7 @@ void handle_board_request(Board_to_User_command command, int user_socket){
         printf("GESTIONE CARD\n");
         handle_card(user_socket);
     
-    }else if (command = BU_PING_USER){
+    }else if (command == BU_PING_USER){
 
         // Mi pongo in stato PING_USER
         user_data._status = PING_USER; 
@@ -186,6 +190,12 @@ void review_ok(int user_sock){
     send_user_ok(&review, user_sock, user_data._users_need_review[0]);
     pop_user_review(&user_data);
 
+}
+
+void resend_review_to_users(int p){
+
+    if (review._remaning_users != 0) timer_scaduto = 1; 
+    
 }
 
 /**
@@ -237,6 +247,7 @@ void handle_command(char* command, int board_sock, User_Status status){
     }else if (strcmp(command, "REVIEW_CARD") == 0 && status == CARD){
         
         review_card(board_sock, user_data._user_socket);
+        alarm(USER_REVIEW_TIMER);
     
     }else if(strcmp(command, "REVIEW") == 0 && ( status == CARD || status == CONN) && user_data._users_need_review_number > 0) {
 
@@ -252,7 +263,9 @@ void handle_command(char* command, int board_sock, User_Status status){
  * @brief Funzione che attende che si verifichi un evento dal server
  * 
 */ 
-void listen_to_server(){
+void listen_to_server(){   
+
+    signal(SIGALRM, resend_review_to_users);
     
     // Ottengo il socket dell'utente
     int board_socket = user_data._board_socket;
@@ -286,7 +299,21 @@ void listen_to_server(){
         int activity = select(maxfd + 1, &readfds, NULL, NULL, NULL);
 
         if (activity < 0) {
-            perror("Errore nella select");
+            if (errno = EINTR){
+                if (timer_scaduto == 1){
+                    
+                    handle_command("REQUEST_USER_LIST\0", user_data._board_socket, user_data._status);
+                    filter_disconnected_users(&review, user_data._others, user_data._connected_users);
+                    send_all_users_notification(&review, user_data._user_socket, user_data._card_id);
+                    timer_scaduto = 0;
+
+                    if (review._remaning_users_number == 0) handle_print(user_data._status, user_data._card_id, review._remaning_users, review._remaning_users_number);
+                    else alarm(USER_REVIEW_TIMER);
+                
+                }
+            }else{
+                perror("Errore nella select");
+            }
             continue; 
         }
         
@@ -296,13 +323,20 @@ void listen_to_server(){
         if (FD_ISSET(board_socket, &readfds)) {
             printf("OLEEEE\n");
 
-            recv(board_socket, &command, sizeof(command), MSG_WAITALL);
-            Board_to_User_command com = recv_message_from_board(command);
             
-            // Gestione output server
-            printf("Ricevuto comando %d dal server\n", command);
-            handle_board_request(com, board_socket);
-            handle_print(user_data._status, user_data._card_id, user_data._users_need_review, user_data._users_need_review_number);
+            if (recv(board_socket, &command, sizeof(command), MSG_WAITALL) > 0){
+                Board_to_User_command com = recv_message_from_board(command);
+            
+                // Gestione output server
+                printf("Ricevuto comando %d dal server\n", command);
+                handle_board_request(com, board_socket);
+                handle_print(user_data._status, user_data._card_id, user_data._users_need_review, user_data._users_need_review_number);
+            }else{
+                
+                printf("Mi disconnetto a seguito di un'errore\n");
+                exit(EXIT_FAILURE);
+            }
+            
             
         }
         

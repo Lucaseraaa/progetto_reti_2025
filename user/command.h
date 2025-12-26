@@ -10,7 +10,13 @@
 #ifndef USER_COMMAND_H
 #define USER_COMMAND_h
 
-#include  <string.h>
+#include <string.h>
+#include <sys/select.h>
+#include <sys/types.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <signal.h>
 #include "classes/user_data.h"
 #include "structs/enums.h"
 

@@ -114,6 +114,14 @@ int user_handle_card(User_Data_s* ud, int card_id){
  */
 void push_user_review(User_Data_s* ud, User_t user){
 
+    // Controllo se l'utente è già presente
+    for (int i = 0; i < ud->_users_need_review_number; i++) {
+        if (ud->_users_need_review[i] == user) {
+            // Utente già presente, non aggiungo nulla
+            return;
+        }
+    }
+
     // Aumento il numero di utenti che richiedono revizione
     ud->_users_need_review_number++;
 
