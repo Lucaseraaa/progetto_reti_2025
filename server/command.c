@@ -1,6 +1,7 @@
 #include <string.h>
 #include "command.h"
 #include "classes/timer.h"
+#include "network/utils.h"
 
 char* columns_name[] = {"TO-DO", "DOING", "DONE"};
 extern Board_s kanban;
@@ -108,11 +109,11 @@ void handle_card(){
         if (s != 0) continue;
 
         // Invio la card all'utente
-        char* handle_card_command = "HANDLE_CARD\n"; 
+        Board_to_User_command handle_card_command = BU_HANLDE_CARD; 
         int user_socket = user->_socket;
         
         // Invio il comando HANDLE_CARD
-        send(user_socket, handle_card_command, strlen(handle_card_command), 0);
+        send_message_to_user(user_socket, handle_card_command);
         
         // Invio l'id della card
         int card_id_snd = htonl(card_id);
@@ -158,8 +159,8 @@ void* ping_user(User_t user){
     User_s* user_ = get_User_by_port(kanban._usr, user);
     
     // Invio il comando
-    char* command = "PING_USER\0";
-    send(user_->_socket, command, strlen(command), 0);
+    Board_to_User_command command = BU_PING_USER;
+    send_message_to_user(user_->_socket, command);
     
     insert_Timer_in_list(&timer, time(NULL) + PONG_TIME, pong_user, user, PONG);
 

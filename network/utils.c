@@ -1,5 +1,4 @@
 #include "utils.h"
-
 #include <arpa/inet.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -84,4 +83,25 @@ int creare_udp_socket(int* udp_socket, struct sockaddr_in* my_addr, int port){
     }
 
     return 0;
+}
+
+/**
+ * @brief implementazione della send_message_to_user
+ */
+int send_message_to_user(int sock, Board_to_User_command command){
+
+    uint32_t net_cmd = htonl((uint32_t)command);
+
+    return send(sock, &net_cmd, sizeof(net_cmd), 0);
+
+}
+
+
+/**
+ * @brief implementazione della recv_message_to_user
+ */
+Board_to_User_command recv_message_to_user(uint32_t net_cmd){
+    
+    return (Board_to_User_command)ntohl(net_cmd);
+
 }

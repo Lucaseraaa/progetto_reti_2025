@@ -12,6 +12,7 @@
 
 #include  <string.h>
 #include "classes/user_data.h"
+#include "structs/enums.h"
 
 #define COMMAND_LEN 50
 
@@ -66,7 +67,7 @@ void user_request_user_list(int user_socket);
  * @param command comando inviato dal server
  * @param user_socket socket di comunicazione
  */
-void handle_board_request(char* command, int user_socket);
+void handle_board_request(Board_to_User_command command, int user_socket);
 
 void listen_to_server();
 

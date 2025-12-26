@@ -17,6 +17,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <errno.h>
+#include "structs/enums.h"
 
 /**
  * @brief funzione utilizzata per la creazione di un socket
@@ -52,5 +53,25 @@ int generate_listener(struct sockaddr_in* sv_addr, int* listener);
  * @return 1 se ha successo, 0 altrimenti
  */
 int creare_udp_socket(int* udp_socket, struct sockaddr_in* my_addr, int port);
+
+/**
+ * @brief funzione che invia un messaggio dalla board all'utente tramite il socket specificato
+ * 
+ * La funzione ritorna il risultato della send
+ * 
+ * @param sock socket su cui inviare il messaggio
+ * @param commadn comando da inviare
+ * 
+ * @return stato si uscita della socket
+ */
+int send_message_to_user(int sock, Board_to_User_command command);
+
+
+/**
+ * @brief funzione che converte nel tipo Board_to_User_command il messaggio ricevuto dal server
+ * 
+ * @param net_cmd ritorno della funzione
+ */
+Board_to_User_command recv_message_to_user(uint32_t net_cmd);
 
 #endif

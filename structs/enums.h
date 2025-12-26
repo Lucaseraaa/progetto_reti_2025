@@ -49,4 +49,33 @@ typedef enum {
 
 } User_Status;
 
+/**
+ * @brief Struttura dati per inviare comandi dalla lavagna all'utente
+ */
+typedef enum {
+
+    BU_HANLDE_CARD,
+    BU_PING_USER,
+
+
+} Board_to_User_command;
+
+/**
+ * @brief Struttura dati per inviare comandi dall'utente alla lavagna
+ */
+typedef enum {
+
+    UB_QUIT,
+    UB_SHOW_LAVAGNA,
+    UB_ACK_CARD,
+    UB_PONG_LAVAGNA,
+    UB_CARD_DONE,
+    UB_CREATE_CARD,
+    UB_REQUEST_USER_LIST,
+    UB_REVIEW_CARD,
+    UB_REVIEW
+
+} User_to_Board_command;
+
+
 #endif

@@ -1,6 +1,7 @@
 #include "user/command.h"
 #include "user/print.h"
 #include "user/peer.h"
+#include "network/utils.h"
 
 /**
  * @brief implementazione della send_command
@@ -153,24 +154,24 @@ void review_card(int board_sock, int user_sock){
 /**
  * @brief implementazione della handle_board_request
  */
-void handle_board_request(char* command, int user_socket){
+void handle_board_request(Board_to_User_command command, int user_socket){
     
 
     printf("SONO DENTRO\n");
 
     // Controllo le richieste provenienti dalla lavagna
-    if (strcmp(command, "HANDLE_CARD") == 0) {
+    if (command == BU_HANLDE_CARD) {
         
         printf("GESTIONE CARD\n");
         handle_card(user_socket);
     
-    }else if (strcmp(command, "PING_USER") == 0){
+    }else if (command = BU_PING_USER){
 
         // Mi pongo in stato PING_USER
         user_data._status = PING_USER; 
 
     }else{
-        printf("Il comando %s inviato dalla lavagna non esiste\n", command);
+        printf("Il comando inviato dalla lavagna non esiste\n");
     }
 
 }   
@@ -254,7 +255,7 @@ void listen_to_server(){
     int user_socket = user_data._user_socket;
 
     // Dichiarazione buffer
-    char command[COMMAND_LEN];
+    u_int32_t command;
     char input[COMMAND_LEN];
     char user_buffer;
 
@@ -290,22 +291,13 @@ void listen_to_server(){
          */
         if (FD_ISSET(board_socket, &readfds)) {
             printf("OLEEEE\n");
-            memset(command, 0, COMMAND_LEN);
-            int i = 0;
-            while (i < COMMAND_LEN - 1) {
-                char c;
-                int n = recv(board_socket, &c, 1, 0);
-                if (n <= 0) {
-                    printf("Connessione chiusa\n");
-                    exit(EXIT_FAILURE);
-                }
-                if (c == '\n') break;
-                command[i++] = c;
-            }
+
+            recv(board_socket, &command, sizeof(command), MSG_WAITALL);
+            Board_to_User_command com = recv_message_to_user(command);
             
             // Gestione output server
-            printf("Ricevuto comando %s dal server\n", command);
-            handle_board_request(command, board_socket);
+            printf("Ricevuto comando %d dal server\n", command);
+            handle_board_request(com, board_socket);
             handle_print(user_data._status, user_data._card_id, user_data._users_need_review, user_data._users_need_review_number);
             
         }
