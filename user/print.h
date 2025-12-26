@@ -28,6 +28,13 @@ extern Review_User_s review;
 void print_in_conn(int card_id, User_t* user_needs_review, int user_needs_review_number);
 
 /**
+ * @brief funzione per stampare i comandi nello stato SLEEP_CARD
+ * 
+ * @param card_id id della card che stà venendo gestita
+ */
+void print_in_sleep_card(int card_id, User_t* user_needs_review, int user_needs_review_number);
+
+/**
  * @brief funzione per stampare i comandi nello stato CARD
  * 
  * @param card_id id della card che stà venendo gestita

@@ -17,6 +17,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
+#include <pthread.h>
+#include <time.h>
+#include "user/thread.h"
 #include "classes/user_data.h"
 #include "structs/enums.h"
 

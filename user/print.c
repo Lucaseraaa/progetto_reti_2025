@@ -26,11 +26,22 @@ void print_in_conn(int card_id, User_t* user_needs_review, int user_needs_review
 }
 
 /**
+ * @brief implementazione della print_in_ping
+ */
+void print_in_sleep_card(int card_id, User_t* user_needs_review, int user_needs_review_number){
+
+    printf("\nTi trovi nello stato SLEEP_CARD, stai svolgendo la card %d\nPuoi utilizzare i seguenti comandi:\n", card_id);
+    if (user_needs_review_number > 0) printf("- REVIEW: conferma la revisione alla card %d\n", user_needs_review[0]);
+    else printf("Non è disponibile nessun comando in questo stato\n");
+
+}
+
+/**
  * @brief implementazione della print_in_card
  */
 void print_in_card(int card_id, User_t* user_needs_review, int user_needs_review_number){
 
-     // Stampo le informazioni relative ai comandi
+    // Stampo le informazioni relative ai comandi
     printf("\nTi trovi nello stato CARD e stai gestendo la card con id %d\nPuoi utilizzare i seguenti comandi:\n", card_id);
 
     // Stampo i primi comandi
@@ -72,6 +83,7 @@ void print_in_ping(int card_id){
 void handle_print(User_Status status, int card_id, User_t* user_needs_review, int user_needs_review_number){
 
     if (status == CONN) print_in_conn(card_id, user_needs_review, user_needs_review_number);
+    else if (status == SLEEP_CARD) print_in_sleep_card(card_id, user_needs_review, user_needs_review_number);
     else if (status == CARD) print_in_card(card_id, user_needs_review, user_needs_review_number);
     else if (status == PING_USER) print_in_ping(card_id);
 

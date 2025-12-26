@@ -5,7 +5,11 @@
 
 #define USER_REVIEW_TIMER 10
 
+// Variabile per azionare il timer
 int timer_scaduto = 0;
+
+// Variabile per comunicare fra thread
+int pipe_fd[2];
 
 /**
  * @brief implementazione della send_command
@@ -17,7 +21,7 @@ void send_command(User_to_Board_command command){
 
     // Invio il comando
     send_message_to_board(board_socket, command);
-    printf("Comando inviato sl server!\n");
+    printf("Comando inviato al server!\n");
 
 }
 
@@ -205,8 +209,18 @@ void handle_command(char* command, int board_sock, User_Status status){
     }else if (strcmp(command, "ACK_CARD") == 0 && status == CONN){
 
         // L'ACK si può effettuare solo durante lo stato "CONN"
+        printf("Inizio a svolgere la card: %d\n", user_data._card_id);
         send_command(UB_ACK_CARD);
-        user_data._status = CARD;
+        
+        // Avvio del thread
+        pthread_t tid;
+        int n = (rand() % 21) + 10; // Genero un numero da 20 a 30
+        int *duration = malloc(sizeof(int));
+        *duration = n;
+        pthread_create(&tid, NULL, thread_simulate_job, duration);
+        pthread_detach(tid);
+        
+        user_data._status = SLEEP_CARD;
 
     }else if (strcmp(command, "PONG_LAVAGNA") == 0 && status == PING_USER){
 
@@ -221,7 +235,7 @@ void handle_command(char* command, int board_sock, User_Status status){
         send_command(UB_CARD_DONE);
         review.req = 0;
     
-    }else if (strncmp(command, "CREATE_CARD", 11) == 0 && status != PING_USER){
+    }else if (strncmp(command, "CREATE_CARD", 11) == 0 && (status != PING_USER && status != SLEEP_CARD)){
 
         int id;
         char body[1024];
@@ -242,7 +256,7 @@ void handle_command(char* command, int board_sock, User_Status status){
         review_card(board_sock, user_data._user_socket);
         alarm(USER_REVIEW_TIMER);
     
-    }else if(strcmp(command, "REVIEW") == 0 && ( status == CARD || status == CONN) && user_data._users_need_review_number > 0) {
+    }else if(strcmp(command, "REVIEW") == 0 && ( status == CARD || status == CONN || status == SLEEP_CARD) && user_data._users_need_review_number > 0) {
 
         review_ok(user_data._user_socket);
     
@@ -269,6 +283,17 @@ void listen_to_server(){
     char input[COMMAND_LEN];
     User_to_User_message user_buffer;
 
+    // Inizializzo il seed
+    srand(time(NULL));
+
+    // Apro la PIPE
+    if (pipe(pipe_fd) == -1){
+        printf("La pipe non è stata creata correttamente\n");
+        close(user_socket);
+        close(board_socket);
+        exit(EXIT_FAILURE);
+    }
+
     // Indirizzo dell'utente
     struct sockaddr_in sender_addr;
     socklen_t sender_len = sizeof(sender_addr);
@@ -284,10 +309,12 @@ void listen_to_server(){
         FD_SET(board_socket, &readfds); // socket TCP
         FD_SET(user_socket, &readfds); // socket UDP
         FD_SET(STDIN_FILENO, &readfds); // stdin
+        FD_SET(pipe_fd[0], &readfds); // Pipe
 
         int maxfd = board_socket;
         if (user_socket > maxfd) maxfd = user_socket;
         if (STDIN_FILENO > maxfd) maxfd = STDIN_FILENO;
+        if (pipe_fd[0] > maxfd) maxfd = pipe_fd[0];
         
         int activity = select(maxfd + 1, &readfds, NULL, NULL, NULL);
 
@@ -310,6 +337,21 @@ void listen_to_server(){
             continue; 
         }
         
+        /**
+         * GESTIONE PIPE
+         */
+        if (FD_ISSET(pipe_fd[0], &readfds)) {
+            
+            char buffer;
+            read(pipe_fd[0], &buffer, 1); // Pulisce la pipe    
+            printf("MODIFICATA LA PIPE\n");
+
+            user_data._status = CARD;
+            handle_print(user_data._status, user_data._card_id, user_data._users_need_review, user_data._users_need_review_number);
+
+        }
+
+
         /**
          * GESTIONE SERVER
          */
