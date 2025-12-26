@@ -60,8 +60,7 @@ void select_main(){
     int fdmax;
 
     // Buffer
-    char buf[1024];
-    memset(buf, 0, 1024);
+    uint32_t msg;
     int nbytes;
     int addrlen;
     int i;
@@ -84,8 +83,6 @@ void select_main(){
         read_fds = master; 
         select(fdmax+1, &read_fds, NULL, NULL, NULL);
         for(int i = 0; i <= fdmax; i++){
-            
-            memset(buf, 0, 1024);
 
             // Trovato un descrittore pronto
             if(FD_ISSET(i, &read_fds) && FD_ISSET(i, &master)){
@@ -158,14 +155,13 @@ void select_main(){
                     // Sono in un altro socket
                     // Implica che è necessariamente una richiesta di un utente
 
-                    int n = recv(i, buf, sizeof(buf), 0);
+                    int n = recv(i, &msg, sizeof(&msg), 0);
 
                     if (n == 0) {
                         // Caso 1: Il client ha chiuso la connessione (EOF)
                         printf("Client socket %d disconnesso.\n", i);
                         
-                        char* exit = "QUIT";
-                        handle_command(exit, i);
+                        handle_command(UB_QUIT, i);
 
                         FD_CLR(i, &master); // Importante: smetti di monitorarlo!
                     }
@@ -177,10 +173,10 @@ void select_main(){
                     }
                     else {
                         
-                        buf[n] = '\0'; // Terminatore di stringa
-                        printf("Richiesto comando dal client: %s con dimensione %ld\n ", buf, sizeof(buf));
+                        printf("Richiesto comando dal client: %d con dimensione %ld\n ", msg, sizeof(msg));
+                        User_to_Board_command conv_msg = recv_message_from_user(msg);
                         
-                        int handle_return = handle_command(buf, i);
+                        int handle_return = handle_command(conv_msg, i);
                         if (handle_return == 1) FD_CLR(i, &master); // Elimino l'utente dal pool
                     
                     }

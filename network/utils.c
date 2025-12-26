@@ -98,10 +98,31 @@ int send_message_to_user(int sock, Board_to_User_command command){
 
 
 /**
- * @brief implementazione della recv_message_to_user
+ * @brief implementazione della recv_message_from_board
  */
-Board_to_User_command recv_message_to_user(uint32_t net_cmd){
+Board_to_User_command recv_message_from_board(uint32_t net_cmd){
     
     return (Board_to_User_command)ntohl(net_cmd);
+
+}
+
+/**
+ * @brief implementazione della send_message_to_board
+ */
+int send_message_to_board(int sock, User_to_Board_command command){
+
+    uint32_t net_cmd = htonl((uint32_t)command);
+
+    return send(sock, &net_cmd, sizeof(net_cmd), 0);
+
+}
+
+
+/**
+ * @brief implementazione della recv_message_from_board
+ */
+User_to_Board_command recv_message_from_user(uint32_t net_cmd){
+    
+    return (User_to_Board_command)ntohl(net_cmd);
 
 }

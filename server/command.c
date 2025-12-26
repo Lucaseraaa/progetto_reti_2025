@@ -289,7 +289,7 @@ int create_card(User_s* user){
 /**
  * @brief implementazione della handle_command
  */
-int handle_command(char* command, int sock){
+int handle_command(Board_to_User_command command, int sock){
 
     // Ottengo il rifermento all'utente che deve compiere il comando
     User_s* user = get_User_by_socket(kanban._usr, sock);
@@ -299,13 +299,13 @@ int handle_command(char* command, int sock){
     }
 
     // Lista delle istruzioni e delle funzioni associate
-    if(strcmp(command, "SHOW_LAVAGNA") == 0) return get_lavagna(user);
-    else if (strcmp(command, "QUIT") == 0) return quit(user);
-    else if (strcmp(command, "ACK_CARD") == 0) return ack_card(user);
-    else if (strcmp(command, "CARD_DONE") == 0) return card_done(user);
-    else if (strcmp(command, "PONG_LAVAGNA") == 0) return pong_lavagna(user);
-    else if (strcmp(command, "CREATE_CARD")== 0) create_card(user);  
-    else if (strcmp(command, "REQUEST_USER_LIST") == 0) request_user_list(user);
+    if(command == UB_SHOW_LAVAGNA) return get_lavagna(user);
+    else if (command == UB_QUIT) return quit(user);
+    else if (command == UB_ACK_CARD) return ack_card(user);
+    else if (command == UB_CARD_DONE) return card_done(user);
+    else if (command == UB_PONG_LAVAGNA) return pong_lavagna(user);
+    else if (command == UB_CREATE_CARD) create_card(user);  
+    else if (command == UB_REQUEST_USER_LIST) request_user_list(user);
     else {printf("Comando non riconosciuto\n"); return -1;}
     
     return 0;

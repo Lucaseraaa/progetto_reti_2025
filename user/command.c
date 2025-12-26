@@ -6,12 +6,14 @@
 /**
  * @brief implementazione della send_command
  */
-void send_command(char* command){
+void send_command(User_to_Board_command command){
 
-    printf("PROVA\n");
-    int user_socket = user_data._board_socket;
-    send(user_socket, command, strlen(command), 0);
-    printf("Comando %s inviato!\n", command);
+    // Ottengo il socket a cui inviare il comando
+    int board_socket = user_data._board_socket;
+
+    // Invio il comando
+    send_message_to_board(board_socket, command);
+    printf("Comando inviato sl server!\n");
 
 }
 
@@ -78,7 +80,7 @@ void create_card(int user_socket){
     task[strcspn(task, "\n")] = '\0'; // sanificazione
 
     // Invio ora il comando (per evitare che ci siano blocchi nel server)
-    send_command("CREATE_CARD\0");
+    send_message_to_board(user_socket, UB_CREATE_CARD);
 
     // Invio il numero del task
     task_id = htonl(task_id);
@@ -193,32 +195,32 @@ void handle_command(char* command, int board_sock, User_Status status){
     if (strcmp(command, "QUIT") == 0) {
 
         // Quit può essere sempre eseguito
-        send_command(command);
+        send_command(UB_QUIT);
         quit(board_sock);
 
     }else if (strcmp(command, "SHOW_LAVAGNA") == 0){
     
         // show_lavagna può essere sempre eseguita
-        send_command(command);
+        send_command(UB_SHOW_LAVAGNA);
         show_lavagna();
 
     }else if (strcmp(command, "ACK_CARD") == 0 && status == CONN){
 
         // L'ACK si può effettuare solo durante lo stato "CONN"
-        send_command(command);
+        send_command(UB_ACK_CARD);
         user_data._status = CARD;
 
     }else if (strcmp(command, "PONG_LAVAGNA") == 0 && status == PING_USER){
 
         // pong_lavagna si può inviare solo durante lo stato di PING
-        send_command(command);
+        send_command(UB_PONG_LAVAGNA);
         user_data._status = CARD;
 
     }else if (strcmp(command, "CARD_DONE") == 0 && (status == CARD || status == PING_USER) && review.req == 1 && review._remaning_users_number == 0){
 
         // card_done si può inviare solo durante card/ping
         user_card_done();
-        send_command(command);
+        send_command(UB_CARD_DONE);
         review.req = 0;
     
     }else if (strcmp(command, "CREATE_CARD") == 0 && status != PING_USER){
@@ -227,7 +229,7 @@ void handle_command(char* command, int board_sock, User_Status status){
 
     }else if (strcmp(command, "REQUEST_USER_LIST") == 0 && (status == CARD || status == CONN)){
 
-        send_command(command);
+        send_command(UB_REQUEST_USER_LIST);
         user_request_user_list(board_sock);
 
     }else if (strcmp(command, "REVIEW_CARD") == 0 && status == CARD){
@@ -293,7 +295,7 @@ void listen_to_server(){
             printf("OLEEEE\n");
 
             recv(board_socket, &command, sizeof(command), MSG_WAITALL);
-            Board_to_User_command com = recv_message_to_user(command);
+            Board_to_User_command com = recv_message_from_board(command);
             
             // Gestione output server
             printf("Ricevuto comando %d dal server\n", command);

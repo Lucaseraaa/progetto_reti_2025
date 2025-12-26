@@ -72,6 +72,27 @@ int send_message_to_user(int sock, Board_to_User_command command);
  * 
  * @param net_cmd ritorno della funzione
  */
-Board_to_User_command recv_message_to_user(uint32_t net_cmd);
+Board_to_User_command recv_message_from_board(uint32_t net_cmd);
+
+/**
+ * @brief funzione che invia un messaggio dall'utente alla board
+ * 
+ * La funzione ritorna il risultato della send
+ * 
+ * @param sock socket su cui inviare il messaggio
+ * @param commadn comando da inviare
+ * 
+ * @return stato si uscita della socket
+ */
+int send_message_to_board(int sock, User_to_Board_command command);
+
+/**
+ * @brief funzione che converte nel tipo User_to_User_command il messaggio ricevuto dal server
+ * 
+ * @param net_cmd ritorno della funzione
+ */
+User_to_Board_command recv_message_from_user(uint32_t net_cmd);
+
+
 
 #endif

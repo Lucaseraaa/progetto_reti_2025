@@ -27,7 +27,7 @@ extern User_Data_s user_data;
  * 
  * @note il comando dev'essere precedentemente controllato prima di essere inviato
  */
-void send_command(char* command);
+void send_command(User_to_Board_command command);
 
 /**
  * @brief funzione che permette di ricevere la lavagna e stamparla

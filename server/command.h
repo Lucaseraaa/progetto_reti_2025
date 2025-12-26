@@ -136,6 +136,6 @@ void request_user_list(User_s* user);
  * 
  * @return 0 se la funzione ha avuto successo, 1 se l'utente ha chiamato la QUIT, -1 viceversa
  */
-int handle_command(char* command, int sock);
+int handle_command(Board_to_User_command command, int sock);
 
 #endif
