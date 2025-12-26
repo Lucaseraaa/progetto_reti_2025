@@ -70,11 +70,14 @@ int review_complete(User_Data_s* ud, User_t user){
 
     // Creazione dell'indice dell'utente
     for (int i = 0; i < r->_remaning_users_number; i++) {
+        printf("Elemento in lista: %d da verificare con %d\n", r->_remaning_users[i], user);
         if (r->_remaning_users[i] == user) {
             found_index = i;
             break;
         }
     }
+
+    printf("INDICE DA ELIMINARE: %d\n", found_index);
 
     // Se non trovo l'utente
     if (found_index == -1) return -1; 
@@ -85,6 +88,8 @@ int review_complete(User_Data_s* ud, User_t user){
 
     // Ridimensiono la memoria
     if (r->_remaning_users_number == 0) {
+        
+        printf("HO FINITO TUTTI I DATI\n");
     
         free(r->_remaning_users);
         r->_remaning_users = NULL;
@@ -147,7 +152,9 @@ void send_all_users_notification(Review_User_s* ru, int user_sock, int card_id){
     inet_pton(AF_INET, "127.0.0.1", &dest_addr.sin_addr);
 
     // Messaggio da inviare
-    int card_id_snd = htonl(card_id);
+    User_to_User_message utu_msg;
+    utu_msg._sender_port = htons((uint16_t)user_data._port);
+    utu_msg._command = htons((uint16_t)card_id);
 
     for (int i = 0; i < ru->_remaning_users_number; i++) {
         
@@ -157,15 +164,13 @@ void send_all_users_notification(Review_User_s* ru, int user_sock, int card_id){
 
         ssize_t sent = sendto(
             user_sock,
-            &card_id_snd,
-            sizeof(card_id_snd),
+            &utu_msg,
+            sizeof(utu_msg),
             0,
             (struct sockaddr*)&dest_addr,
             sizeof(dest_addr)
         );
 
-        printf("MESSAGGIO INVIATO AL CLIENT %d con risultato %ld\n", user, sent);
-        perror("PERCHE ");
     }
 
 }
@@ -182,13 +187,16 @@ void send_user_ok(Review_User_s* ru, int user_sock, User_t user_id){
     inet_pton(AF_INET, "127.0.0.1", &dest_addr.sin_addr);
 
     // Messaggio da inviare
-    int card_id_snd = htonl(-1); // -1 implica l'ok alla card  
+    User_to_User_message utu_msg;
+
+    utu_msg._sender_port = htons((uint16_t)user_data._port);
+    utu_msg._command = htons((int16_t)-1);
 
     dest_addr.sin_port = htons(user_id);
     ssize_t sent = sendto(
         user_sock,
-        &card_id_snd,
-        sizeof(card_id_snd),
+        &utu_msg,
+        sizeof(utu_msg),
         0,
         (struct sockaddr*)&dest_addr,
         sizeof(dest_addr)

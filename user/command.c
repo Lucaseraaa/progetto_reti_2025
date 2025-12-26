@@ -143,6 +143,7 @@ void user_request_user_list(int user_socket){
 
 void review_card(int board_sock, int user_sock){
     
+    // Richiedo la lista degli utenti
     handle_command("REQUEST_USER_LIST\0", board_sock, user_data._status);
         
     // Salvo gli utenti attuali
@@ -181,6 +182,7 @@ void handle_board_request(Board_to_User_command command, int user_socket){
 
 void review_ok(int user_sock){
 
+    printf("L'utente che deve essere revisionato è %d\n", user_data._users_need_review[0]);
     send_user_ok(&review, user_sock, user_data._users_need_review[0]);
     pop_user_review(&user_data);
 
@@ -259,7 +261,7 @@ void listen_to_server(){
     // Dichiarazione buffer
     u_int32_t command;
     char input[COMMAND_LEN];
-    char user_buffer;
+    User_to_User_message user_buffer;
 
     // Indirizzo dell'utente
     struct sockaddr_in sender_addr;
@@ -309,19 +311,18 @@ void listen_to_server(){
          */
         if (FD_ISSET(user_socket, &readfds)) {
             
-            // Nota: recvfrom è necessario per UDP se vuoi sapere chi ti ha scritto
-            user_buffer = 0;
-            int n = recvfrom(user_socket, &user_buffer, sizeof(int), 0, 
+            // Ricezione messaggio UDP
+            int n = recvfrom(user_socket, &user_buffer, sizeof(User_to_User_message), MSG_WAITALL, 
                              (struct sockaddr*)&sender_addr, &sender_len);
             
             if (n > 0) {
-            
-                int review_port = ntohs(sender_addr.sin_port);
-                int review_data = ntohl(user_buffer);
+                
+                uint16_t review_port = (uint16_t) ntohs(user_buffer._sender_port);
+                int16_t review_command = (int16_t) ntohs(user_buffer._command);
 
-                printf("Messaggio UDP ricevuto: %d con porta: %d e prima %d\n", review_data, review_port, sender_addr.sin_port);
+                printf("Messaggio UDP ricevuto: %d con porta: %d e prima %d\n", review_command, review_port, sender_addr.sin_port);
 
-                if(review_data != -1) push_user_review(&user_data, review_port); // Inserisco la porta dell'utente in quelle che richiedono revisione
+                if(review_command != -1) push_user_review(&user_data, review_port); // Inserisco la porta dell'utente in quelle che richiedono revisione
                 else review_complete(&user_data, review_port);
                 
                 handle_print(user_data._status, user_data._card_id, user_data._users_need_review, user_data._users_need_review_number);

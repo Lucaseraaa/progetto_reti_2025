@@ -5,6 +5,10 @@
 #ifndef enums_h
 #define enums_h
 
+#include <stdio.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+
 // Trova un'altra sistemazione
 #define MIN_PORT 5679
 #define SERVER_ADDRESS "127.0.0.1"
@@ -77,5 +81,10 @@ typedef enum {
 
 } User_to_Board_command;
 
+typedef struct User_to_User_message{
 
+    uint16_t _sender_port;
+    int16_t _command;
+
+} User_to_User_message;
 #endif
