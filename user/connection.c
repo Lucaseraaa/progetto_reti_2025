@@ -84,7 +84,7 @@ void client_main(int user){
         // Dichiarazione array utenti e richiesta
         User_t users[users_number];
     
-        if(recv(user_socket, &users, users_number*sizeof(User_t), 0) < 0){
+        if(recv(user_socket, &users, users_number*sizeof(User_t), MSG_WAITALL) < 0){
             printf("Dati non arrivati correttamente\n");
             exit(EXIT_FAILURE);
         }

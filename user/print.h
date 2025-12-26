@@ -25,14 +25,14 @@ extern Review_User_s review;
  * 
  * @param card_id id della card presa in carico dall'utente
  */
-void print_in_conn(int card_id);
+void print_in_conn(int card_id, User_t* user_needs_review, int user_needs_review_number);
 
 /**
  * @brief funzione per stampare i comandi nello stato CARD
  * 
  * @param card_id id della card che stà venendo gestita
  */
-void print_in_card(int card_id);
+void print_in_card(int card_id, User_t* user_needs_review, int user_needs_review_number);
 
 /**
  * @brief funzione per stampare i comandi nello stato PING_USER
@@ -50,6 +50,6 @@ void print_in_ping(int card_id);
  * @param card_id id della card
  * 
  */
-void handle_print(User_Status status, int card_id);
+void handle_print(User_Status status, int card_id, User_t* user_needs_review, int user_needs_review_number);
 
 #endif

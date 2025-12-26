@@ -108,7 +108,7 @@ void handle_card(){
         if (s != 0) continue;
 
         // Invio la card all'utente
-        char* handle_card_command = "HANDLE_CARD\0"; 
+        char* handle_card_command = "HANDLE_CARD\n"; 
         int user_socket = user->_socket;
         
         // Invio il comando HANDLE_CARD
@@ -116,7 +116,8 @@ void handle_card(){
         
         // Invio l'id della card
         int card_id_snd = htonl(card_id);
-        if(send(user_socket, &card_id_snd, sizeof(int), 0) < 0){
+        int k = send(user_socket, &card_id_snd, sizeof(int), 0);
+        if(k < 0){
             
             // In caso di errore resetto l'utente
             perror("Messaggio non inviato correttamente");
@@ -124,6 +125,7 @@ void handle_card(){
             return;
 
         }
+        printf("MESSAGGIO INVIATO CON NUMERO: %d\n", k);
           
         // Invio la lista degli utenti
         generate_event_in_Timer(&timer, get_User_port(user), ACK_TIME, ack_alert, ACK_TIME);

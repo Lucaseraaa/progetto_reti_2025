@@ -124,7 +124,6 @@ int extract_User(User_s **user_list, User_t usr){
 void get_Users(User_s* top, User_t users[], int users_number, User_t current_user){
     
     User_s* s = top;
-    printf("RICCHIESTA PER L'UTENTE %d\n", current_user);
     for(int i = 0, j = 0; i < users_number; i++, s = s -> _next){
         
         if (s->_user == current_user) continue;

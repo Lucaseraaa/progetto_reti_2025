@@ -48,7 +48,7 @@ void handle_card(int user_socket){
     // Voglio ricevere l'id della card
     int card_id;
     printf("PRIMA DI LEGGERE LA CARD\n");
-    recv(user_socket, &card_id, sizeof(int), 0);
+    recv(user_socket, &card_id, sizeof(int), MSG_WAITALL);
     card_id = ntohl(card_id); // La serializzo
     printf("RICEVUTO DAL SERVER: %d\n", card_id);
 
@@ -172,7 +172,16 @@ void handle_board_request(char* command, int user_socket){
     }else{
         printf("Il comando %s inviato dalla lavagna non esiste\n", command);
     }
+
 }   
+
+
+void review_ok(int user_sock){
+
+    send_user_ok(&review, user_sock, user_data._users_need_review[0]);
+    pop_user_review(&user_data);
+
+}
 
 /**
  * @brief implementazione della handle_command
@@ -204,11 +213,12 @@ void handle_command(char* command, int board_sock, User_Status status){
         send_command(command);
         user_data._status = CARD;
 
-    }else if (strcmp(command, "CARD_DONE") == 0 && ( status == CARD || status == PING_USER)){
+    }else if (strcmp(command, "CARD_DONE") == 0 && (status == CARD || status == PING_USER) && review.req == 1 && review._remaning_users_number == 0){
 
         // card_done si può inviare solo durante card/ping
         user_card_done();
         send_command(command);
+        review.req = 0;
     
     }else if (strcmp(command, "CREATE_CARD") == 0 && status != PING_USER){
 
@@ -222,7 +232,11 @@ void handle_command(char* command, int board_sock, User_Status status){
     }else if (strcmp(command, "REVIEW_CARD") == 0 && status == CARD){
         
         review_card(board_sock, user_data._user_socket);
+    
+    }else if(strcmp(command, "REVIEW") == 0 && ( status == CARD || status == CONN) && user_data._users_need_review_number > 0) {
 
+        review_ok(user_data._user_socket);
+    
     }else{
         printf("Il comando %s non può essere inviato in questo momento, perchè non esiste o perchè non ti trovi nello stato corretto, riprova!\n", command);
     }
@@ -242,14 +256,14 @@ void listen_to_server(){
     // Dichiarazione buffer
     char command[COMMAND_LEN];
     char input[COMMAND_LEN];
-    char user_buffer[COMMAND_LEN];
+    char user_buffer;
 
     // Indirizzo dell'utente
     struct sockaddr_in sender_addr;
     socklen_t sender_len = sizeof(sender_addr);
 
     // Stampo i comandi per la prima volta
-    handle_print(user_data._status, user_data._card_id);
+    handle_print(user_data._status, user_data._card_id, user_data._users_need_review, user_data._users_need_review_number);
 
     for(;;){
 
@@ -275,22 +289,24 @@ void listen_to_server(){
          * GESTIONE SERVER
          */
         if (FD_ISSET(board_socket, &readfds)) {
+            printf("OLEEEE\n");
             memset(command, 0, COMMAND_LEN);
-            int n = recv(board_socket, command, COMMAND_LEN - 1, 0);
-            
-            // Esco dal pool
-            if (n <= 0) {
-                printf("Connessione chiusa dal server per inattività\n");
-                exit(EXIT_FAILURE);
+            int i = 0;
+            while (i < COMMAND_LEN - 1) {
+                char c;
+                int n = recv(board_socket, &c, 1, 0);
+                if (n <= 0) {
+                    printf("Connessione chiusa\n");
+                    exit(EXIT_FAILURE);
+                }
+                if (c == '\n') break;
+                command[i++] = c;
             }
-
-            // Sanificazione server
-            command[n] = '\0';
             
             // Gestione output server
             printf("Ricevuto comando %s dal server\n", command);
             handle_board_request(command, board_socket);
-            handle_print(user_data._status, user_data._card_id);
+            handle_print(user_data._status, user_data._card_id, user_data._users_need_review, user_data._users_need_review_number);
             
         }
         
@@ -298,23 +314,24 @@ void listen_to_server(){
          * GESTIONE UTENTI
          */
         if (FD_ISSET(user_socket, &readfds)) {
-            memset(user_buffer, 0, COMMAND_LEN);
             
             // Nota: recvfrom è necessario per UDP se vuoi sapere chi ti ha scritto
-            int n = recvfrom(user_socket, user_buffer, COMMAND_LEN - 1, 0, 
+            user_buffer = 0;
+            int n = recvfrom(user_socket, &user_buffer, sizeof(int), 0, 
                              (struct sockaddr*)&sender_addr, &sender_len);
             
             if (n > 0) {
+            
+                int review_port = ntohs(sender_addr.sin_port);
+                int review_data = ntohl(user_buffer);
 
-                user_buffer[n] = '\0';
-                printf("Messaggio UDP ricevuto: %s con porta: %d\n", user_buffer, ntohs(sender_addr.sin_port));
+                printf("Messaggio UDP ricevuto: %d con porta: %d e prima %d\n", review_data, review_port, sender_addr.sin_port);
+
+                if(review_data != -1) push_user_review(&user_data, review_port); // Inserisco la porta dell'utente in quelle che richiedono revisione
+                else review_complete(&user_data, review_port);
                 
-                // Qui dovrai implementare la logica per gestire il messaggio UDP
-                // Es: handle_udp_request(udp_buffer, &user_data);
-                handle_print(user_data._status, user_data._card_id);
+                handle_print(user_data._status, user_data._card_id, user_data._users_need_review, user_data._users_need_review_number);
                 
-            }else{
-                printf("ERRORE\n");
             }
         }
 
@@ -332,7 +349,7 @@ void listen_to_server(){
                 // Gestione input utente
                 printf("Comando richiesto: %s\n", input);
                 handle_command(input, board_socket, user_data._status);
-                handle_print(user_data._status, user_data._card_id);
+                handle_print(user_data._status, user_data._card_id, user_data._users_need_review, user_data._users_need_review_number);
 
             }
         }   

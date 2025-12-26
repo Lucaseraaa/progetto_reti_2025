@@ -30,6 +30,7 @@ typedef struct Review_User_s{
 }Review_User_s;
 
 extern Review_User_s review;
+extern User_Data_s user_data;
 
 /**
  * @brief funzione che inizializza una variabile del tipo Review_User_s
@@ -93,5 +94,14 @@ void filter_disconnected_users(Review_User_s* ru, User_t* current_users, int con
  * @param card_id id della card della revisione
  */
 void send_all_users_notification(Review_User_s* ru, int user_sock, int card_id);
+
+/**
+ * @brief funzione che invia all'utente selezionato la conferma della sua card
+ * 
+ * @param ru riferimento alla review user
+ * @param user_sock socket dell'utente
+ * @param user_id id dell'utente a cui vogliamo confermare la card
+ */
+void send_user_ok(Review_User_s* ru, int user_sock, User_t user_id);
 
 #endif

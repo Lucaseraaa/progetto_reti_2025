@@ -64,6 +64,9 @@ int generate_listener(struct sockaddr_in* sv_addr, int* listener){
  * @brief implementazione della create_udp_socket
  */
 int creare_udp_socket(int* udp_socket, struct sockaddr_in* my_addr, int port){
+    
+
+    printf("DEVO CREARE LA PORTA %d\n", port);
 
     if((*udp_socket = socket(AF_INET, SOCK_DGRAM, 0)) < 0){
         printf("Errore nella creazione del socket\n");

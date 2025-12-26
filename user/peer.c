@@ -169,3 +169,33 @@ void send_all_users_notification(Review_User_s* ru, int user_sock, int card_id){
     }
 
 }
+
+/**
+ * @brief implementazione della send_user_ok
+ */
+void send_user_ok(Review_User_s* ru, int user_sock, User_t user_id){
+
+    struct sockaddr_in dest_addr;
+    memset(&dest_addr, 0, sizeof(dest_addr));
+
+    dest_addr.sin_family = AF_INET;
+    inet_pton(AF_INET, "127.0.0.1", &dest_addr.sin_addr);
+
+    // Messaggio da inviare
+    int card_id_snd = htonl(-1); // -1 implica l'ok alla card  
+
+    dest_addr.sin_port = htons(user_id);
+    ssize_t sent = sendto(
+        user_sock,
+        &card_id_snd,
+        sizeof(card_id_snd),
+        0,
+        (struct sockaddr*)&dest_addr,
+        sizeof(dest_addr)
+    );
+
+    // Confermo la ricezione del messaggio
+    pop_user_review(&user_data);
+
+
+}

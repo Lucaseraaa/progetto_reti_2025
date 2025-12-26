@@ -12,6 +12,7 @@
 
 #include <stdio.h>
 #include <unistd.h>
+#include <string.h>
 #include <stdlib.h>
 #include <arpa/inet.h>
 #include <sys/types.h>
@@ -37,6 +38,8 @@ typedef struct User_Data_s{
     int _user_socket; // Socket relativo all'utente
 
     User_t* _users_need_review; // Lista degli utenti che necessitano la review della card (in ordine di richiesta)
+
+    int _users_need_review_number;
 
 } User_Data_s;
 
@@ -102,6 +105,21 @@ int other_users(User_Data_s* ud, int connected_user, User_t users[]);
  * @param card_id id della carta
  */
 int user_handle_card(User_Data_s* ud, int card_id);
+
+/**
+ * @brief funzione che inserice un utente in coda dell'array degli utenti che richiedono revisione
+ * 
+ * @param ud riferimento all'istanza di user data
+ * @param user porta dell'utente da inserire
+ */
+void push_user_review(User_Data_s* ud, User_t user);
+
+/**
+ * @brief funzione che estrae in testa dalla lista degli utenti che richiedono revisione
+ * 
+ * @param ud riferimento all'istanza di user data
+ */
+void pop_user_review(User_Data_s* ud);
 
 void print_debug(User_Data_s* ud);
 
