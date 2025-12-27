@@ -7,8 +7,8 @@ void* thread_simulate_job(void* arg){
     
     int duration = *((int*)arg);
     free(arg); // Libera memoria allocata per l'argomento
-    printf("INIZIO JOB DA %d secondi\n", duration);
-    sleep(duration);
+    // printf("INIZIO JOB DA %d secondi\n", duration);
+    // sleep(duration);    
 
     char msg = 'D';
     printf("FINE\n");

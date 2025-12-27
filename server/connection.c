@@ -35,8 +35,6 @@ char* cards[10] = {
 fd_set master;
 fd_set read_fds;
 
-// Coda circolare per gestire gli eventi del timer
-Timer_Queue timer_queue[EVENT_QUEUE_SIZE];
 int timer_pipe[2];
 
 
@@ -57,7 +55,6 @@ void select_main(){
     show_lavagna(&kanban);
 
     // Inizializzo la coda
-    Queue_Init(timer_queue);
     if (pipe(timer_pipe) == -1) {
         perror("Errore creazione pipe");
         exit(EXIT_FAILURE);
@@ -86,55 +83,64 @@ void select_main(){
     fcntl(timer_pipe[0], F_SETFL, O_NONBLOCK);
     fcntl(timer_pipe[1], F_SETFL, O_NONBLOCK);
 
-    // Aggiungiamo la parte di LETTURA della pipe al master set
-    
-
     if (generate_listener(&server_addr, &listener) == -1) {
         perror("Fallimento del main");
         exit(EXIT_FAILURE); 
     }
 
     FD_SET(listener, &master);
-    FD_SET(timer_pipe[0], &master);
-    fdmax = listener;
-    if (timer_pipe[0] > fdmax) fdmax = timer_pipe[0];
+    FD_SET(timer_pipe[0], &master); // Aggiungo la lettura pipe al master
+    fdmax = (listener > timer_pipe[0]) ? listener : timer_pipe[0];
     
     /* STEP 3: CICLO INFINITO DELLA SELECT */
-
     for(;;){
 
         read_fds = master; 
         
-        select(fdmax+1, &read_fds, NULL, NULL, NULL);
+        printf("RICONTROLLO LA SELECT\n");
+        int ret = select(fdmax+1, &read_fds, NULL, NULL, NULL);
         
-        if (FD_ISSET(timer_pipe[0], &read_fds)) {
-            printf("\n\n\nHO CHIAMATO\n\n\n");
-            char buffer[10];
-
-            read(timer_pipe[0], buffer, sizeof(buffer));
-
-            while(!Queue_IsEmpty(timer_queue)){
-
-                printf("SONO DENTRO LA CODA\n");
-                Timer_Event ev;
-                Queue_Pop(timer_queue, &ev);
-
-                printf("ESTRAZIONE OGGETTO: %d, %d\n", ev.operation, ev.user);
-
-                if (ev.operation == PING) ping_user(ev.user);
-                else if (ev.operation == PONG) pong_user(ev.user);
-                else if (ev.operation == HANDLE) ack_alert(ev.user);
-                
-                print_timer_list(timer);
-
-            }   
+        printf("NUOVO ELEMENTO NELLA SELECT\n");
+        if (ret == -1) {
+            if (errno == EINTR){
+                printf("Select interrotta da segnale, ricontrollo i descrittori\n");
+                // NON fare continue! Vai avanti a controllare la pipe!
+                // Il byte è GIÀ nella pipe, dobbiamo processarlo
+                continue;
+            }else{
+                exit(EXIT_FAILURE);
+            }
+    
         }
 
+        if (FD_ISSET(timer_pipe[0], &read_fds)) {
+            printf("\n\n\nHO CHIAMATO\n\n\n");
+            
+            char buffer[256]; 
+            int n_events = read(timer_pipe[0], buffer, sizeof(buffer));
+            printf("NUMERO DI EVENTI: %d\n", n_events);
+            
+            // Controllo se ci sono altri timer in attesa
+            int has_another_timer = execute_Timer_head_function(&timer);
+            
+            if (has_another_timer == 1){
+                
+                int next_timer_delay = get_next_timer(timer);
+
+                if (next_timer_delay >= 0) alarm(next_timer_delay == 0 ? 1 : next_timer_delay);
+
+            }
+        
+        }
+        
+        
         for(int i = 0; i <= fdmax; i++){
 
             // Trovato un descrittore pronto
             if(FD_ISSET(i, &read_fds) && FD_ISSET(i, &master)){
                 
+                if (i == timer_pipe[0]) continue;
+
                 // Sono nel listener, un utente sta cercando di connettersi
                 if(i == listener){
 
@@ -232,7 +238,8 @@ void select_main(){
                 }
             }
         }
-
+        
+        printf("TERMINO IL CICLO INFINITO\n");
     }
 
 }

@@ -143,28 +143,10 @@ int insert_card(Board_s* board, int id, char* card_text, Column_type c){
  * @brief implementazione della timer_handler
  */
 void timer_handler(int n){
-
-    // Estraggo il timer in testa ed eseguo la funzione designata
-    // printf("VADO NEL TIMER\n");
-    int r = execute_Timer_head_function(&timer, timer_queue);
-    // printf("HO ESTRATTO: %d\n", r);
-    if (r == -1){
-        // Caso in cui non ci sono eventi
-        // Potrei aver eliminato l'unico evento dal Timer
-        return;
-    }
-
-    // In base al valore di r decido cosa fare
-    if (r == 0){
-        // In questo caso la lista contiene altri elementi dopo l'estrazione
-        // Devo rigenerare l'alert
-        // print_timer_list(timer);
-        alarm(get_next_timer(timer));
-    }
-
+        
+    // Chiamo la pipe
     char byte = 'T'; // T per Timer
     write(timer_pipe[1], &byte, 1);
-    printf("CHIAMATO PIPE\n");
 
 }
 

@@ -16,8 +16,6 @@
 // Riferimento esterno al timer
 extern Timer_s* timer;
 
-extern Timer_Queue timer_queue[EVENT_QUEUE_SIZE];
-
 /**
  * @brief Funzione che registra un'utente
  * 

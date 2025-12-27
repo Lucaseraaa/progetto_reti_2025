@@ -82,7 +82,7 @@ int move_card(Board_s* board, int card_id, Column_type from, Column_type to){
 /**
  * @brief implementazione della ack_alert
  */
-void ack_alert(User_t user){
+void* ack_alert(User_t user){
 
     printf("RIMOZIONE DELL'UTENTE %d DAL POOL A CAUSA DI ACK MANCATA\n", user);
     User_s* usr = get_User_by_port(kanban._usr, user); 
@@ -142,8 +142,9 @@ void handle_card(){
 /**
  * @brief implementazione della PONG_USER
  */
-void pong_user(User_t user){
+void* pong_user(User_t user){
 
+    printf("CHIAMO PONG\n");
     User_s* usr = get_User_by_port(kanban._usr, user); 
     FD_CLR(usr->_socket, &master); // Rimozione dalla lista della select
     quit(usr);
@@ -153,19 +154,21 @@ void pong_user(User_t user){
 /**
  * @brief implementazione della PING_USER
  */
-void ping_user(User_t user){
+void* ping_user(User_t user){
 
     printf("EFFETTUO PING DELL'UTENTE %d\n", user);
 
     // Ottengo l'utente
     User_s* user_ = get_User_by_port(kanban._usr, user);
-    
+    printf("UTENTE socket: %d\n", user_->_socket);
+
     // Invio il comando
     Board_to_User_command command = BU_PING_USER;
     send_message_to_user(user_->_socket, command);
     printf("FINE CHIAMATA\n");
     
     insert_Timer_in_list(&timer, time(NULL) + PONG_TIME, pong_user, user, PONG);
+    print_timer_list(timer);
 
 }
 
@@ -230,7 +233,7 @@ void request_user_list(User_s* user){
     get_Users(kanban._usr, users, connected_users, get_User_port(user));
 
     // Invio gli utenti
-    suser = send(user_sock, &users, (connected_users - 1)*sizeof(User_t), 0);
+    suser = send(user_sock, users, (connected_users - 1)*sizeof(User_t), 0);
     printf("INVIATI GLI UTENTI!\n");
 
 }
@@ -244,7 +247,7 @@ int pong_lavagna(User_s* user){
     printf("L'utente %d ha chiamato la PONG_LAVAGNA\n", get_User_port(user));
 
     // La funzione controlla se l'utente ha la card in doing
-    if(user->_status = USR_DOING){
+    if(user->_status == USR_DOING){
 
         // In tal caso prova ad eliminare la PONG
         int pong_delete = remove_all_Timer_in_list(&timer, get_User_port(user), PONG);
