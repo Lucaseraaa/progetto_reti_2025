@@ -74,18 +74,22 @@ void handle_card(int user_socket){
 void create_card(int user_socket, int id, char* body){
 
     // Invio ora il comando (per evitare che ci siano blocchi nel server)
+    printf("INVIO IL COMANDO CREA\n");
     send_message_to_board(user_socket, UB_CREATE_CARD);
 
     // Invio il numero del task
+    
     int task_id = htonl(id);
-    send(user_socket, &task_id, sizeof(int), 0);
-
+    printf("INVIO L'id con risultato: %ld\n", send(user_socket, &task_id, sizeof(int), 0));
     // Invio la dimensione del corpo del testo
     int task_len = strlen(body);
     int net_task_len = htonl(task_len);
+    printf("INVIO LA DIMENSIONE DEL TESTO: %d\n", task_len);
     send(user_socket, &net_task_len, sizeof(int), 0);
 
+
     // Invio il testo del task
+    printf("INVIO IL TESTO: %s\n", body);
     send(user_socket, body, task_len, 0);
 
     // Controllo il successo dell'operazione
@@ -185,7 +189,8 @@ void review_ok(int user_sock){
 void resend_review_to_users(int p){
 
     if (review._remaning_users != 0) timer_scaduto = 1; 
-    
+    else timer_scaduto = 0;
+
 }
 
 /**
@@ -234,6 +239,7 @@ void handle_command(char* command, int board_sock, User_Status status){
         user_card_done();
         send_command(UB_CARD_DONE);
         review.req = 0;
+        printf("ULTIMO CARD DONE\n");
     
     }else if (strncmp(command, "CREATE_CARD", 11) == 0 && (status != PING_USER && status != SLEEP_CARD)){
 
@@ -257,7 +263,7 @@ void handle_command(char* command, int board_sock, User_Status status){
     }else if (strcmp(command, "REVIEW_CARD") == 0 && status == CARD){
         
         review_card(board_sock, user_data._user_socket);
-        alarm(USER_REVIEW_TIMER);
+        if (review._remaning_users_number != 0) alarm(USER_REVIEW_TIMER);
     
     }else if(strcmp(command, "REVIEW") == 0 && ( status == CARD || status == CONN || status == SLEEP_CARD) && user_data._users_need_review_number > 0) {
 
@@ -322,15 +328,18 @@ void listen_to_server(){
         int activity = select(maxfd + 1, &readfds, NULL, NULL, NULL);
         
         if (timer_scaduto == 1){
-                    
+            
+            printf("\n\nTEMPO SCADUTO\n\n");
             handle_command("REQUEST_USER_LIST\0", user_data._board_socket, user_data._status);
             filter_disconnected_users(&review, user_data._others, user_data._connected_users);
             send_all_users_notification(&review, user_data._user_socket, user_data._card_id);
             timer_scaduto = 0;
             
             if (review._remaning_users_number == 0) handle_print(user_data._status, user_data._card_id, review._remaning_users, review._remaning_users_number);
-            else alarm(USER_REVIEW_TIMER);
-                
+            else {
+                printf("\n\nERRORE GRAVISSIMO\n\n");
+                alarm(USER_REVIEW_TIMER);
+            }    
         }
 
         if (activity < 0) {

@@ -61,7 +61,6 @@ int quit(User_s* user){
 
     // L'utente viene eliminato
     int exit = user_exit(&kanban, user);
-    printf("Ritorno: %d\n", exit);
     
     if (exit == 0) return 1;
     else return -1;
@@ -84,7 +83,8 @@ int move_card(Board_s* board, int card_id, Column_type from, Column_type to){
  */
 void* ack_alert(User_t user){
 
-    printf("RIMOZIONE DELL'UTENTE %d DAL POOL A CAUSA DI ACK MANCATA\n", user);
+    printf("\nRIMOZIONE DELL'UTENTE %d DAL POOL A CAUSA DI ACK MANCATA\n", user);
+    
     User_s* usr = get_User_by_port(kanban._usr, user); 
     FD_CLR(usr->_socket, &master); // Rimozione dalla lista della select
     quit(usr);
@@ -144,7 +144,8 @@ void handle_card(){
  */
 void* pong_user(User_t user){
 
-    printf("CHIAMO PONG\n");
+    printf("\nCHIAMO PONG PER L'UTENTE %d\n", user);
+
     User_s* usr = get_User_by_port(kanban._usr, user); 
     FD_CLR(usr->_socket, &master); // Rimozione dalla lista della select
     quit(usr);
@@ -201,10 +202,17 @@ int card_done(User_s* user){
     // Rimuovo eventuali target relativi all'utente
     remove_all_Timer_in_list(&timer, get_User_port(user), NONE);
 
+    // Nel caso in cui la lista sia vuota, chiudo l'alarm
+    if(timer == NULL) alarm(0);
+
     // Metto la card in DONE
     int r = switch_card_between_columns(&kanban, doing_card_id, DOING, DONE);
 
+    user->_actual_managed_card = -1; // Setto la carta dell'utente a -1
+
     printf("MI METTO IN STATO DI CARD DONE\n");
+
+    print_timer_list(timer);
     
     return r;
 
@@ -267,6 +275,8 @@ int pong_lavagna(User_s* user){
  * @brief implementazione della CREATE_CARD
  */
 int create_card(User_s* user){
+    
+    printf("CREIAMO UNA CARD\n");
 
     int task_id, task_len;
     char task_body[1024];
@@ -277,10 +287,12 @@ int create_card(User_s* user){
     recv(u_sock, &task_id, sizeof(int), 0);
     task_id = ntohl(task_id);
 
-    printf("Richiesto task %d\n", task_id);
+    printf("Richiesto task ID: %d\n", task_id);
 
     recv(u_sock, &task_len, sizeof(int), 0);
     task_len = ntohl(task_len);
+
+    printf("Dimensione delal stringa: %d\n", task_len);
 
     int n = recv(u_sock, &task_body, task_len, 0);
     task_body[task_len] = '\0';  // sanificazione
@@ -293,6 +305,11 @@ int create_card(User_s* user){
     // Rispondo all'utente con il successo dell'operazione
     send(u_sock, &r_snd, sizeof(int), 0);
 
+    // Caso in cui non gli utenti attendevano una card
+    if (kanban._colonne[TO_DO]._card_number == 1) {
+        printf("NUOVA CARD DA INVIARE\n");
+        handle_card();
+    }
     return r;
 
 }

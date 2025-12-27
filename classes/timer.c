@@ -1,6 +1,5 @@
 #include "classes/timer.h"
 #include <stdlib.h>
-#include "classes/queue.h"
 
 /**
  * @brief implementazione della Timer_init

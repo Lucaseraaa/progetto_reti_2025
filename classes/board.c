@@ -177,6 +177,6 @@ char* board_to_string(Board_s* board) {
 void Board_Connection_init(Board_s *board, int id, char* cards[]){
     
     *board = Board_init(id);
-    for (int i = 0; i < 10; i++) append_card(board, i, cards[i], TO_DO);
+    for (int i = 0; i < INIT_CARD_NUMBER; i++) append_card(board, i, cards[i], TO_DO);
 
 }

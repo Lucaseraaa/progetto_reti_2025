@@ -4,7 +4,6 @@
 #include "classes/user.h"
 #include "server/thread.h"
 #include "classes/timer.h"
-#include "classes/queue.h"
 #include <fcntl.h>
 
 // Variabile condivisa: lavagna
@@ -35,6 +34,7 @@ char* cards[10] = {
 fd_set master;
 fd_set read_fds;
 
+// Pipe per la comunicazione con il timer
 int timer_pipe[2];
 
 
@@ -103,36 +103,13 @@ void select_main(){
         printf("NUOVO ELEMENTO NELLA SELECT\n");
         if (ret == -1) {
             if (errno == EINTR){
-                printf("Select interrotta da segnale, ricontrollo i descrittori\n");
-                // NON fare continue! Vai avanti a controllare la pipe!
-                // Il byte è GIÀ nella pipe, dobbiamo processarlo
+                printf("Select interrotta da segnale\n");
                 continue;
             }else{
                 exit(EXIT_FAILURE);
             }
     
         }
-
-        if (FD_ISSET(timer_pipe[0], &read_fds)) {
-            printf("\n\n\nHO CHIAMATO\n\n\n");
-            
-            char buffer[256]; 
-            int n_events = read(timer_pipe[0], buffer, sizeof(buffer));
-            printf("NUMERO DI EVENTI: %d\n", n_events);
-            
-            // Controllo se ci sono altri timer in attesa
-            int has_another_timer = execute_Timer_head_function(&timer);
-            
-            if (has_another_timer == 1){
-                
-                int next_timer_delay = get_next_timer(timer);
-
-                if (next_timer_delay >= 0) alarm(next_timer_delay == 0 ? 1 : next_timer_delay);
-
-            }
-        
-        }
-        
         
         for(int i = 0; i <= fdmax; i++){
 
@@ -209,7 +186,8 @@ void select_main(){
                     // Sono in un altro socket
                     // Implica che è necessariamente una richiesta di un utente
 
-                    int n = recv(i, &msg, sizeof(&msg), 0);
+                    int n = recv(i, &msg, sizeof(msg), 0);
+                    printf("HO RICEVUO %d BYTE\n", n);
 
                     if (n == 0) {
                         // Caso 1: Il client ha chiuso la connessione (EOF)
@@ -228,7 +206,7 @@ void select_main(){
                     else {
                         
                         User_to_Board_command conv_msg = recv_message_from_user(msg);
-                        printf("Richiesto comando dal client: %d con dimensione %ld\n ", conv_msg, sizeof(conv_msg));
+                        printf("Richiesto comando dal client: %d con dimensione %d\n ", conv_msg, n);
                         
                         int handle_return = handle_command(conv_msg, i);
                         if (handle_return == 1) FD_CLR(i, &master); // Elimino l'utente dal pool
@@ -239,6 +217,27 @@ void select_main(){
             }
         }
         
+        if (FD_ISSET(timer_pipe[0], &read_fds)) {
+            
+            char buffer[256]; 
+            int n_events = read(timer_pipe[0], buffer, sizeof(buffer));
+            
+            // Controllo se ci sono altri timer in attesa
+            int has_another_timer = execute_Timer_head_function(&timer);
+            
+            if (has_another_timer == 1){
+                
+                int next_timer_delay = get_next_timer(timer);
+
+                if (next_timer_delay >= 0) alarm(next_timer_delay == 0 ? 1 : next_timer_delay);
+
+            }
+        
+        }
+
+        // Nel caso disattivo il timer
+        if (timer == NULL) alarm(0);
+
         printf("TERMINO IL CICLO INFINITO\n");
     }
 

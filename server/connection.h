@@ -26,7 +26,6 @@
 #include "structs/enums.h"
 #include "classes/board.h"
 #include "server/command.h"
-#include "classes/queue.h"
 
 #define PORT_BUFFER_LENGTH 5
 
