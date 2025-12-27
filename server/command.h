@@ -69,7 +69,7 @@ int quit(User_s* user);
  * 
  * @param user utente da eliminare
  */
-void* ack_alert(User_t user);
+void ack_alert(User_t user);
 
 /**
  * @brief funzione che permette di assegnare ad ogni utente che non ne ha una attualmente, una card
@@ -137,5 +137,10 @@ void request_user_list(User_s* user);
  * @return 0 se la funzione ha avuto successo, 1 se l'utente ha chiamato la QUIT, -1 viceversa
  */
 int handle_command(Board_to_User_command command, int sock);
+
+void pong_user(User_t user);
+
+void ping_user(User_t user);
+
 
 #endif

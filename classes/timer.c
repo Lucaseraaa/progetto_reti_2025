@@ -1,5 +1,8 @@
 #include "classes/timer.h"
 #include <stdlib.h>
+#include "classes/queue.h"
+
+extern Timer_Queue timer_queue[EVENT_QUEUE_SIZE];
 
 /**
  * @brief implementazione della Timer_init
@@ -140,16 +143,23 @@ int remove_all_Timer_in_list(Timer_s** list, User_t user, Timer_Operation_Type t
 /**
  * @brief implementazione della execute_Timer_head_function
  */
-int execute_Timer_head_function(Timer_s** list){
+int execute_Timer_head_function(Timer_s** list, Timer_Queue* q){
 
-    printf("ESECUZIONE DEL TIMER\n");
+    // printf("ESECUZIONE DEL TIMER\n");
     Timer_s* timer = Timer_extract(list);
-    print_timer_list(*list);
+    
+    // print_timer_list(*list);
     if(timer == NULL) return -1;
-    printf("Eseguo la funzione di tipo %d sull'utente %d\n", timer->_operation, timer->_param);
 
-    TimerCallback callback = (TimerCallback) timer->_function;
-    callback(timer->_param);
+    // Creazione evento
+    Timer_Event ev = {};
+    ev.operation = timer->_operation;
+    ev.user = timer->_param;
+    Queue_Push(q, ev);
+    // printf("Eseguo la funzione di tipo %d sull'utente %d\n", timer->_operation, timer->_param);
+
+    //TimerCallback callback = (TimerCallback) timer->_function;
+    // callback(timer->_param);
 
     // Deallocazione del timer
     Timer_delete(timer);

@@ -65,11 +65,6 @@ void print_in_ping(int card_id){
      // Stampo le informazioni relative ai comandi
     printf("\nTi trovi nello stato di PING per la card con id %d\nPuoi utilizzare i seguenti comandi:\n", card_id);
 
-    // Stampo i primi comandi
-    printf("- SHOW_LAVAGNA: utilizzato per stampare la lavagna\n");
-
-    printf("- CARD_DONE: conferma la card che hai in gestione\n");
-
     printf("- PONG_LAVAGNA: conferma che sei ancora attivo\n");
 
     // QUIT

@@ -93,6 +93,4 @@ int send_message_to_board(int sock, User_to_Board_command command);
  */
 User_to_Board_command recv_message_from_user(uint32_t net_cmd);
 
-
-
 #endif

@@ -22,7 +22,7 @@ typedef struct User_s{
 
     struct User_s* _next; // Lista degli utenti
 
-    int _socket; // Descrittore del socket relativo all'utente
+    int _socket; // Descrittore del socket relativo all'utente  
 
 }User_s;
 

@@ -21,7 +21,7 @@ void send_command(User_to_Board_command command){
 
     // Invio il comando
     send_message_to_board(board_socket, command);
-    printf("Comando inviato al server!\n");
+    printf("Comando %d inviato al server!\n", command);
 
 }
 
@@ -200,7 +200,7 @@ void handle_command(char* command, int board_sock, User_Status status){
         send_command(UB_QUIT);
         quit(board_sock);
 
-    }else if (strcmp(command, "SHOW_LAVAGNA") == 0){
+    }else if (strcmp(command, "SHOW_LAVAGNA") == 0 && status != PING_USER){
     
         // show_lavagna può essere sempre eseguita
         send_command(UB_SHOW_LAVAGNA);
@@ -228,7 +228,7 @@ void handle_command(char* command, int board_sock, User_Status status){
         send_command(UB_PONG_LAVAGNA);
         user_data._status = CARD;
 
-    }else if (strcmp(command, "CARD_DONE") == 0 && (status == CARD || status == PING_USER) && review.req == 1 && review._remaning_users_number == 0){
+    }else if (strcmp(command, "CARD_DONE") == 0 && status == CARD && review.req == 1 && review._remaning_users_number == 0){
 
         // card_done si può inviare solo durante card/ping
         user_card_done();
@@ -246,10 +246,13 @@ void handle_command(char* command, int board_sock, User_Status status){
         }else {
             printf("Formato errato! Usa: CREATE_CARD <id> <descrizione del task>\n");
         }
-    }else if (strcmp(command, "REQUEST_USER_LIST") == 0 && (status == CARD || status == CONN)){
 
+    }else if (strcmp(command, "REQUEST_USER_LIST") == 0 && ( status >= CARD && status <= PING_USER)){
+
+        printf("RICHIEDO LA LISTA DI UTTENTI\n");
         send_command(UB_REQUEST_USER_LIST);
         user_request_user_list(board_sock);
+        printf("LISTA DI UTENTI OK\n");
 
     }else if (strcmp(command, "REVIEW_CARD") == 0 && status == CARD){
         
@@ -317,23 +320,20 @@ void listen_to_server(){
         if (pipe_fd[0] > maxfd) maxfd = pipe_fd[0];
         
         int activity = select(maxfd + 1, &readfds, NULL, NULL, NULL);
+        
+        if (timer_scaduto == 1){
+                    
+            handle_command("REQUEST_USER_LIST\0", user_data._board_socket, user_data._status);
+            filter_disconnected_users(&review, user_data._others, user_data._connected_users);
+            send_all_users_notification(&review, user_data._user_socket, user_data._card_id);
+            timer_scaduto = 0;
+            
+            if (review._remaning_users_number == 0) handle_print(user_data._status, user_data._card_id, review._remaning_users, review._remaning_users_number);
+            else alarm(USER_REVIEW_TIMER);
+                
+        }
 
         if (activity < 0) {
-            if (errno = EINTR){
-                if (timer_scaduto == 1){
-                    
-                    handle_command("REQUEST_USER_LIST\0", user_data._board_socket, user_data._status);
-                    filter_disconnected_users(&review, user_data._others, user_data._connected_users);
-                    send_all_users_notification(&review, user_data._user_socket, user_data._card_id);
-                    timer_scaduto = 0;
-
-                    if (review._remaning_users_number == 0) handle_print(user_data._status, user_data._card_id, review._remaning_users, review._remaning_users_number);
-                    else alarm(USER_REVIEW_TIMER);
-                
-                }
-            }else{
-                perror("Errore nella select");
-            }
             continue; 
         }
         
@@ -344,7 +344,6 @@ void listen_to_server(){
             
             char buffer;
             read(pipe_fd[0], &buffer, 1); // Pulisce la pipe    
-            printf("MODIFICATA LA PIPE\n");
 
             user_data._status = CARD;
             handle_print(user_data._status, user_data._card_id, user_data._users_need_review, user_data._users_need_review_number);
@@ -356,14 +355,12 @@ void listen_to_server(){
          * GESTIONE SERVER
          */
         if (FD_ISSET(board_socket, &readfds)) {
-            printf("OLEEEE\n");
-
             
             if (recv(board_socket, &command, sizeof(command), MSG_WAITALL) > 0){
                 Board_to_User_command com = recv_message_from_board(command);
             
                 // Gestione output server
-                printf("Ricevuto comando %d dal server\n", command);
+                printf("Ricevuto comando %d dal server\n", com);
                 handle_board_request(com, board_socket);
                 handle_print(user_data._status, user_data._card_id, user_data._users_need_review, user_data._users_need_review_number);
             }else{

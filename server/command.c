@@ -82,7 +82,7 @@ int move_card(Board_s* board, int card_id, Column_type from, Column_type to){
 /**
  * @brief implementazione della ack_alert
  */
-void* ack_alert(User_t user){
+void ack_alert(User_t user){
 
     printf("RIMOZIONE DELL'UTENTE %d DAL POOL A CAUSA DI ACK MANCATA\n", user);
     User_s* usr = get_User_by_port(kanban._usr, user); 
@@ -95,6 +95,7 @@ void* ack_alert(User_t user){
  */
 void handle_card(){
 
+    printf("FACCIO HANDLE CARD\n");
     // Scorro tutti gli utenti per assegnare una card
     for(User_s* user = kanban._usr; user != NULL; user = user->_next){
 
@@ -102,7 +103,7 @@ void handle_card(){
 
         // Se l'utente ha già una card, non lo considero
         if (get_User_status(user) != USR_NOTHING) continue;
-        
+        printf("L'utente ha la card: %d\n", user->_actual_managed_card);
         int s = user_assign_card(&kanban, user, &card_id);
         printf("Ritorno dall'operazione: %d\n", s);
 
@@ -141,17 +142,18 @@ void handle_card(){
 /**
  * @brief implementazione della PONG_USER
  */
-void* pong_user(User_t user){
+void pong_user(User_t user){
 
     User_s* usr = get_User_by_port(kanban._usr, user); 
     FD_CLR(usr->_socket, &master); // Rimozione dalla lista della select
     quit(usr);
+
 }
 
 /**
  * @brief implementazione della PING_USER
  */
-void* ping_user(User_t user){
+void ping_user(User_t user){
 
     printf("EFFETTUO PING DELL'UTENTE %d\n", user);
 
@@ -161,6 +163,7 @@ void* ping_user(User_t user){
     // Invio il comando
     Board_to_User_command command = BU_PING_USER;
     send_message_to_user(user_->_socket, command);
+    printf("FINE CHIAMATA\n");
     
     insert_Timer_in_list(&timer, time(NULL) + PONG_TIME, pong_user, user, PONG);
 
@@ -197,9 +200,8 @@ int card_done(User_s* user){
 
     // Metto la card in DONE
     int r = switch_card_between_columns(&kanban, doing_card_id, DOING, DONE);
-    
-    // Gestisco le card
-    handle_card();
+
+    printf("MI METTO IN STATO DI CARD DONE\n");
     
     return r;
 
@@ -210,6 +212,8 @@ int card_done(User_s* user){
  */
 void request_user_list(User_s* user){
 
+
+    printf("Invio gli utenti connessi a %d\n", user->_user);
     int connected_users = kanban._connected_user;
     int connected_users_net = htonl(connected_users - 1);
 
@@ -220,12 +224,14 @@ void request_user_list(User_s* user){
     // Invio il numero di utenti connessi
     int suser = send(user_sock, &connected_users_net, sizeof(connected_users), 0);
     if (connected_users == 1) return;
+    printf("Ho trovato %d utenti\n", connected_users);
 
     User_t users[connected_users - 1];
     get_Users(kanban._usr, users, connected_users, get_User_port(user));
 
     // Invio gli utenti
     suser = send(user_sock, &users, (connected_users - 1)*sizeof(User_t), 0);
+    printf("INVIATI GLI UTENTI!\n");
 
 }
 
@@ -242,10 +248,12 @@ int pong_lavagna(User_s* user){
 
         // In tal caso prova ad eliminare la PONG
         int pong_delete = remove_all_Timer_in_list(&timer, get_User_port(user), PONG);
+        printf("ELIMINO IL PONG: %d\n", pong_delete);
 
         // Nel caso di rimozione della PONG, devo rifare partire la PING
         if (pong_delete == 0) insert_Timer_in_list(&timer, time(NULL)+PING_TIME, ping_user, get_User_port(user), PING);
-        
+        print_timer_list(timer);
+
         return pong_delete;
 
     }else return -1;
@@ -302,7 +310,7 @@ int handle_command(Board_to_User_command command, int sock){
     if(command == UB_SHOW_LAVAGNA) return get_lavagna(user);
     else if (command == UB_QUIT) return quit(user);
     else if (command == UB_ACK_CARD) return ack_card(user);
-    else if (command == UB_CARD_DONE) return card_done(user);
+    else if (command == UB_CARD_DONE) {card_done(user);handle_card();} 
     else if (command == UB_PONG_LAVAGNA) return pong_lavagna(user);
     else if (command == UB_CREATE_CARD) create_card(user);  
     else if (command == UB_REQUEST_USER_LIST) request_user_list(user);

@@ -15,7 +15,7 @@
 #include <time.h>
 #include "structs/enums.h"
 
-#define PING_TIME 120
+#define PING_TIME 40
 #define PONG_TIME 30
 #define ACK_TIME 120
 
@@ -114,7 +114,7 @@ int remove_all_Timer_in_list(Timer_s** list, User_t user, Timer_Operation_Type t
  * 
  * @return la funzione ritorna -1 in caso di errore, 1 nel caso in cui dopo l'estrazione la lista diventa vuota, 0 negli altri casi
  */
-int execute_Timer_head_function(Timer_s** list);
+int execute_Timer_head_function(Timer_s** list, Timer_Queue* q);
 
 void print_timer_list(Timer_s* list);
 

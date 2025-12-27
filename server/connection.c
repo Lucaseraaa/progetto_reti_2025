@@ -4,6 +4,8 @@
 #include "classes/user.h"
 #include "server/thread.h"
 #include "classes/timer.h"
+#include "classes/queue.h"
+#include <fcntl.h>
 
 // Variabile condivisa: lavagna
 // Va acceduta tramite un semaforo durante le funzioni della sezione critica
@@ -33,6 +35,11 @@ char* cards[10] = {
 fd_set master;
 fd_set read_fds;
 
+// Coda circolare per gestire gli eventi del timer
+Timer_Queue timer_queue[EVENT_QUEUE_SIZE];
+int timer_pipe[2];
+
+
 void select_main(){
 
     /* STEP 1: INIZIALIZZAZIONE DELLA KANBAN */
@@ -48,6 +55,13 @@ void select_main(){
 
     // (Primo comando secondo specifiche) mostro la lavagna appena creata
     show_lavagna(&kanban);
+
+    // Inizializzo la coda
+    Queue_Init(timer_queue);
+    if (pipe(timer_pipe) == -1) {
+        perror("Errore creazione pipe");
+        exit(EXIT_FAILURE);
+    }
 
     /* STEP 2: CREAZIONE DEL SERVER */
     
@@ -69,19 +83,53 @@ void select_main(){
     FD_ZERO(&master);
     FD_ZERO(&read_fds);
 
+    fcntl(timer_pipe[0], F_SETFL, O_NONBLOCK);
+    fcntl(timer_pipe[1], F_SETFL, O_NONBLOCK);
+
+    // Aggiungiamo la parte di LETTURA della pipe al master set
+    
+
     if (generate_listener(&server_addr, &listener) == -1) {
         perror("Fallimento del main");
         exit(EXIT_FAILURE); 
     }
 
     FD_SET(listener, &master);
+    FD_SET(timer_pipe[0], &master);
     fdmax = listener;
+    if (timer_pipe[0] > fdmax) fdmax = timer_pipe[0];
     
     /* STEP 3: CICLO INFINITO DELLA SELECT */
 
     for(;;){
+
         read_fds = master; 
+        
         select(fdmax+1, &read_fds, NULL, NULL, NULL);
+        
+        if (FD_ISSET(timer_pipe[0], &read_fds)) {
+            printf("\n\n\nHO CHIAMATO\n\n\n");
+            char buffer[10];
+
+            read(timer_pipe[0], buffer, sizeof(buffer));
+
+            while(!Queue_IsEmpty(timer_queue)){
+
+                printf("SONO DENTRO LA CODA\n");
+                Timer_Event ev;
+                Queue_Pop(timer_queue, &ev);
+
+                printf("ESTRAZIONE OGGETTO: %d, %d\n", ev.operation, ev.user);
+
+                if (ev.operation == PING) ping_user(ev.user);
+                else if (ev.operation == PONG) pong_user(ev.user);
+                else if (ev.operation == HANDLE) ack_alert(ev.user);
+                
+                print_timer_list(timer);
+
+            }   
+        }
+
         for(int i = 0; i <= fdmax; i++){
 
             // Trovato un descrittore pronto
@@ -173,8 +221,8 @@ void select_main(){
                     }
                     else {
                         
-                        printf("Richiesto comando dal client: %d con dimensione %ld\n ", msg, sizeof(msg));
                         User_to_Board_command conv_msg = recv_message_from_user(msg);
+                        printf("Richiesto comando dal client: %d con dimensione %ld\n ", conv_msg, sizeof(conv_msg));
                         
                         int handle_return = handle_command(conv_msg, i);
                         if (handle_return == 1) FD_CLR(i, &master); // Elimino l'utente dal pool

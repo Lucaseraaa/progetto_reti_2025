@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <sys/signal.h>
 
+extern int timer_pipe[2];
+
 /**
  * @brief implementazione della user_register
  */
@@ -143,9 +145,9 @@ int insert_card(Board_s* board, int id, char* card_text, Column_type c){
 void timer_handler(int n){
 
     // Estraggo il timer in testa ed eseguo la funzione designata
-    printf("VADO NEL TIMER\n");
-    int r = execute_Timer_head_function(&timer);
-    printf("HO ESTRATTO: %d\n", r);
+    // printf("VADO NEL TIMER\n");
+    int r = execute_Timer_head_function(&timer, timer_queue);
+    // printf("HO ESTRATTO: %d\n", r);
     if (r == -1){
         // Caso in cui non ci sono eventi
         // Potrei aver eliminato l'unico evento dal Timer
@@ -156,9 +158,13 @@ void timer_handler(int n){
     if (r == 0){
         // In questo caso la lista contiene altri elementi dopo l'estrazione
         // Devo rigenerare l'alert
-        print_timer_list(timer);
+        // print_timer_list(timer);
         alarm(get_next_timer(timer));
-    }else printf("Il timer non ha registrato altri eventi!\n");
+    }
+
+    char byte = 'T'; // T per Timer
+    write(timer_pipe[1], &byte, 1);
+    printf("CHIAMATO PIPE\n");
 
 }
 
