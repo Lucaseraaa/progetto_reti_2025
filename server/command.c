@@ -1,0 +1,316 @@
+#include <string.h>
+#include "command.h"
+#include "classes/timer.h"
+#include "network/utils.h"
+
+char* columns_name[] = {"TO-DO", "DOING", "DONE"};
+
+
+/**
+ * @brief implementazione della SHOW_LAVAGNA
+ */
+void show_lavagna(){
+
+    print_Board(&kanban);
+
+}
+
+/**
+ * @brief implementazione della GET_LAVAGNA
+ */
+int get_lavagna(User_s* user){
+
+    // Ottengo la lavagna
+    char* board = board_to_string(&kanban);
+
+    // Scrivo sul socket
+    int sock = user->_socket; // todo: cambia con setter
+
+    int board_len = htonl(strlen(board)+1);
+
+    // Invio la lunghezza della lavagna attuale
+    if (send(sock, &board_len, sizeof(int), 0) < sizeof(int)){
+        perror("Errore nell'invio della lunghezza della lavagna");
+        free(board);
+        return 1;
+    } 
+
+    // Invio la lavanga
+    if (send(sock, board, strlen(board)+1, 0) < (int)strlen(board)){
+        perror("Errore nell'invio della lavagna");
+        free(board);
+        return 1;
+    }
+
+    // Libero la memoria
+    free(board);
+    
+    return 0;
+}
+
+/**
+ * @brief implementazione della QUIT
+ */
+int quit(User_s* user){
+
+    // Rimozione dei timer dell'utente
+    remove_all_Timer_in_list(&timer, get_User_port(user), NONE);
+
+    // L'utente viene eliminato
+    int exit = user_exit(&kanban, user);
+    FD_CLR(user->_socket, &master);
+
+    if (exit == 0) return 0;
+    else return -1;
+    
+
+}
+
+/**
+ * @brief implementazione della MOVE_CARD
+ */
+int move_card(Board_s* board, int card_id, Column_type from, Column_type to){
+    int r = switch_card_between_columns(board, card_id, from, to);
+    if (r == -1) printf("Lo scambio non è stato effettuato\n");
+    else printf("Card con id %d spostata con successo da %s a %s\n", card_id, columns_name[from], columns_name[to]);
+    return r;
+}
+
+/**
+ * @brief implementazione della HANDLE_CARD
+ */
+void handle_card(){
+
+    // Scorro tutti gli utenti per assegnare una card
+    for(User_s* user = kanban._usr; user != NULL; user = user->_next){
+
+        int card_id;
+
+        // Se l'utente ha già una card, non lo considero
+        if (get_User_status(user) != USR_NOTHING) continue;
+        int s = user_assign_card(&kanban, user, &card_id);
+
+        if (s != 0) continue;
+
+        // Invio la card all'utente
+        Board_to_User_command handle_card_command = BU_HANLDE_CARD; 
+        int user_socket = user->_socket;
+        
+        // Invio il comando HANDLE_CARD
+        send_message_to_user(user_socket, handle_card_command);
+        
+        // Invio l'id della card
+        int card_id_snd = htonl(card_id);
+        int k = send(user_socket, &card_id_snd, sizeof(int), 0);
+        if(k < 0){
+            
+            // In caso di errore resetto l'utente
+            perror("Messaggio non inviato correttamente");
+            user_confirm_card(&kanban, get_User_port(user), 1); 
+            return;
+
+        }
+          
+        // Invio la lista degli utenti
+        generate_event_in_Timer(&timer, get_User_port(user), ACK_TIME, ack_alert, ACK_TIME);
+        print_timer_list(timer);
+
+        printf("L'utente %d ha assegnata la card %d\n", user->_user, card_id);
+    }
+
+}
+
+
+/**
+ * @brief implementazione della ACK_CARD
+ */
+int ack_card(User_s* user){
+
+    if(user_confirm_card(&kanban, get_User_port(user), 0) == -1) {
+        printf("L'utente %d non può fare ACK\n", get_User_port(user));
+        return 1;
+    }
+
+    generate_event_in_Timer(&timer, get_User_port(user), PING, ping_user, PING_TIME);
+
+    return 0;
+
+}
+
+/**
+ * @brief implementazione della CARD_DONE
+ */
+int card_done(User_s* user){
+
+    // Ottengo la carta dell'utente
+    int doing_card_id = get_User_card(user);
+    
+    // Rimetto l'utente nella condizione di accettare una card
+    set_User_status(user, USR_NOTHING);
+    
+    // Rimuovo eventuali target relativi all'utente
+    remove_all_Timer_in_list(&timer, get_User_port(user), NONE);
+
+    // Nel caso in cui la lista sia vuota, chiudo l'alarm
+    if(timer == NULL) alarm(0);
+
+    // Metto la card in DONE
+    int r = switch_card_between_columns(&kanban, doing_card_id, DOING, DONE);
+
+    user->_actual_managed_card = -1; // Setto la carta dell'utente a -1
+    
+    return r;
+
+}
+
+/**
+ * @brief implemtazione della REQUEST_USER_LIST
+ */
+int request_user_list(User_s* user){
+
+    // Inizializzazione delle variabili 
+    printf("Invio gli utenti connessi a %d\n", user->_user);
+    int connected_users = kanban._connected_user;
+    int connected_users_net = htonl(connected_users - 1);
+    int user_sock = user->_socket;
+
+    // Invio il numero di utenti connessi
+    if (send(user_sock, &connected_users_net, sizeof(connected_users), 0)< sizeof(connected_users)) return 1;
+    if (connected_users == 1) return 0;
+
+    // Scrittura degli utenti in un array
+    User_t users[connected_users - 1];
+    get_Users(kanban._usr, users, connected_users, get_User_port(user));
+
+    // Invio gli utenti
+    if (send(user_sock, users, (connected_users - 1)*sizeof(User_t), 0) < (connected_users - 1)*sizeof(User_t)) return 1;
+
+    return 0;
+
+}
+
+/**
+ * @brief implementazione della PONG_LAVAGNA
+ */
+int pong_lavagna(User_s* user){
+
+
+    printf("L'utente %d ha chiamato la PONG_LAVAGNA\n", get_User_port(user));
+
+    // La funzione controlla se l'utente ha la card in doing
+    if(user->_status == USR_DOING){
+
+        // In tal caso prova ad eliminare la PONG
+        int pong_delete = remove_all_Timer_in_list(&timer, get_User_port(user), PONG);
+
+        // Nel caso di rimozione della PONG, devo rifare partire la PING
+        if (pong_delete == 0) insert_Timer_in_list(&timer, time(NULL)+PING_TIME, ping_user, get_User_port(user), PING);
+
+        return pong_delete;
+
+    }else return -1;
+
+}
+
+/**
+ * @brief implementazione della CREATE_CARD
+ */
+int create_card(User_s* user){
+
+    int task_id, task_len;
+    char task_body[1024];
+    
+    // Estraggo il socket
+    int u_sock = user->_socket;
+
+    if (recv(u_sock, &task_id, sizeof(int), 0) < sizeof(int)) return 1;
+    task_id = ntohl(task_id);
+
+    if (recv(u_sock, &task_len, sizeof(int), 0) < sizeof(int)) return 1;
+    task_len = ntohl(task_len);
+
+    if (recv(u_sock, &task_body, task_len, MSG_WAITALL) < task_len) return 1; 
+    task_body[task_len] = '\0';  // sanificazione
+
+    int r = append_card(&kanban, task_id, task_body, TO_DO);
+    int r_snd = htonl(r);
+
+    // Rispondo all'utente con il successo dell'operazione
+    send(u_sock, &r_snd, sizeof(int), 0);
+
+    // Caso in cui non gli utenti attendevano una card
+    if (kanban._colonne[TO_DO]._card_number == 1) handle_card();
+    
+    return r;
+
+}
+
+/**
+ * @brief implementazione della PONG_USER
+ */
+void* pong_user(User_t user){
+
+    printf("\nCHIAMO PONG PER L'UTENTE %d\n", user);
+
+    User_s* usr = get_User_by_port(kanban._usr, user); 
+    FD_CLR(usr->_socket, &master); // Rimozione dalla lista della select
+    quit(usr);
+
+}
+
+/**
+ * @brief implementazione della PING_USER
+ */
+void* ping_user(User_t user){
+
+    printf("\nEFFETTUO PING DELL'UTENTE %d\n", user);
+
+    // Ottengo l'utente
+    User_s* user_ = get_User_by_port(kanban._usr, user);
+
+    // Invio il comando
+    Board_to_User_command command = BU_PING_USER;
+    send_message_to_user(user_->_socket, command);
+    
+    // Inserisco la PONG
+    insert_Timer_in_list(&timer, time(NULL) + PONG_TIME, pong_user, user, PONG);
+
+}
+
+/**
+ * @brief implementazione della ack_alert
+ */
+void* ack_alert(User_t user){
+
+    printf("\nRIMOZIONE DELL'UTENTE %d DAL POOL A CAUSA DI ACK MANCATA\n", user);
+    
+    User_s* usr = get_User_by_port(kanban._usr, user); 
+    FD_CLR(usr->_socket, &master); // Rimozione dalla lista della select
+    quit(usr);
+}
+
+/**
+ * @brief implementazione della handle_command
+ */
+int handle_command(Board_to_User_command command, int sock){
+
+    // Ottengo il rifermento all'utente che deve compiere il comando
+    User_s* user = get_User_by_socket(kanban._usr, sock);
+    if (user == NULL) {
+        perror("Utente non trovato");
+        return -1;
+    }
+
+    // Lista delle istruzioni e delle funzioni associate
+    if(command == UB_SHOW_LAVAGNA) return get_lavagna(user);
+    else if (command == UB_QUIT) return quit(user);
+    else if (command == UB_ACK_CARD) return ack_card(user);
+    else if (command == UB_CARD_DONE) {card_done(user);handle_card();} 
+    else if (command == UB_PONG_LAVAGNA) return pong_lavagna(user);
+    else if (command == UB_CREATE_CARD) create_card(user);  
+    else if (command == UB_REQUEST_USER_LIST) request_user_list(user);
+    else {printf("Comando non riconosciuto\n"); return -1;}
+    
+    return 0;
+
+}

@@ -1,0 +1,126 @@
+/**
+ * @file user_data.h
+ * 
+ * Modulo che le strutture dati utili all'utente
+ * 
+ * @author Luca Serafini
+ * @date Dicembre 2025
+ */
+
+#ifndef USERDATA_H
+#define USERDATA_H
+
+#include <stdio.h>
+#include <unistd.h>
+#include <string.h>
+#include <stdlib.h>
+#include <arpa/inet.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <sys/select.h>
+#include "structs/enums.h"
+
+typedef struct User_Data_s{
+
+    User_t _port; // Porta dall'utente
+    
+    User_Status _status; // Stato dell'utente
+
+    int _card_id; // Id della card eventualmente processata
+    
+    User_t* _others; // Array dinamico della lista degli altri utenti connessi
+
+    int _connected_users; // Numero di utenti connessi
+
+    int _board_socket; // Socket relativo alla lavagna 
+
+    int _user_socket; // Socket relativo all'utente
+
+    User_t* _users_need_review; // Lista degli utenti che necessitano la review della card (in ordine di richiesta)
+
+    int _users_need_review_number;
+
+} User_Data_s;
+
+/**
+ * @brief costruttore della classe User_Data
+ * 
+ * La funzione inizializza un'istanza di User_Data_s, a partire dallo stato "DIS"
+ * con _card_id = -1 
+ * 
+ * @param ud riferimento all'oggetto User_Data da modificare
+ * @param port porta dell'utente indicato
+ */
+void User_Data_init(User_Data_s* ud, User_t port);
+
+/**
+ * @brief distruttore della classe User_Data
+ * 
+ * La funzione dealloca l'array degli altri utenti connessi
+ * 
+ * @param ud riferimento all'istanza di User Data
+ */
+void User_Data_delete(User_Data_s* ud);
+
+/**
+ * @brief funzione utilizzata per terminare la connessione dell'utente
+ * 
+ * La funzione chiude i socket e dealloca i dati nello heap
+ * 
+ * @param ud struttura dati user_data  
+ */
+void user_close(User_Data_s* ud);
+
+/**
+ * @brief funzione che modifica lo stato da DIS a CONN di un User_Data
+ * 
+ * @param ud riferimento all'User_data
+ * @param connected_user numero di utenti connessi
+ * @param users array degli utenti
+ * @param user_sock descrittore del socket, per lasciarlo così mettere -1
+ * 
+ * @return 0 se ha successo, -1 viceversa
+ */
+int user_connect(User_Data_s* ud, int connected_user, User_t users[], int user_sock);
+
+/**
+ * @brief funzione che permette di settare tutti gli utenti della kanban all'interno di ud
+ * 
+ * La funzione elimina gli utenti precedenti e li riscrive nella struttura dati
+ * 
+ * @param ud struttura dati
+ * @param connected_user numero di utenti da connettere
+ * @param users array contenente le porte degli utenti
+ * 
+ * @return la funzione ritorna 0 se ha successo, -1 altrimenti
+ */
+int other_users(User_Data_s* ud, int connected_user, User_t users[]);
+
+/**
+ * @brief Funzione che assegna una carta all'utente, da ACK-are
+ * 
+ * Ci si deve trovare all'intero dello stato CONN per poter utilizzare questa funzione
+ * 
+ * @param card_id id della carta
+ */
+int user_handle_card(User_Data_s* ud, int card_id);
+
+/**
+ * @brief funzione che inserice un utente in coda dell'array degli utenti che richiedono revisione
+ * 
+ * @param ud riferimento all'istanza di user data
+ * @param user porta dell'utente da inserire
+ */
+void push_user_review(User_Data_s* ud, User_t user);
+
+/**
+ * @brief funzione che estrae in testa dalla lista degli utenti che richiedono revisione
+ * 
+ * @param ud riferimento all'istanza di user data
+ */
+void pop_user_review(User_Data_s* ud);
+
+void print_debug(User_Data_s* ud);
+
+#endif
