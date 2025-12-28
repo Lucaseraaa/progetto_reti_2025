@@ -2,7 +2,6 @@
 #include "network/utils.h"
 #include "functions/functions_board.h"
 #include "classes/user.h"
-#include "server/thread.h"
 #include "classes/timer.h"
 #include <fcntl.h>
 
@@ -153,7 +152,6 @@ void select_main(){
 
                     // Invio il numero di utenti
                     int suser = send(newfd, &connected_users_net, sizeof(connected_users), 0);
-                    printf("Utenti inviati: %d con successo %d\n", connected_users_net, suser);
                     
                     if (connected_users != 1){
                         // Genero l'array e ci scrivo gli utenti

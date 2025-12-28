@@ -63,7 +63,15 @@ void handle_card(int user_socket);
  */
 void create_card(int user_socket, int id, char* body);
 
-void handle_command(char* command, int board_sock, User_Status status);
+/**
+ * @brief funzione che avvia la revisione delle Card
+ * 
+ * La funzione si occupa di inviare un segnale UDP agli utenti della lavagna per fargli revisionare la card
+ * 
+ * @param board_sock socket TCP per ottenere gli utenti
+ * @param user_sock socker UDP per inviare i messaggi
+ */
+void review_card(int board_sock, int user_sock);
 
 /**
  * @brief funzione utilizzata per richiedere ed aggiornare la lista degli utenti connessi alla lavagna
@@ -79,6 +87,22 @@ void user_request_user_list(int user_socket);
  * @param user_socket socket di comunicazione
  */
 void handle_board_request(Board_to_User_command command, int user_socket);
+
+/**
+ * @brief funzione che avvia un thread esterno di attesa 
+ * 
+ * La funzione simula il job che l'utente deve svolgere per completare la card
+ */
+void ack_card();
+
+/**
+ * @brief funzione utilizzata per gestire i comandi inviati dal client via stdin
+ * 
+ * La funzione riceve in input un comando, che attiva una funzione
+ * 
+ * @param command comando da eseguire
+ */
+void handle_command(char* command);
 
 void listen_to_server();
 

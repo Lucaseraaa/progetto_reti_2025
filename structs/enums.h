@@ -20,7 +20,7 @@
 
 // Timeout
 #define INIT_CARD_NUMBER 10
-#define PING_TIME 30
+#define PING_TIME 120
 #define PONG_TIME 30
 #define ACK_TIME 120
 
