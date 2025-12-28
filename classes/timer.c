@@ -69,9 +69,6 @@ int insert_Timer_in_list(Timer_s** list, time_t timestamp, void* function, User_
     // Creo il nuovo timer
     Timer_s* new_timer = Timer_init(timestamp, function, param, type);
     if (new_timer == NULL) return -1; // FALLISCO
-
-    Timer_s* tim;
-    Timer_s* prec_tim;
     
     if (*list == NULL || (*list)->_timestamp >= new_timer->_timestamp){
         

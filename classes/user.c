@@ -190,7 +190,7 @@ int get_User_card(User_s* user){
 /**
  * @brief implementazione della set_User_status
  */
-int set_User_status(User_s* user, User_card_status status){
+void set_User_status(User_s* user, User_card_status status){
 
     user->_status = status;
     
@@ -199,7 +199,7 @@ int set_User_status(User_s* user, User_card_status status){
 /**
  * @brief implementazione della set_User_status
  */
-int set_User_card(User_s* user, int card_id){
+void set_User_card(User_s* user, int card_id){
 
     user->_actual_managed_card = card_id;
     

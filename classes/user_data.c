@@ -144,9 +144,6 @@ void push_user_review(User_Data_s* ud, User_t user){
 void pop_user_review(User_Data_s* ud){
 
     if (ud->_users_need_review_number <= 0 || ud->_users_need_review == NULL) return;
-    
-    // Utente in testa
-    User_t user_to_return = ud->_users_need_review[0];
 
     if (ud->_users_need_review_number == 1) {
         

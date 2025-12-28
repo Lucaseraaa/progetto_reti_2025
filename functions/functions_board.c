@@ -46,11 +46,10 @@ int user_assign_card(Board_s* kanban, User_s* user, int* card_id){
     if (assign_card_to_User(kanban, port, &cid) == -1) return -1;
     *card_id = cid;
 
-    int sc = set_User_card(user, *card_id);
-    int ss = set_User_status(user, USR_TO_DO);
+    set_User_card(user, *card_id);
+    set_User_status(user, USR_TO_DO);
 
-    if (!sc || !ss ) return -1;
-    else return 0;
+    return 0;
 
 }
 

@@ -71,9 +71,7 @@ void select_main(){
 
     // Buffer
     uint32_t msg;
-    int nbytes;
-    int addrlen;
-    int i;
+    socklen_t addrlen;
 
     // Azzero i set
     FD_ZERO(&master);
@@ -216,7 +214,7 @@ void select_main(){
         if (FD_ISSET(timer_pipe[0], &read_fds)) {
             
             char buffer[256]; 
-            int n_events = read(timer_pipe[0], buffer, sizeof(buffer));
+            read(timer_pipe[0], buffer, sizeof(buffer));
             
             // Controllo se ci sono altri timer in attesa
             int has_another_timer = execute_Timer_head_function(&timer);

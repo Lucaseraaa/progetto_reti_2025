@@ -248,7 +248,7 @@ int create_card(User_s* user){
 /**
  * @brief implementazione della PONG_USER
  */
-void* pong_user(User_t user){
+void pong_user(User_t user){
 
     printf("\nCHIAMO PONG PER L'UTENTE %d\n", user);
 
@@ -261,7 +261,7 @@ void* pong_user(User_t user){
 /**
  * @brief implementazione della PING_USER
  */
-void* ping_user(User_t user){
+void ping_user(User_t user){
 
     printf("\nEFFETTUO PING DELL'UTENTE %d\n", user);
 
@@ -280,7 +280,7 @@ void* ping_user(User_t user){
 /**
  * @brief implementazione della ack_alert
  */
-void* ack_alert(User_t user){
+void ack_alert(User_t user){
 
     printf("\nRIMOZIONE DELL'UTENTE %d DAL POOL A CAUSA DI ACK MANCATA\n", user);
     
@@ -292,7 +292,7 @@ void* ack_alert(User_t user){
 /**
  * @brief implementazione della handle_command
  */
-int handle_command(Board_to_User_command command, int sock){
+int handle_command(User_to_Board_command command, int sock){
 
     // Ottengo il rifermento all'utente che deve compiere il comando
     User_s* user = get_User_by_socket(kanban._usr, sock);

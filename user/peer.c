@@ -162,7 +162,7 @@ void send_all_users_notification(Review_User_s* ru, int user_sock, int card_id){
         printf("Utente con porta: %d\n", user);
         dest_addr.sin_port = htons(user);
 
-        ssize_t sent = sendto(
+        sendto(
             user_sock,
             &utu_msg,
             sizeof(utu_msg),
@@ -193,7 +193,7 @@ void send_user_ok(Review_User_s* ru, int user_sock, User_t user_id){
     utu_msg._command = htons((int16_t)-1);
 
     dest_addr.sin_port = htons(user_id);
-    ssize_t sent = sendto(
+    sendto(
         user_sock,
         &utu_msg,
         sizeof(utu_msg),
