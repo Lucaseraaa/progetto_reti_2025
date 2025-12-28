@@ -27,8 +27,6 @@
 #include "classes/board.h"
 #include "server/command.h"
 
-#define PORT_BUFFER_LENGTH 5
-
 typedef struct Board_Connection_s{
 
     struct sockaddr_in _user_addr;

@@ -28,6 +28,10 @@
 extern fd_set master;
 extern fd_set read_fds;
 
+// Per gestire le strutture dati
+extern Board_s kanban;
+extern Timer_s* timer;
+
 /**
  * @brief Funzione che mostra la lavagna
  * 
@@ -63,15 +67,6 @@ int move_card(Board_s* board, int card_id, Column_type from, Column_type to);
 int quit(User_s* user);
 
 /**
- * @brief Funzione handler per la ACK mancata
- * 
- * La funzione elimina l'utente se non risponde all'ACK entro il tempo prestabilito
- * 
- * @param user utente da eliminare
- */
-void *ack_alert(User_t user);
-
-/**
  * @brief funzione che permette di assegnare ad ogni utente che non ne ha una attualmente, una card
  * 
  * La funzione scorre la lista di utenti attivi e gli assegna una card, nel caso non ne stiano gestendo altre
@@ -92,7 +87,7 @@ int ack_card(User_s* user);
  * 
  * @param user utente a cui spostare la card
  * 
- * @return 0 se la funzione ha successo, -1 altrimenti
+ * @return 0 se la funzione ha successo, 1 altrimenti
  *  
  */
 int card_done(User_s* user);
@@ -113,7 +108,7 @@ int pong_lavagna(User_s* user);
  * 
  * @param user id della card da inserire
  * 
- * @return ritorna 0 se è riuscito ad inserirla, -1 viceversa
+ * @return ritorna 0 se è riuscito ad inserire la card, 1 viceversa
  */
 int create_card(User_s* user);
 
@@ -123,8 +118,10 @@ int create_card(User_s* user);
  * La funzione ritorna solamente gli altri, escludendo l'utente stesso
  * 
  * @param user utente 
+ * 
+ * @return 1 se i scoket non hanno avuto success, 0 vicercersa
  */
-void request_user_list(User_s* user);
+int request_user_list(User_s* user);
 
 /**
  * @brief funzione utilizzata per gestire i comandi
@@ -138,9 +135,31 @@ void request_user_list(User_s* user);
  */
 int handle_command(Board_to_User_command command, int sock);
 
-void *pong_user(User_t user);
-
+/**
+ * @brief Funzione che invia la ping all'utente
+ * 
+ * Viene attivata dopo 120 secondi di inattività da parte dell'utente
+ * 
+ * @param user utente da eliminare
+ */
 void *ping_user(User_t user);
 
+/**
+ * @brief Funzione handler per la ACK mancata
+ * 
+ * La funzione elimina l'utente se non risponde all'ACK entro il tempo prestabilito
+ * 
+ * @param user utente da eliminare
+ */
+void *ack_alert(User_t user);
+
+/**
+ * @brief Funzione che gestisce la mancata pong_lavagna
+ * 
+ * La funzione elimina l'utente dal pool se non invia la PONG_LAVAGNA alla PING_USER
+ * 
+ * @param user utente da eliminare
+ */
+void *pong_user(User_t user);
 
 #endif

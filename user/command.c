@@ -3,7 +3,7 @@
 #include "user/peer.h"
 #include "network/utils.h"
 
-#define USER_REVIEW_TIMER 10
+#define USER_REVIEW_TIMER 30
 
 // Variabile per azionare il timer
 int timer_scaduto = 0;
@@ -58,10 +58,8 @@ void handle_card(int user_socket){
 
     // Voglio ricevere l'id della card
     int card_id;
-    printf("PRIMA DI LEGGERE LA CARD\n");
     recv(user_socket, &card_id, sizeof(int), MSG_WAITALL);
     card_id = ntohl(card_id); // La serializzo
-    printf("RICEVUTO DAL SERVER: %d\n", card_id);
 
     // Assegnazione della card
     user_handle_card(&user_data, card_id);
@@ -78,18 +76,15 @@ void create_card(int user_socket, int id, char* body){
     send_message_to_board(user_socket, UB_CREATE_CARD);
 
     // Invio il numero del task
-    
     int task_id = htonl(id);
-    printf("INVIO L'id con risultato: %ld\n", send(user_socket, &task_id, sizeof(int), 0));
+    send(user_socket, &task_id, sizeof(int), 0);
+
     // Invio la dimensione del corpo del testo
     int task_len = strlen(body);
     int net_task_len = htonl(task_len);
-    printf("INVIO LA DIMENSIONE DEL TESTO: %d\n", task_len);
     send(user_socket, &net_task_len, sizeof(int), 0);
 
-
     // Invio il testo del task
-    printf("INVIO IL TESTO: %s\n", body);
     send(user_socket, body, task_len, 0);
 
     // Controllo il successo dell'operazione
@@ -163,7 +158,6 @@ void handle_board_request(Board_to_User_command command, int user_socket){
     // Controllo le richieste provenienti dalla lavagna
     if (command == BU_HANLDE_CARD) {
         
-        printf("GESTIONE CARD\n");
         handle_card(user_socket);
     
     }else if (command == BU_PING_USER){
@@ -214,7 +208,7 @@ void handle_command(char* command, int board_sock, User_Status status){
     }else if (strcmp(command, "ACK_CARD") == 0 && status == CONN){
 
         // L'ACK si può effettuare solo durante lo stato "CONN"
-        printf("Inizio a svolgere la card: %d\n", user_data._card_id);
+        printf("Inizio a svolgere la card con id %d\n", user_data._card_id);
         send_command(UB_ACK_CARD);
         
         // Avvio del thread
@@ -255,10 +249,8 @@ void handle_command(char* command, int board_sock, User_Status status){
 
     }else if (strcmp(command, "REQUEST_USER_LIST") == 0 && ( status >= CARD && status <= PING_USER)){
 
-        printf("RICHIEDO LA LISTA DI UTTENTI\n");
         send_command(UB_REQUEST_USER_LIST);
         user_request_user_list(board_sock);
-        printf("LISTA DI UTENTI OK\n");
 
     }else if (strcmp(command, "REVIEW_CARD") == 0 && status == CARD){
         
@@ -281,6 +273,7 @@ void handle_command(char* command, int board_sock, User_Status status){
 */ 
 void listen_to_server(){   
 
+    // Setto l'alarm dell'utente alla funzione resend_review_to_users
     signal(SIGALRM, resend_review_to_users);
     
     // Ottengo il socket dell'utente
@@ -329,22 +322,18 @@ void listen_to_server(){
         
         if (timer_scaduto == 1){
             
-            printf("\n\nTEMPO SCADUTO\n\n");
             handle_command("REQUEST_USER_LIST\0", user_data._board_socket, user_data._status);
             filter_disconnected_users(&review, user_data._others, user_data._connected_users);
             send_all_users_notification(&review, user_data._user_socket, user_data._card_id);
             timer_scaduto = 0;
             
             if (review._remaning_users_number == 0) handle_print(user_data._status, user_data._card_id, review._remaning_users, review._remaning_users_number);
-            else {
-                printf("\n\nERRORE GRAVISSIMO\n\n");
-                alarm(USER_REVIEW_TIMER);
-            }    
+            else alarm(USER_REVIEW_TIMER);
+
         }
 
-        if (activity < 0) {
-            continue; 
-        }
+        if (activity < 0) continue; 
+        
         
         /**
          * GESTIONE PIPE
@@ -376,6 +365,7 @@ void listen_to_server(){
                 
                 printf("Mi disconnetto a seguito di un'errore\n");
                 exit(EXIT_FAILURE);
+
             }
             
             
@@ -392,12 +382,15 @@ void listen_to_server(){
             
             if (n > 0) {
                 
+                // Conversione porta utente e comando
                 uint16_t review_port = (uint16_t) ntohs(user_buffer._sender_port);
                 int16_t review_command = (int16_t) ntohs(user_buffer._command);
 
                 printf("Messaggio UDP ricevuto: %d con porta: %d e prima %d\n", review_command, review_port, sender_addr.sin_port);
-
-                if(review_command != -1) push_user_review(&user_data, review_port); // Inserisco la porta dell'utente in quelle che richiedono revisione
+                
+                // Nel caso in cui il comando sia -1, ho ricevuto risposta al mio REVIEW_CARD
+                // In caso contrario devo verificare il task dell'utente
+                if(review_command != -1) push_user_review(&user_data, review_port);
                 else review_complete(&user_data, review_port);
                 
                 handle_print(user_data._status, user_data._card_id, user_data._users_need_review, user_data._users_need_review_number);

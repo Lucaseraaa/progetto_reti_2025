@@ -4,8 +4,7 @@
 #include "network/utils.h"
 
 char* columns_name[] = {"TO-DO", "DOING", "DONE"};
-extern Board_s kanban;
-extern Timer_s* timer;
+
 
 /**
  * @brief implementazione della SHOW_LAVAGNA
@@ -30,22 +29,20 @@ int get_lavagna(User_s* user){
     int board_len = htonl(strlen(board)+1);
 
     // Invio la lunghezza della lavagna attuale
-    int n = write(sock, &board_len, sizeof(int));
-
-    if (n != sizeof(int)){
+    if (send(sock, &board_len, sizeof(int), 0) < sizeof(int)){
         perror("Errore nell'invio della lunghezza della lavagna");
         free(board);
-        return -1;
+        return 1;
     } 
 
     // Invio la lavanga
-    int k = write(sock, board, strlen(board)+1);
-    if (k != (int)strlen(board)){
+    if (send(sock, board, strlen(board)+1, 0) < (int)strlen(board)){
         perror("Errore nell'invio della lavagna");
         free(board);
-        return -1;
+        return 1;
     }
 
+    // Libero la memoria
     free(board);
     
     return 0;
@@ -61,8 +58,9 @@ int quit(User_s* user){
 
     // L'utente viene eliminato
     int exit = user_exit(&kanban, user);
-    
-    if (exit == 0) return 1;
+    FD_CLR(user->_socket, &master);
+
+    if (exit == 0) return 0;
     else return -1;
     
 
@@ -79,23 +77,10 @@ int move_card(Board_s* board, int card_id, Column_type from, Column_type to){
 }
 
 /**
- * @brief implementazione della ack_alert
- */
-void* ack_alert(User_t user){
-
-    printf("\nRIMOZIONE DELL'UTENTE %d DAL POOL A CAUSA DI ACK MANCATA\n", user);
-    
-    User_s* usr = get_User_by_port(kanban._usr, user); 
-    FD_CLR(usr->_socket, &master); // Rimozione dalla lista della select
-    quit(usr);
-}
-
-/**
  * @brief implementazione della HANDLE_CARD
  */
 void handle_card(){
 
-    printf("FACCIO HANDLE CARD\n");
     // Scorro tutti gli utenti per assegnare una card
     for(User_s* user = kanban._usr; user != NULL; user = user->_next){
 
@@ -103,9 +88,7 @@ void handle_card(){
 
         // Se l'utente ha già una card, non lo considero
         if (get_User_status(user) != USR_NOTHING) continue;
-        printf("L'utente ha la card: %d\n", user->_actual_managed_card);
         int s = user_assign_card(&kanban, user, &card_id);
-        printf("Ritorno dall'operazione: %d\n", s);
 
         if (s != 0) continue;
 
@@ -123,11 +106,10 @@ void handle_card(){
             
             // In caso di errore resetto l'utente
             perror("Messaggio non inviato correttamente");
-            user_confirm_card(&kanban, get_User_port(user), 1);
+            user_confirm_card(&kanban, get_User_port(user), 1); 
             return;
 
         }
-        printf("MESSAGGIO INVIATO CON NUMERO: %d\n", k);
           
         // Invio la lista degli utenti
         generate_event_in_Timer(&timer, get_User_port(user), ACK_TIME, ack_alert, ACK_TIME);
@@ -138,6 +120,130 @@ void handle_card(){
 
 }
 
+
+/**
+ * @brief implementazione della ACK_CARD
+ */
+int ack_card(User_s* user){
+
+    if(user_confirm_card(&kanban, get_User_port(user), 0) == -1) {
+        printf("L'utente %d non può fare ACK\n", get_User_port(user));
+        return 1;
+    }
+
+    generate_event_in_Timer(&timer, get_User_port(user), PING, ping_user, PING_TIME);
+
+    return 0;
+
+}
+
+/**
+ * @brief implementazione della CARD_DONE
+ */
+int card_done(User_s* user){
+
+    // Ottengo la carta dell'utente
+    int doing_card_id = get_User_card(user);
+    
+    // Rimetto l'utente nella condizione di accettare una card
+    set_User_status(user, USR_NOTHING);
+    
+    // Rimuovo eventuali target relativi all'utente
+    remove_all_Timer_in_list(&timer, get_User_port(user), NONE);
+
+    // Nel caso in cui la lista sia vuota, chiudo l'alarm
+    if(timer == NULL) alarm(0);
+
+    // Metto la card in DONE
+    int r = switch_card_between_columns(&kanban, doing_card_id, DOING, DONE);
+
+    user->_actual_managed_card = -1; // Setto la carta dell'utente a -1
+    
+    return r;
+
+}
+
+/**
+ * @brief implemtazione della REQUEST_USER_LIST
+ */
+int request_user_list(User_s* user){
+
+    // Inizializzazione delle variabili 
+    printf("Invio gli utenti connessi a %d\n", user->_user);
+    int connected_users = kanban._connected_user;
+    int connected_users_net = htonl(connected_users - 1);
+    int user_sock = user->_socket;
+
+    // Invio il numero di utenti connessi
+    if (send(user_sock, &connected_users_net, sizeof(connected_users), 0)< sizeof(connected_users)) return 1;
+    if (connected_users == 1) return 0;
+
+    // Scrittura degli utenti in un array
+    User_t users[connected_users - 1];
+    get_Users(kanban._usr, users, connected_users, get_User_port(user));
+
+    // Invio gli utenti
+    if (send(user_sock, users, (connected_users - 1)*sizeof(User_t), 0) < (connected_users - 1)*sizeof(User_t)) return 1;
+
+    return 0;
+
+}
+
+/**
+ * @brief implementazione della PONG_LAVAGNA
+ */
+int pong_lavagna(User_s* user){
+
+
+    printf("L'utente %d ha chiamato la PONG_LAVAGNA\n", get_User_port(user));
+
+    // La funzione controlla se l'utente ha la card in doing
+    if(user->_status == USR_DOING){
+
+        // In tal caso prova ad eliminare la PONG
+        int pong_delete = remove_all_Timer_in_list(&timer, get_User_port(user), PONG);
+
+        // Nel caso di rimozione della PONG, devo rifare partire la PING
+        if (pong_delete == 0) insert_Timer_in_list(&timer, time(NULL)+PING_TIME, ping_user, get_User_port(user), PING);
+
+        return pong_delete;
+
+    }else return -1;
+
+}
+
+/**
+ * @brief implementazione della CREATE_CARD
+ */
+int create_card(User_s* user){
+
+    int task_id, task_len;
+    char task_body[1024];
+    
+    // Estraggo il socket
+    int u_sock = user->_socket;
+
+    if (recv(u_sock, &task_id, sizeof(int), 0) < sizeof(int)) return 1;
+    task_id = ntohl(task_id);
+
+    if (recv(u_sock, &task_len, sizeof(int), 0) < sizeof(int)) return 1;
+    task_len = ntohl(task_len);
+
+    if (recv(u_sock, &task_body, task_len, MSG_WAITALL) < task_len) return 1; 
+    task_body[task_len] = '\0';  // sanificazione
+
+    int r = append_card(&kanban, task_id, task_body, TO_DO);
+    int r_snd = htonl(r);
+
+    // Rispondo all'utente con il successo dell'operazione
+    send(u_sock, &r_snd, sizeof(int), 0);
+
+    // Caso in cui non gli utenti attendevano una card
+    if (kanban._colonne[TO_DO]._card_number == 1) handle_card();
+    
+    return r;
+
+}
 
 /**
  * @brief implementazione della PONG_USER
@@ -157,161 +263,30 @@ void* pong_user(User_t user){
  */
 void* ping_user(User_t user){
 
-    printf("EFFETTUO PING DELL'UTENTE %d\n", user);
+    printf("\nEFFETTUO PING DELL'UTENTE %d\n", user);
 
     // Ottengo l'utente
     User_s* user_ = get_User_by_port(kanban._usr, user);
-    printf("UTENTE socket: %d\n", user_->_socket);
 
     // Invio il comando
     Board_to_User_command command = BU_PING_USER;
     send_message_to_user(user_->_socket, command);
-    printf("FINE CHIAMATA\n");
     
+    // Inserisco la PONG
     insert_Timer_in_list(&timer, time(NULL) + PONG_TIME, pong_user, user, PONG);
-    print_timer_list(timer);
 
 }
 
 /**
- * @brief implementazione della ACK_CARD
+ * @brief implementazione della ack_alert
  */
-int ack_card(User_s* user){
+void* ack_alert(User_t user){
 
-    if(user_confirm_card(&kanban, get_User_port(user), 0) == -1) {
-        printf("L'utente %d non può fare ACK\n", get_User_port(user));
-        return -1;
-    }
-
-    generate_event_in_Timer(&timer, get_User_port(user), PING, ping_user, PING_TIME);
-
-    return 0;
-
-}
-
-/**
- * @brief implementazione della CARD_DONE
- */
-int card_done(User_s* user){
-
-    int doing_card_id = get_User_card(user);
+    printf("\nRIMOZIONE DELL'UTENTE %d DAL POOL A CAUSA DI ACK MANCATA\n", user);
     
-    // Rimetto l'utente nella condizione di accettare una card
-    set_User_status(user, USR_NOTHING);
-    
-    // Rimuovo eventuali target relativi all'utente
-    remove_all_Timer_in_list(&timer, get_User_port(user), NONE);
-
-    // Nel caso in cui la lista sia vuota, chiudo l'alarm
-    if(timer == NULL) alarm(0);
-
-    // Metto la card in DONE
-    int r = switch_card_between_columns(&kanban, doing_card_id, DOING, DONE);
-
-    user->_actual_managed_card = -1; // Setto la carta dell'utente a -1
-
-    printf("MI METTO IN STATO DI CARD DONE\n");
-
-    print_timer_list(timer);
-    
-    return r;
-
-}
-
-/**
- * @brief implemtazione della REQUEST_USER_LIST
- */
-void request_user_list(User_s* user){
-
-
-    printf("Invio gli utenti connessi a %d\n", user->_user);
-    int connected_users = kanban._connected_user;
-    int connected_users_net = htonl(connected_users - 1);
-
-    int user_sock = user->_socket;
-
-    prova_print(kanban._usr);
-
-    // Invio il numero di utenti connessi
-    int suser = send(user_sock, &connected_users_net, sizeof(connected_users), 0);
-    if (connected_users == 1) return;
-    printf("Ho trovato %d utenti\n", connected_users);
-
-    User_t users[connected_users - 1];
-    get_Users(kanban._usr, users, connected_users, get_User_port(user));
-
-    // Invio gli utenti
-    suser = send(user_sock, users, (connected_users - 1)*sizeof(User_t), 0);
-    printf("INVIATI GLI UTENTI!\n");
-
-}
-
-/**
- * @brief implementazione della PONG_LAVAGNA
- */
-int pong_lavagna(User_s* user){
-
-
-    printf("L'utente %d ha chiamato la PONG_LAVAGNA\n", get_User_port(user));
-
-    // La funzione controlla se l'utente ha la card in doing
-    if(user->_status == USR_DOING){
-
-        // In tal caso prova ad eliminare la PONG
-        int pong_delete = remove_all_Timer_in_list(&timer, get_User_port(user), PONG);
-        printf("ELIMINO IL PONG: %d\n", pong_delete);
-
-        // Nel caso di rimozione della PONG, devo rifare partire la PING
-        if (pong_delete == 0) insert_Timer_in_list(&timer, time(NULL)+PING_TIME, ping_user, get_User_port(user), PING);
-        print_timer_list(timer);
-
-        return pong_delete;
-
-    }else return -1;
-
-}
-
-/**
- * @brief implementazione della CREATE_CARD
- */
-int create_card(User_s* user){
-    
-    printf("CREIAMO UNA CARD\n");
-
-    int task_id, task_len;
-    char task_body[1024];
-    
-    // Estraggo il socket
-    int u_sock = user->_socket;
-
-    recv(u_sock, &task_id, sizeof(int), 0);
-    task_id = ntohl(task_id);
-
-    printf("Richiesto task ID: %d\n", task_id);
-
-    recv(u_sock, &task_len, sizeof(int), 0);
-    task_len = ntohl(task_len);
-
-    printf("Dimensione delal stringa: %d\n", task_len);
-
-    int n = recv(u_sock, &task_body, task_len, 0);
-    task_body[task_len] = '\0';  // sanificazione
-
-    printf("Richiesto task body: %s\n", task_body);
-
-    int r = append_card(&kanban, task_id, task_body, TO_DO);
-    int r_snd = htonl(r);
-
-    // Rispondo all'utente con il successo dell'operazione
-    send(u_sock, &r_snd, sizeof(int), 0);
-
-    // Caso in cui non gli utenti attendevano una card
-    if (kanban._colonne[TO_DO]._card_number == 1) {
-        printf("NUOVA CARD DA INVIARE\n");
-        handle_card();
-    }
-    return r;
-
+    User_s* usr = get_User_by_port(kanban._usr, user); 
+    FD_CLR(usr->_socket, &master); // Rimozione dalla lista della select
+    quit(usr);
 }
 
 /**

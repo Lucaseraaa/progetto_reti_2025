@@ -152,9 +152,6 @@ int execute_Timer_head_function(Timer_s** list){
     // print_timer_list(*list);
     if(timer == NULL) return -1;
 
-    // Creazione evento
-    printf("Eseguo la funzione di tipo %d sull'utente %d\n", timer->_operation, timer->_param);
-
     TimerCallback callback = (TimerCallback) timer->_function;
     callback(timer->_param);
 

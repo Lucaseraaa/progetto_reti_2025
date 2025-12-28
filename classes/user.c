@@ -127,7 +127,6 @@ void get_Users(User_s* top, User_t users[], int users_number, User_t current_use
     for(int i = 0, j = 0; i < users_number; i++, s = s -> _next){
         
         if (s->_user == current_user) continue;
-        printf("NUMERO: %d e %d\n", s->_user, htonl(s->_user));
         users[j] = htonl(s->_user);
         j++;
     

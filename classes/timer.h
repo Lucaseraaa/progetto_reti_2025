@@ -15,10 +15,6 @@
 #include <time.h>
 #include "structs/enums.h"
 
-#define PING_TIME 30
-#define PONG_TIME 30
-#define ACK_TIME 120
-
 // Struttura dati relativa al timer
 typedef struct Timer_s {
 

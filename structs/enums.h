@@ -9,11 +9,23 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 
-// Trova un'altra sistemazione
+// Definizione delle costanti
+
+// Utenti
 #define MIN_PORT 5679
+
+// Server
 #define SERVER_ADDRESS "127.0.0.1"
 #define SERVER_PORT 5678
-#define INIT_CARD_NUMBER 2
+
+// Timeout
+#define INIT_CARD_NUMBER 10
+#define PING_TIME 30
+#define PONG_TIME 30
+#define ACK_TIME 120
+
+// Porta
+#define PORT_BUFFER_LENGTH 5
 
 
 /**

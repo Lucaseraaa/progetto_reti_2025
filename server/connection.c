@@ -17,7 +17,7 @@ Timer_s *timer;
 
 // Le 10 cards da inivare alla lavagna appena partita
 // I progetti verranno inizializzati con ID crescenti da 0 a 9
-char* cards[10] = {
+char* cards[INIT_CARD_NUMBER] = {
     "Inizio del progetto",
     "Divisione dei ruoli",
     "Creazione del gruppo Whatsapp",
@@ -84,7 +84,7 @@ void select_main(){
     fcntl(timer_pipe[1], F_SETFL, O_NONBLOCK);
 
     if (generate_listener(&server_addr, &listener) == -1) {
-        perror("Fallimento del main");
+        perror("Non si è generato il listener");
         exit(EXIT_FAILURE); 
     }
 
@@ -96,19 +96,11 @@ void select_main(){
     for(;;){
 
         read_fds = master; 
-        
-        printf("RICONTROLLO LA SELECT\n");
         int ret = select(fdmax+1, &read_fds, NULL, NULL, NULL);
         
-        printf("NUOVO ELEMENTO NELLA SELECT\n");
         if (ret == -1) {
-            if (errno == EINTR){
-                printf("Select interrotta da segnale\n");
-                continue;
-            }else{
-                exit(EXIT_FAILURE);
-            }
-    
+            if (errno == EINTR) continue;
+            else exit(EXIT_FAILURE); // Fallisco in caso di segnale di errore
         }
         
         for(int i = 0; i <= fdmax; i++){
@@ -183,34 +175,40 @@ void select_main(){
                 }
                 else 
                 {
-                    // Sono in un altro socket
-                    // Implica che è necessariamente una richiesta di un utente
 
                     int n = recv(i, &msg, sizeof(msg), 0);
-                    printf("HO RICEVUO %d BYTE\n", n);
 
                     if (n == 0) {
-                        // Caso 1: Il client ha chiuso la connessione (EOF)
+                        // Il client ha chiuso la connessione 
                         printf("Client socket %d disconnesso.\n", i);
                         
                         handle_command(UB_QUIT, i);
 
-                        FD_CLR(i, &master); // Importante: smetti di monitorarlo!
+                        FD_CLR(i, &master); 
+
                     }
                     else if (n < 0) {
-                        // Caso 2: Errore
+                        // Errore
                         perror("Recv error");
                         close(i);
                         FD_CLR(i, &master);
                     }
                     else {
                         
+                        // È arrivato un messaggio, lo converto nel formato corretto
                         User_to_Board_command conv_msg = recv_message_from_user(msg);
                         printf("Richiesto comando dal client: %d con dimensione %d\n ", conv_msg, n);
                         
                         int handle_return = handle_command(conv_msg, i);
-                        if (handle_return == 1) FD_CLR(i, &master); // Elimino l'utente dal pool
-                    
+                        
+                        // Nel caso in cui il ritorno della funzione sia 1, devo eliminare l'utente
+                        if (handle_return == 1) {
+                            
+                            User_s* utente = get_User_by_socket(kanban._usr, i);
+                            printf("L'utente %d ha causato un errore nella lettura del socket: verrà disconnesso!\n", get_User_port(utente));
+                            quit(utente); 
+                            
+                        }
                     }
 
                 }
@@ -238,7 +236,6 @@ void select_main(){
         // Nel caso disattivo il timer
         if (timer == NULL) alarm(0);
 
-        printf("TERMINO IL CICLO INFINITO\n");
     }
 
 }
