@@ -121,6 +121,15 @@ User_card_status get_User_status(User_s* user);
 int get_User_card(User_s* user);
 
 /**
+ * @brief Ottiene il descrittore del socket dell'utente
+ * 
+ * @param user utente 
+ * 
+ * @return descrittore del socket
+ */
+int get_User_socket(User_s* user);
+
+/**
  * @brief La funzione permette di modificare la card dell'utente
  * 
  * La funzione assegna all'utente nella lista la card ad esso assegnata

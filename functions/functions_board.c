@@ -93,7 +93,7 @@ int user_confirm_card(Board_s* kanban, User_t port, int status){
 int user_exit(Board_s *kanban, User_s* user){
 
     // Controllo se l'utente esiste
-    int sock = user->_socket;
+    int sock = get_User_socket(user);
     int port = get_User_port(user); // Ottengo la porta dell'utente
 
     if (user== NULL) return -1;

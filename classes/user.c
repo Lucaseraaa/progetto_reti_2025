@@ -161,7 +161,7 @@ User_s* get_User_by_socket(User_s* top, int sock){
 }
 
 /**
- * @brief implementazione della set_User_status
+ * @brief implementazione della get_User_port
  */
 User_t get_User_port(User_s* user){
     
@@ -170,7 +170,7 @@ User_t get_User_port(User_s* user){
 }
 
 /**
- * @brief implementazione della set_User_status
+ * @brief implementazione della get_User_status
  */
 User_card_status get_User_status(User_s* user){
     
@@ -179,12 +179,20 @@ User_card_status get_User_status(User_s* user){
 }
 
 /**
- * @brief implementazione della set_User_status
+ * @brief implementazione della get_User_card
  */
 int get_User_card(User_s* user){
 
     return user->_actual_managed_card;
     
+}
+/**
+ * @brief implementazione della get_User_socket
+ */
+int get_User_socket(User_s* user){
+
+    return user->_socket;
+
 }
 
 /**

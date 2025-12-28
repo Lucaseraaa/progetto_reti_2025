@@ -21,3 +21,6 @@ lavagna:
 utente:
 	$(CC) $(USER_FLAGS) $(USER_INC) $(USER_SRC) -o $(USER_OUT)
 
+clean:
+	rm -f $(SERVER_OUT) $(USER_OUT)
+
