@@ -8,7 +8,7 @@ void* thread_simulate_job(void* arg){
     int duration = *((int*)arg);
     free(arg); // Libera memoria allocata per l'argomento
 
-    printf("INIZIO JOB DA %d secondi\n", duration);
+    printf("Simulazione del job! Attendere %d secondi prima di inviare la card\n", duration);
     sleep(duration);    
 
     // Sveglio la select che recepisce il termine della sleep

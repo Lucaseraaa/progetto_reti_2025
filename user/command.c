@@ -212,7 +212,7 @@ void ack_card(){
 
     // Avvio del thread
     pthread_t tid;
-    int n = (rand() % 21) + 10; // Genero un numero da 20 a 30
+    int n = (rand() % 21) + 10; // Genero un numero casuale da 10 a 30
     int *duration = malloc(sizeof(int));
     *duration = n;
     pthread_create(&tid, NULL, thread_simulate_job, duration);
@@ -419,8 +419,10 @@ void listen_to_server(){
                 // Conversione porta utente e comando
                 uint16_t review_port = (uint16_t) ntohs(user_buffer._sender_port);
                 int16_t review_command = (int16_t) ntohs(user_buffer._command);
-
-                printf("Messaggio UDP ricevuto: %d con porta: %d e prima %d\n", review_command, review_port, sender_addr.sin_port);
+                
+                printf("Messaggio in arrivo dall'utente %d: ", review_port);
+                if (review_command == -1) printf("ha revisionato con successo la card %d\n", user_data._card_id);
+                else printf("devi revisionare il suo task %d\n", review_command);
                 
                 // Nel caso in cui il comando sia -1, ho ricevuto risposta al mio REVIEW_CARD
                 // In caso contrario devo verificare il task dell'utente

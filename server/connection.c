@@ -145,16 +145,21 @@ void select_main(){
                     int connected_users_net = htonl(connected_users - 1);
 
                     // Invio il numero di utenti
-                    int suser = send(newfd, &connected_users_net, sizeof(connected_users), 0);
-                    
+                    if (send(newfd, &connected_users_net, sizeof(connected_users), 0) < sizeof(connected_users)) {
+                        close(newfd);
+                        continue;
+                    }
+
                     if (connected_users != 1){
                         // Genero l'array e ci scrivo gli utenti
                         User_t users[connected_users - 1];
                         get_Users(kanban._usr, users, connected_users - 1, port);
 
                         // Invio gli utenti
-                        suser = send(newfd, users, (connected_users-1)*sizeof(User_t), 0);
-                        printf("Array Utenti inviati: con successo %d\n", suser);
+                        if (send(newfd, users, (connected_users-1)*sizeof(User_t), 0) < (connected_users-1)*sizeof(User_t)){
+                            close(newfd);
+                            continue;
+                        }
 
                     }
 

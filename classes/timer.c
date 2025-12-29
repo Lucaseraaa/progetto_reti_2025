@@ -145,7 +145,6 @@ int execute_Timer_head_function(Timer_s** list){
     printf("ESECUZIONE DEL TIMER\n");
     Timer_s* timer = Timer_extract(list);
     
-    // print_timer_list(*list);
     if(timer == NULL) return -1;
 
     TimerCallback callback = (TimerCallback) timer->_function;

@@ -70,7 +70,6 @@ int review_complete(User_Data_s* ud, User_t user){
 
     // Creazione dell'indice dell'utente
     for (int i = 0; i < r->_remaning_users_number; i++) {
-        printf("Elemento in lista: %d da verificare con %d\n", r->_remaning_users[i], user);
         if (r->_remaning_users[i] == user) {
             found_index = i;
             break;
@@ -88,8 +87,6 @@ int review_complete(User_Data_s* ud, User_t user){
 
     // Ridimensiono la memoria
     if (r->_remaning_users_number == 0) {
-        
-        printf("HO FINITO TUTTI I DATI\n");
     
         free(r->_remaning_users);
         r->_remaning_users = NULL;
@@ -160,7 +157,7 @@ void send_all_users_notification(Review_User_s* ru, int user_sock, int card_id){
     for (int i = 0; i < ru->_remaning_users_number; i++) {
         
         User_t user = ru->_remaning_users[i];
-        printf("Utente con porta: %d\n", user);
+        printf("Invio il messaggio di revisione all'utente %d\n", user);
         dest_addr.sin_port = htons(user);
 
         sendto(

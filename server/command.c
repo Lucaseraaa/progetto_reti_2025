@@ -110,10 +110,9 @@ void handle_card(){
         }
           
         // Invio la lista degli utenti
-        generate_event_in_Timer(&timer, get_User_port(user), ACK_TIME, ack_alert, ACK_TIME);
-        print_timer_list(timer);
+        generate_event_in_Timer(&timer, get_User_port(user), HANDLE, ack_alert, ACK_TIME);
 
-        printf("L'utente %d ha assegnata la card %d\n", user->_user, card_id);
+        printf("È stata assegnata all'utente %d la card %d\n", user->_user, card_id);
     }
 
 }
@@ -129,7 +128,13 @@ int ack_card(User_s* user){
         return 1;
     }
 
+    // Rimozione tempo di handle
+    remove_all_Timer_in_list(&timer, get_User_port(user), HANDLE);
+
+    // Evento per la ping
     generate_event_in_Timer(&timer, get_User_port(user), PING, ping_user, PING_TIME);
+
+    print_timer_list(timer);
 
     return 0;
 
@@ -202,8 +207,8 @@ int pong_lavagna(User_s* user){
         int pong_delete = remove_all_Timer_in_list(&timer, get_User_port(user), PONG);
 
         // Nel caso di rimozione della PONG, devo rifare partire la PING
-        if (pong_delete == 0) insert_Timer_in_list(&timer, time(NULL)+PING_TIME, ping_user, get_User_port(user), PING);
-
+        if (pong_delete == 0) generate_event_in_Timer(&timer, get_User_port(user), PING, ping_user, PING_TIME);
+        print_timer_list(timer);
         return pong_delete;
 
     }else return -1;

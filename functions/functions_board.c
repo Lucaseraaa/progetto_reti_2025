@@ -58,12 +58,10 @@ int user_confirm_card(Board_s* kanban, User_t port, int status){
     if(user == NULL) return -1;
     int card_id = get_User_card(user);
 
-    printf("Card id: %d\n", card_id);
-
     if (status == 0){
 
         // Status == 0 --> l'utente ha accettato la card
-        printf("L'utente ha accettato la card\n");
+        printf("L'utente %d ha accettato la card\n", port);
         confirm_card_to_User(kanban, card_id);
         set_User_status(user, USR_DOING);
 
@@ -171,13 +169,10 @@ int switch_card_between_columns(Board_s* board, int card_id, Column_type from, C
  */
 void generate_event_in_Timer(Timer_s** timer, User_t port, Timer_Operation_Type operation_type, void* operation_function, int add_time){
 
-    // Inserimento dell'evento in lista 
+    // Inserimento dell'evento in lista ACK_CARD
     time_t event_time = time(NULL) + add_time;
     int ins = insert_Timer_in_list(timer, event_time, operation_function, port, operation_type);
     
-    printf("INS IMPORTANTE: %d\n", ins);
     if (ins == 1) alarm(add_time); // Nel caso in cui aggiunga un elemento in testa, resetto il timer
-    
-    print_timer_list(*timer);
 
 }

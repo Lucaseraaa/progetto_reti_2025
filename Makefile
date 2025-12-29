@@ -3,7 +3,7 @@ CC = gcc
 
 # Configurazione lavagna 
 SERVER_OUT = lavagna
-USER_FLAGS = -Wall # Flag warning
+SERVER_FLAGS = -Wall # Flag warning
 SERVER_INC = -I. -Iclasses -Istructs -Ifunctions -Inetwork -Iserver
 SERVER_SRC = lavagna.c classes/*.c functions/*.c network/*.c server/*.c
 
