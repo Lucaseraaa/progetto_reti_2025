@@ -126,6 +126,7 @@ int is_user_in_list(User_t user, User_t* list, int list_size) {
  * @brief implementazione della filter_disconnected_users
  */
 void filter_disconnected_users(Review_User_s* ru, User_t* current_users, int connected_count) {
+    
     int write_idx = 0;
 
     // Controllo gli utenti rimasti

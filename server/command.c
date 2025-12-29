@@ -167,8 +167,8 @@ int card_done(User_s* user){
 int request_user_list(User_s* user){
 
     // Inizializzazione delle variabili 
-    printf("Invio gli utenti connessi a %d\n", user->_user);
     int connected_users = kanban._connected_user;
+    printf("Invio gli utenti connessi (ovvero %d) a %d\n", connected_users-1, user->_user);
     int connected_users_net = htonl(connected_users - 1);
     int user_sock = get_User_socket(user);
 

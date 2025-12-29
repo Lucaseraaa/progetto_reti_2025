@@ -126,13 +126,14 @@ void user_request_user_list(int user_socket){
     int n_users;
     recv(user_socket, &n_users, sizeof(int), 0);
     n_users = ntohl(n_users);
-    
 
     // Ottengo l'array di utenti
     if (n_users != 0){
         User_t users[n_users];
         recv(user_socket, &users, n_users*sizeof(User_t), 0);
         other_users(&user_data, n_users, users);
+    }else {
+        other_users(&user_data, n_users, NULL);
     }
 
 }
@@ -158,8 +159,6 @@ void review_card(int board_sock, int user_sock){
  */
 void handle_board_request(Board_to_User_command command, int user_socket){
     
-
-    printf("SONO DENTRO\n");
 
     // Controllo le richieste provenienti dalla lavagna
     if (command == BU_HANLDE_CARD) {
