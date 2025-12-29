@@ -37,7 +37,7 @@ typedef struct User_Data_s{
 
     int _user_socket; // Socket relativo all'utente
 
-    User_t* _users_need_review; // Lista degli utenti che necessitano la review della card (in ordine di richiesta)
+    Review_User* _users_need_review; // Lista degli utenti che necessitano la review della card e l'id (in ordine di richiesta)
 
     int _users_need_review_number;
 
@@ -110,9 +110,9 @@ int user_handle_card(User_Data_s* ud, int card_id);
  * @brief funzione che inserice un utente in coda dell'array degli utenti che richiedono revisione
  * 
  * @param ud riferimento all'istanza di user data
- * @param user porta dell'utente da inserire
+ * @param user_card_to_review carta di riferimento e utente
  */
-void push_user_review(User_Data_s* ud, User_t user);
+void push_user_review(User_Data_s* ud, Review_User user_card_to_review);
 
 /**
  * @brief funzione che estrae in testa dalla lista degli utenti che richiedono revisione

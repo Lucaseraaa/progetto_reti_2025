@@ -24,22 +24,28 @@ extern Review_User_s review;
  * nel caso in cui sia diveso da 0 stampa anche il comando di ACK
  * 
  * @param card_id id della card presa in carico dall'utente
+ * @param user_needs_review array degli utenti che richiedono revisione
+ * @param user_needs_review_number numero di utenti che richiedono la revisione della card
  */
-void print_in_conn(int card_id, User_t* user_needs_review, int user_needs_review_number);
+void print_in_conn(int card_id, Review_User* user_needs_review, int user_needs_review_number);
 
 /**
  * @brief funzione per stampare i comandi nello stato SLEEP_CARD
  * 
  * @param card_id id della card che stà venendo gestita
+ * @param user_needs_review array degli utenti che richiedono revisione
+ * @param user_needs_review_number numero di utenti che richiedono la revisione della card
  */
-void print_in_sleep_card(int card_id, User_t* user_needs_review, int user_needs_review_number);
+void print_in_sleep_card(int card_id, Review_User* user_needs_review, int user_needs_review_number);
 
 /**
  * @brief funzione per stampare i comandi nello stato CARD
  * 
  * @param card_id id della card che stà venendo gestita
+ * @param user_needs_review array degli utenti che richiedono revisione
+ * @param user_needs_review_number numero di utenti che richiedono la revisione della card
  */
-void print_in_card(int card_id, User_t* user_needs_review, int user_needs_review_number);
+void print_in_card(int card_id, Review_User* user_needs_review, int user_needs_review_number);
 
 /**
  * @brief funzione per stampare i comandi nello stato PING_USER
@@ -55,8 +61,9 @@ void print_in_ping(int card_id);
  * 
  * @param status stato in cui si trova l'utente
  * @param card_id id della card
- * 
+ * @param user_needs_review array degli utenti che richiedono revisione
+ * @param user_needs_review_number numero di utenti che richiedono la revisione della card
  */
-void handle_print(User_Status status, int card_id, User_t* user_needs_review, int user_needs_review_number);
+void handle_print(User_Status status, int card_id, Review_User* user_needs_review, int user_needs_review_number);
 
 #endif

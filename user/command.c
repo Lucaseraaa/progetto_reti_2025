@@ -186,10 +186,10 @@ void handle_board_request(Board_to_User_command command, int user_socket){
  */
 void review_ok(int user_sock){
 
-    printf("L'utente che deve essere revisionato è %d\n", user_data._users_need_review[0]);
+    printf("L'utente che deve essere revisionato è %d\n", user_data._users_need_review[0].user);
 
     // Invio all'utente la notifica di revisione
-    send_user_ok(&review, user_sock, user_data._users_need_review[0]);
+    send_user_ok(&review, user_sock, user_data._users_need_review[0].user);
     
     // Elimino l'utente dal pool
     pop_user_review(&user_data);
@@ -361,7 +361,7 @@ void listen_to_server(){
             send_all_users_notification(&review, user_data._user_socket, user_data._card_id);
             timer_scaduto = 0;
             
-            if (review._remaning_users_number == 0) handle_print(user_data._status, user_data._card_id, review._remaning_users, review._remaning_users_number);
+            if (review._remaning_users_number == 0) handle_print(user_data._status, user_data._card_id, user_data._users_need_review, review._remaning_users_number);
             else alarm(USER_REVIEW_TIMER);
 
         }
@@ -425,7 +425,14 @@ void listen_to_server(){
                 
                 // Nel caso in cui il comando sia -1, ho ricevuto risposta al mio REVIEW_CARD
                 // In caso contrario devo verificare il task dell'utente
-                if(review_command != -1) push_user_review(&user_data, review_port);
+                if(review_command != -1) {
+                    
+                    Review_User user_to_review;
+                    user_to_review.card_id = review_command;
+                    user_to_review.user = review_port; 
+
+                    push_user_review(&user_data, user_to_review);
+                }
                 else review_complete(&user_data, review_port);
                 
                 handle_print(user_data._status, user_data._card_id, user_data._users_need_review, user_data._users_need_review_number);
@@ -445,7 +452,6 @@ void listen_to_server(){
                 input[strcspn(input, "\n")] = 0; // Sanificazione dell'input
                 
                 // Gestione input utente
-                printf("Comando richiesto: %s\n", input);
                 handle_command(input);
                 handle_print(user_data._status, user_data._card_id, user_data._users_need_review, user_data._users_need_review_number);
 

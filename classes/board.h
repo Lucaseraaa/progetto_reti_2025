@@ -18,10 +18,6 @@
 #include "classes/user.h"
 #include "structs/enums.h"
 
-#define COLUMN_NUMBER 3
-#define COLUMN_NAMES {"TO_DO", "DOING", "DONE"}
-#define MAX_CARD_LEN 30
-
 
 /**
  * Struttura dati che definisce una Lavagna

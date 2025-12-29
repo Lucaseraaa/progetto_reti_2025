@@ -27,6 +27,10 @@
 // Porta
 #define PORT_BUFFER_LENGTH 5
 
+// Lavagna
+#define COLUMN_NUMBER 3
+#define MAX_CARD_LEN 30
+
 
 /**
  * @brief enum che definisce i possibili stati delle colonne
@@ -47,6 +51,16 @@ typedef enum {
 } User_card_status;
 
 typedef unsigned int User_t;
+
+/**
+ * @brief struttura utilizzata per salvare l'utente e la card che deve revisionare
+ */
+typedef struct Review_User{
+    
+    User_t user;
+    uint16_t card_id;
+
+} Review_User;
 
 typedef enum {
     PING, 
