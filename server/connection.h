@@ -23,6 +23,11 @@
 #include <signal.h>
 #include <sys/wait.h>
 #include <sys/select.h>
+#include "network/utils.h"
+#include "functions/functions_board.h"
+#include "classes/user.h"
+#include "classes/timer.h"
+#include <fcntl.h>
 #include "structs/enums.h"
 #include "classes/board.h"
 #include "server/command.h"

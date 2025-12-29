@@ -10,6 +10,16 @@
 #ifndef USER_H
 #define USER_H
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <errno.h>
+#include <string.h>
+#include <stdlib.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+
 #include "structs/enums.h"
 
 typedef struct User_s{

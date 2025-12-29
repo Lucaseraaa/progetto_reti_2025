@@ -10,6 +10,7 @@
 #ifndef COMMAND_H
 #define COMMAND_h
 
+#include <string.h>
 #include <stdio.h>
 #include <arpa/inet.h>
 #include <sys/types.h>
@@ -22,6 +23,8 @@
 #include <netinet/in.h>
 #include <sys/select.h>
 #include "functions/functions_board.h" 
+#include "classes/timer.h"
+#include "network/utils.h"
 
 // Variabili globali
 // Utilizzate per gestire la select

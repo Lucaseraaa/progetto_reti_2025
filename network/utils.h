@@ -9,13 +9,14 @@
 #ifndef NET_UTILS_H
 #define NET_UTILS_H
 
+#include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
 #include <arpa/inet.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
+#include <string.h>
 #include <errno.h>
 #include "structs/enums.h"
 

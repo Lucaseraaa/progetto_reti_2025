@@ -22,6 +22,9 @@
 #include "user/thread.h"
 #include "classes/user_data.h"
 #include "structs/enums.h"
+#include "user/print.h"
+#include "user/peer.h"
+#include "network/utils.h"
 
 #define COMMAND_LEN 50
 

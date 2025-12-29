@@ -1,8 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include "classes/board.h"
-#include "structs/enums.h"
 
 /**
  * @brief implementazione della Board_init

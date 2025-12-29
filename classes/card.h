@@ -11,6 +11,9 @@
 #ifndef CARD_H
 #define CARD_H
 
+#include <stdlib.h>
+// #include <stdio.h>
+#include <string.h>
 #include <time.h>
 #include "structs/enums.h"
 

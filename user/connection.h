@@ -17,12 +17,15 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
+#include "network/utils.h"
+#include "classes/user_data.h"
+#include "structs/enums.h"
+#include "user/peer.h"
+#include "user/command.h"
 
 #define COMMAND_SIZE 16
 #define LOCALHOST "127.0.0.1"
 #define SERVER_PORT 5678
-
-#include "user/command.h"
 
 /**
  * @brief funzione main del client user

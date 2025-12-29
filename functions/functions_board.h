@@ -10,8 +10,14 @@
 #ifndef FUNCTION_BOARD_H
 #define FUNCTION_BOARD_H
 
-#include "classes/board.h"
+#include <stdio.h>
+#include <errno.h>
+#include <string.h>
+#include <stdlib.h>
+#include <sys/signal.h>
+
 #include "classes/timer.h"
+#include "classes/board.h"
 
 // Riferimento esterno al timer
 extern Timer_s* timer;

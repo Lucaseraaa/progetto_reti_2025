@@ -202,8 +202,4 @@ void send_user_ok(Review_User_s* ru, int user_sock, User_t user_id){
         sizeof(dest_addr)
     );
 
-    // Confermo la ricezione del messaggio
-    pop_user_review(&user_data);
-
-
 }

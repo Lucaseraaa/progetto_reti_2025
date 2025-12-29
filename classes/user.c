@@ -1,15 +1,4 @@
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <string.h>
-#include <stdlib.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include "classes/user.h"
-#include "structs/enums.h"
-#include <arpa/inet.h>
-#include <unistd.h>
+#include "user.h"
 
 
 /**

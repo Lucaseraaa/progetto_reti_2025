@@ -1,7 +1,4 @@
 #include "user/command.h"
-#include "user/print.h"
-#include "user/peer.h"
-#include "network/utils.h"
 
 #define USER_REVIEW_TIMER 30
 
@@ -184,15 +181,24 @@ void handle_board_request(Board_to_User_command command, int user_socket){
 
 }   
 
-
+/**
+ * @brief implementazione della review_ok
+ */
 void review_ok(int user_sock){
 
     printf("L'utente che deve essere revisionato è %d\n", user_data._users_need_review[0]);
+
+    // Invio all'utente la notifica di revisione
     send_user_ok(&review, user_sock, user_data._users_need_review[0]);
+    
+    // Elimino l'utente dal pool
     pop_user_review(&user_data);
 
 }
 
+/**
+ * @brief implementazione della resend_review_to_users
+ */
 void resend_review_to_users(int p){
 
     if (review._remaning_users != 0) timer_scaduto = 1; 

@@ -1,5 +1,4 @@
 #include "classes/timer.h"
-#include <stdlib.h>
 
 /**
  * @brief implementazione della Timer_init

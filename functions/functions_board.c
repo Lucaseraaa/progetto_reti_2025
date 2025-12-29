@@ -1,10 +1,5 @@
-#include "functions/functions_board.h"
-#include "classes/timer.h"
-#include <stdio.h>
-#include <errno.h>
-#include <string.h>
-#include <stdlib.h>
-#include <sys/signal.h>
+#include "functions_board.h"
+
 
 extern int timer_pipe[2];
 

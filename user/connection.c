@@ -1,8 +1,4 @@
 #include "user/connection.h"
-#include "network/utils.h"
-#include "classes/user_data.h"
-#include "structs/enums.h"
-#include "user/peer.h"
 
 // Compila
 // gcc -W -I. -Inetwork -Iclasses -Iuser testu.c network/*.c classes/*.c user/*.c -o testu 

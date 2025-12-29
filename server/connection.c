@@ -1,9 +1,5 @@
 #include "server/connection.h"
-#include "network/utils.h"
-#include "functions/functions_board.h"
-#include "classes/user.h"
-#include "classes/timer.h"
-#include <fcntl.h>
+
 
 // Variabile condivisa: lavagna
 // Va acceduta tramite un semaforo durante le funzioni della sezione critica

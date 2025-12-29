@@ -148,7 +148,6 @@ void pop_user_review(User_Data_s* ud){
     if (ud->_users_need_review_number == 1) {
         
         // Caso in cui ci sia un solo utente 
-
         free(ud->_users_need_review);
         ud->_users_need_review = NULL;
         ud->_users_need_review_number = 0;
@@ -174,7 +173,10 @@ void pop_user_review(User_Data_s* ud){
         }
         
         ud->_users_need_review_number = new_count;
+        printf("HO SOLO UN CONTROLLO DA FARE: %d\n", ud->_users_need_review_number);
     }
+    printf("PER SICUREZZA: %d\n", ud->_users_need_review_number);
+
 }
 
 void print_debug(User_Data_s* ud){
