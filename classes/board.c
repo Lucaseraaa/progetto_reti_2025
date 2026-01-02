@@ -1,5 +1,10 @@
 #include "classes/board.h"
 
+#define COL_WIDTH 30
+#define MAX_LINES 64
+#define SEP " | "
+#define MAX_LINES 64
+
 /**
  * @brief implementazione della Board_init
  */
@@ -98,68 +103,114 @@ void unassign_card_to_user(Board_s* board, int card_id){
 
 void print_Board(Board_s* board){
 
-    printf("\nLavagna (%d)\n", board->_id);
-    char* column_names[3] = {"TO-DO", "DOING", "DONE"};
+    printf("%s\n", board_to_string(board));
+    
+}
 
-    for(int i = 0; i < 3; i++){
-
-        Card_s* cards;
-        
-        printf("\nColonna: %s\n", column_names[i]);
-        for (cards = board->_colonne[i]._card; cards != NULL;cards = cards->_next){
-            printf("\nTask %d", cards->_id);
-            if(cards->_utente != 0 && i == 0) printf(" - in attesa di essere confermato da %d", cards->_utente);
-            else if(i == 1) printf(" - preso da %d", cards->_utente);
-            printf("\n%s\n", cards->_testo_attivita);
+/**
+ * @brief implementazione di wrap_text
+ */
+int wrap_text(const char* text, char lines[MAX_LINES][COL_WIDTH + 1]) {
+    int line = 0, col = 0;
+    for (const char* p = text; *p && line < MAX_LINES; p++) {
+        if (*p == '\n') {
+            lines[line][col] = '\0';
+            line++;
+            col = 0;
+            continue;
         }
-    
+        lines[line][col++] = *p;
+        if (col == COL_WIDTH) {
+            lines[line][col] = '\0';
+            line++;
+            col = 0;
+        }
     }
-    
+    if (col > 0 && line < MAX_LINES) {
+        lines[line][col] = '\0';
+        line++;
+    }
+    return line;
 }
 
 /**
  * @brief implementazione della board_to_string
  */
 char* board_to_string(Board_s* board) {
-
-    // Alloco il buffer per la stringa
-    char* buffer = (char*)malloc(4096 * sizeof(char));
-    if (buffer == NULL) {
-        return NULL;
-    }
-    
-    char temp[512];
+    char* buffer = malloc(16384); // buffer grande per sicurezza
+    if (!buffer) return NULL;
     buffer[0] = '\0';
-    
-    // Intestazione
-    sprintf(temp, "\nLavagna (%d)\n", board->_id);
+
+    char temp[512];
+
+    // Titolo centrato
+    sprintf(temp, "\n%ld %sLavagna - %d\n\n",
+            (COL_WIDTH * 3 + strlen(SEP) * 2 - 12)/2, "", board->_id);
     strcat(buffer, temp);
-    
-    char* column_names[3] = {"TO-DO", "DOING", "DONE"};
-    
-    for(int i = 0; i < 3; i++) { 
-        Card_s* cards;
-        sprintf(temp, "\nColonna: %s\n", column_names[i]);
-        strcat(buffer, temp);
-        
-        for (cards = board->_colonne[i]._card; cards != NULL; cards = cards->_next) {
-            sprintf(temp, "\nTask %d", cards->_id);
-            strcat(buffer, temp);
-            
-            if(cards->_utente != 0 && i == 0) {
-                sprintf(temp, " - in attesa di essere confermato da %d", cards->_utente);
-                strcat(buffer, temp);
+
+    // Intestazioni colonne
+    sprintf(temp,
+        "%-*s%s%-*s%s%-*s\n",
+        COL_WIDTH, "TO-DO", SEP,
+        COL_WIDTH, "DOING", SEP,
+        COL_WIDTH, "DONE");
+    strcat(buffer, temp);
+
+    // Linea tratteggiata sotto intestazioni
+    sprintf(temp,
+        "%-*s%s%-*s%s%-*s\n",
+        COL_WIDTH, "------------------------------", SEP,
+        COL_WIDTH, "------------------------------", SEP,
+        COL_WIDTH, "------------------------------");
+    strcat(buffer, temp);
+
+    // Puntatori alle liste di card
+    Card_s* c[3] = {
+        board->_colonne[0]._card,
+        board->_colonne[1]._card,
+        board->_colonne[2]._card
+    };
+
+    while (c[0] || c[1] || c[2]) {
+        char lines[3][MAX_LINES][COL_WIDTH + 1];
+        int line_count[3] = {0};
+
+        for (int i = 0; i < 3; i++) {
+            if (c[i]) {
+                char fulltext[1024];
+                sprintf(fulltext, "Task %d\n%s", c[i]->_id, c[i]->_testo_attivita);
+                line_count[i] = wrap_text(fulltext, lines[i]);
             }
-            else if(i == 1) {
-                sprintf(temp, " - preso da %d", cards->_utente);
-                strcat(buffer, temp);
-            }
-            
-            sprintf(temp, "\n%s\n", cards->_testo_attivita);
+        }
+
+        // Massimo numero di righe per questa riga di task
+        int max_lines = line_count[0];
+        if (line_count[1] > max_lines) max_lines = line_count[1];
+        if (line_count[2] > max_lines) max_lines = line_count[2];
+
+        // Stampa riga per riga allineata
+        for (int l = 0; l < max_lines; l++) {
+            sprintf(temp,
+                "%-*s%s%-*s%s%-*s\n",
+                COL_WIDTH, (l < line_count[0]) ? lines[0][l] : "", SEP,
+                COL_WIDTH, (l < line_count[1]) ? lines[1][l] : "", SEP,
+                COL_WIDTH, (l < line_count[2]) ? lines[2][l] : ""
+            );
             strcat(buffer, temp);
         }
+
+        // Linea tratteggiata tra task
+        sprintf(temp,
+            "%-*s%s%-*s%s%-*s\n",
+            COL_WIDTH, "------------------------------", SEP,
+            COL_WIDTH, "------------------------------", SEP,
+            COL_WIDTH, "------------------------------");
+        strcat(buffer, temp);
+
+        // Avanza nelle liste
+        for (int i = 0; i < 3; i++) if (c[i]) c[i] = c[i]->_next;
     }
-    
+
     return buffer;
 }
 
