@@ -81,12 +81,15 @@ int other_users(User_Data_s* ud, int connected_user, User_t users[]){
     free(ud->_others); // Libero l'array precedente 
 
     if(connected_user > 0){
-        // printf("\nRicevuti utenti: ");
+        printf("\nUtenti connessi alla lavagna: ");
         ud->_others = malloc(connected_user*sizeof(User_t));
-        for(int i = 0; i < ud->_connected_users; i++) {
-
-            ud->_others[i] = ntohl(users[i]);
-
+        for(int i = 0; i < connected_user; i++) {
+            
+            int user_port = ntohl(users[i]);
+            if (i != connected_user -1) printf("%d, ", user_port);
+            else printf("%d\n", user_port);
+            ud->_others[i] = user_port;
+            
         }
     }
 
