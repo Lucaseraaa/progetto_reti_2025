@@ -13,6 +13,8 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <time.h>
+#include <stdlib.h>
+
 #include "structs/enums.h"
 
 // Struttura dati relativa al timer

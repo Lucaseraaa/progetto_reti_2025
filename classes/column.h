@@ -9,6 +9,8 @@
 
 #ifndef COLUMN_H
 #define COLUMN_H
+
+#include <stdio.h>
 #include "classes/card.h"
 #include "structs/enums.h"
 

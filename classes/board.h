@@ -10,13 +10,13 @@
 #ifndef BOARD_H
 #define BOARD_H
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "classes/column.h"
 #include "structs/enums.h"
 #include "classes/user.h"
-
-#define COLUMN_NUMBER 3
-#define COLUMN_NAMES {"TO_DO", "DOING", "DONE"}
-#define MAX_CARD_LEN 30
+#include "structs/enums.h"
 
 
 /**

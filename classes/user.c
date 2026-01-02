@@ -1,15 +1,4 @@
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <string.h>
-#include <stdlib.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include "classes/user.h"
-#include "structs/enums.h"
-#include <arpa/inet.h>
-#include <unistd.h>
+#include "user.h"
 
 
 /**
@@ -161,7 +150,7 @@ User_s* get_User_by_socket(User_s* top, int sock){
 }
 
 /**
- * @brief implementazione della set_User_status
+ * @brief implementazione della get_User_port
  */
 User_t get_User_port(User_s* user){
     
@@ -170,7 +159,7 @@ User_t get_User_port(User_s* user){
 }
 
 /**
- * @brief implementazione della set_User_status
+ * @brief implementazione della get_User_status
  */
 User_card_status get_User_status(User_s* user){
     
@@ -179,18 +168,26 @@ User_card_status get_User_status(User_s* user){
 }
 
 /**
- * @brief implementazione della set_User_status
+ * @brief implementazione della get_User_card
  */
 int get_User_card(User_s* user){
 
     return user->_actual_managed_card;
     
 }
+/**
+ * @brief implementazione della get_User_socket
+ */
+int get_User_socket(User_s* user){
+
+    return user->_socket;
+
+}
 
 /**
  * @brief implementazione della set_User_status
  */
-int set_User_status(User_s* user, User_card_status status){
+void set_User_status(User_s* user, User_card_status status){
 
     user->_status = status;
     
@@ -199,7 +196,7 @@ int set_User_status(User_s* user, User_card_status status){
 /**
  * @brief implementazione della set_User_status
  */
-int set_User_card(User_s* user, int card_id){
+void set_User_card(User_s* user, int card_id){
 
     user->_actual_managed_card = card_id;
     

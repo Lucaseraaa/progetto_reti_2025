@@ -1,11 +1,4 @@
 #include "user/connection.h"
-#include "network/utils.h"
-#include "classes/user_data.h"
-#include "structs/enums.h"
-#include "user/peer.h"
-
-// Compila
-// gcc -W -I. -Inetwork -Iclasses -Iuser testu.c network/*.c classes/*.c user/*.c -o testu 
 
 // Dichiarazione della User_Data_s per mentenere i dati necessari a comunicare con la lavagna
 // e con gli altri host

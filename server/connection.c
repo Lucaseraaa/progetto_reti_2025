@@ -1,10 +1,5 @@
 #include "server/connection.h"
-#include "network/utils.h"
-#include "functions/functions_board.h"
-#include "classes/user.h"
-#include "server/thread.h"
-#include "classes/timer.h"
-#include <fcntl.h>
+
 
 // Variabile condivisa: lavagna
 // Va acceduta tramite un semaforo durante le funzioni della sezione critica
@@ -72,9 +67,7 @@ void select_main(){
 
     // Buffer
     uint32_t msg;
-    int nbytes;
-    int addrlen;
-    int i;
+    socklen_t addrlen;
 
     // Azzero i set
     FD_ZERO(&master);
@@ -152,17 +145,21 @@ void select_main(){
                     int connected_users_net = htonl(connected_users - 1);
 
                     // Invio il numero di utenti
-                    int suser = send(newfd, &connected_users_net, sizeof(connected_users), 0);
-                    printf("Utenti inviati: %d con successo %d\n", connected_users_net, suser);
-                    
+                    if (send(newfd, &connected_users_net, sizeof(connected_users), 0) < sizeof(connected_users)) {
+                        close(newfd);
+                        continue;
+                    }
+
                     if (connected_users != 1){
                         // Genero l'array e ci scrivo gli utenti
                         User_t users[connected_users - 1];
                         get_Users(kanban._usr, users, connected_users - 1, port);
 
                         // Invio gli utenti
-                        suser = send(newfd, users, (connected_users-1)*sizeof(User_t), 0);
-                        printf("Array Utenti inviati: con successo %d\n", suser);
+                        if (send(newfd, users, (connected_users-1)*sizeof(User_t), 0) < (connected_users-1)*sizeof(User_t)){
+                            close(newfd);
+                            continue;
+                        }
 
                     }
 
@@ -218,7 +215,7 @@ void select_main(){
         if (FD_ISSET(timer_pipe[0], &read_fds)) {
             
             char buffer[256]; 
-            int n_events = read(timer_pipe[0], buffer, sizeof(buffer));
+            read(timer_pipe[0], buffer, sizeof(buffer));
             
             // Controllo se ci sono altri timer in attesa
             int has_another_timer = execute_Timer_head_function(&timer);

@@ -81,16 +81,16 @@ int other_users(User_Data_s* ud, int connected_user, User_t users[]){
     free(ud->_others); // Libero l'array precedente 
 
     if(connected_user > 0){
-
+        printf("\nUtenti connessi alla lavagna: ");
         ud->_others = malloc(connected_user*sizeof(User_t));
-        printf("Utenti: \n");
-        for(int i = 0; i < ud->_connected_users; i++) {
-
-            printf("%d e %d, \n", ntohl(users[i]), users[i]);
-            ud->_others[i] = ntohl(users[i]);
-
+        for(int i = 0; i < connected_user; i++) {
+            
+            int user_port = ntohl(users[i]);
+            if (i != connected_user -1) printf("%d, ", user_port);
+            else printf("%d\n", user_port);
+            ud->_others[i] = user_port;
+            
         }
-        printf("\n");
     }
 
     return 0;
@@ -112,11 +112,11 @@ int user_handle_card(User_Data_s* ud, int card_id){
 /**
  * @brief implementazione della append_user_review
  */
-void push_user_review(User_Data_s* ud, User_t user){
+void push_user_review(User_Data_s* ud, Review_User user_card_to_review){
 
     // Controllo se l'utente è già presente
     for (int i = 0; i < ud->_users_need_review_number; i++) {
-        if (ud->_users_need_review[i] == user) {
+        if (ud->_users_need_review[i].user == user_card_to_review.user) {
             // Utente già presente, non aggiungo nulla
             return;
         }
@@ -126,7 +126,7 @@ void push_user_review(User_Data_s* ud, User_t user){
     ud->_users_need_review_number++;
 
     // Realloco la memoria, per gestire un utente in più
-    User_t* temp = realloc(ud->_users_need_review, ud->_users_need_review_number * sizeof(User_t));
+    Review_User* temp = realloc(ud->_users_need_review, ud->_users_need_review_number * sizeof(Review_User));
 
     // Fallisco nel caso non ci sia più memoria disponibile
     if (temp == NULL) {
@@ -137,21 +137,17 @@ void push_user_review(User_Data_s* ud, User_t user){
 
     // Aggiorno l'array
     ud->_users_need_review = temp;
-    ud->_users_need_review[ud->_users_need_review_number - 1] = user;
+    ud->_users_need_review[ud->_users_need_review_number - 1] = user_card_to_review;
 
 }
 
 void pop_user_review(User_Data_s* ud){
 
     if (ud->_users_need_review_number <= 0 || ud->_users_need_review == NULL) return;
-    
-    // Utente in testa
-    User_t user_to_return = ud->_users_need_review[0];
 
     if (ud->_users_need_review_number == 1) {
         
         // Caso in cui ci sia un solo utente 
-
         free(ud->_users_need_review);
         ud->_users_need_review = NULL;
         ud->_users_need_review_number = 0;
@@ -164,12 +160,12 @@ void pop_user_review(User_Data_s* ud){
         memmove(
             ud->_users_need_review,           
             ud->_users_need_review + 1,       
-            (ud->_users_need_review_number - 1) * sizeof(User_t) 
+            (ud->_users_need_review_number - 1) * sizeof(Review_User) 
         );
 
         // 5. Riduco la dimensione dell'array
         int new_count = ud->_users_need_review_number - 1;
-        User_t* temp = realloc(ud->_users_need_review, new_count * sizeof(User_t));
+        Review_User* temp = realloc(ud->_users_need_review, new_count * sizeof(Review_User));
         
         // Nota: realloc in riduzione difficilmente fallisce, ma è bene aggiornare
         if (temp != NULL) {
@@ -177,7 +173,10 @@ void pop_user_review(User_Data_s* ud){
         }
         
         ud->_users_need_review_number = new_count;
+        printf("HO SOLO UN CONTROLLO DA FARE: %d\n", ud->_users_need_review_number);
     }
+    printf("PER SICUREZZA: %d\n", ud->_users_need_review_number);
+
 }
 
 void print_debug(User_Data_s* ud){

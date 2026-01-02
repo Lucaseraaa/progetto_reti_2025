@@ -70,7 +70,6 @@ int review_complete(User_Data_s* ud, User_t user){
 
     // Creazione dell'indice dell'utente
     for (int i = 0; i < r->_remaning_users_number; i++) {
-        printf("Elemento in lista: %d da verificare con %d\n", r->_remaning_users[i], user);
         if (r->_remaning_users[i] == user) {
             found_index = i;
             break;
@@ -88,8 +87,6 @@ int review_complete(User_Data_s* ud, User_t user){
 
     // Ridimensiono la memoria
     if (r->_remaning_users_number == 0) {
-        
-        printf("HO FINITO TUTTI I DATI\n");
     
         free(r->_remaning_users);
         r->_remaning_users = NULL;
@@ -126,6 +123,7 @@ int is_user_in_list(User_t user, User_t* list, int list_size) {
  * @brief implementazione della filter_disconnected_users
  */
 void filter_disconnected_users(Review_User_s* ru, User_t* current_users, int connected_count) {
+    
     int write_idx = 0;
 
     // Controllo gli utenti rimasti
@@ -159,10 +157,10 @@ void send_all_users_notification(Review_User_s* ru, int user_sock, int card_id){
     for (int i = 0; i < ru->_remaning_users_number; i++) {
         
         User_t user = ru->_remaning_users[i];
-        printf("Utente con porta: %d\n", user);
+        printf("Invio il messaggio di revisione all'utente %d\n", user);
         dest_addr.sin_port = htons(user);
 
-        ssize_t sent = sendto(
+        sendto(
             user_sock,
             &utu_msg,
             sizeof(utu_msg),
@@ -193,7 +191,7 @@ void send_user_ok(Review_User_s* ru, int user_sock, User_t user_id){
     utu_msg._command = htons((int16_t)-1);
 
     dest_addr.sin_port = htons(user_id);
-    ssize_t sent = sendto(
+    sendto(
         user_sock,
         &utu_msg,
         sizeof(utu_msg),
@@ -201,9 +199,5 @@ void send_user_ok(Review_User_s* ru, int user_sock, User_t user_id){
         (struct sockaddr*)&dest_addr,
         sizeof(dest_addr)
     );
-
-    // Confermo la ricezione del messaggio
-    pop_user_review(&user_data);
-
 
 }

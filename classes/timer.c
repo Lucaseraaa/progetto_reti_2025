@@ -1,5 +1,4 @@
 #include "classes/timer.h"
-#include <stdlib.h>
 
 /**
  * @brief implementazione della Timer_init
@@ -69,9 +68,6 @@ int insert_Timer_in_list(Timer_s** list, time_t timestamp, void* function, User_
     // Creo il nuovo timer
     Timer_s* new_timer = Timer_init(timestamp, function, param, type);
     if (new_timer == NULL) return -1; // FALLISCO
-
-    Timer_s* tim;
-    Timer_s* prec_tim;
     
     if (*list == NULL || (*list)->_timestamp >= new_timer->_timestamp){
         
@@ -149,7 +145,6 @@ int execute_Timer_head_function(Timer_s** list){
     printf("ESECUZIONE DEL TIMER\n");
     Timer_s* timer = Timer_extract(list);
     
-    // print_timer_list(*list);
     if(timer == NULL) return -1;
 
     TimerCallback callback = (TimerCallback) timer->_function;

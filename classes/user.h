@@ -10,6 +10,16 @@
 #ifndef USER_H
 #define USER_H
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <errno.h>
+#include <string.h>
+#include <stdlib.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+
 #include "structs/enums.h"
 
 typedef struct User_s{
@@ -121,16 +131,23 @@ User_card_status get_User_status(User_s* user);
 int get_User_card(User_s* user);
 
 /**
+ * @brief Ottiene il descrittore del socket dell'utente
+ * 
+ * @param user utente 
+ * 
+ * @return descrittore del socket
+ */
+int get_User_socket(User_s* user);
+
+/**
  * @brief La funzione permette di modificare la card dell'utente
  * 
  * La funzione assegna all'utente nella lista la card ad esso assegnata
  * 
  * @param user utente a cui modificare lo stato
  * @param card_id id della card
- * 
- * @return la funzione ritorna 0 se ha successo, -1 altrimenti
  */
-int set_User_card(User_s* user, int card_id);
+void set_User_card(User_s* user, int card_id);
 
 /**
  * @brief La funzione permette di modificare lo stato dell'utente
@@ -139,10 +156,8 @@ int set_User_card(User_s* user, int card_id);
  * 
  * @param user utente a cui modificare lo stato
  * @param status stato che deve essere modificato
- * 
- * @return la funzione ritorna 0 se ha successo, -1 altrimenti
  */
-int set_User_status(User_s* user, User_card_status status);
+void set_User_status(User_s* user, User_card_status status);
 
 /**
  * @brief funzione utilizzata per ottenere un array contenente tutti gli utenti, apparte quello corrente

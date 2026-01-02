@@ -1,9 +1,5 @@
 #include "utils.h"
-#include <arpa/inet.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <string.h>
+
 
 /**
  * @brief implementazione della create_socket

@@ -1,7 +1,4 @@
 #include "user/command.h"
-#include "user/print.h"
-#include "user/peer.h"
-#include "network/utils.h"
 
 #define USER_REVIEW_TIMER 30
 
@@ -10,6 +7,9 @@ int timer_scaduto = 0;
 
 // Variabile per comunicare fra thread
 int pipe_fd[2];
+
+// Variabile di accesso - utilizzata per la prima HANDLE_CARD
+int _access;
 
 /**
  * @brief implementazione della send_command
@@ -117,27 +117,34 @@ void user_card_done(){
 
 }
 
+/**
+ * @brief implementazione della user_request_user_list
+ */
 void user_request_user_list(int user_socket){
 
     // Ottengo il numero di utenti
     int n_users;
     recv(user_socket, &n_users, sizeof(int), 0);
     n_users = ntohl(n_users);
-    
 
     // Ottengo l'array di utenti
     if (n_users != 0){
         User_t users[n_users];
-        recv(user_socket, &users, n_users*sizeof(User_t), 0);
+        recv(user_socket, &users, n_users*sizeof(User_t), MSG_WAITALL);
         other_users(&user_data, n_users, users);
+    }else {
+        other_users(&user_data, n_users, NULL);
     }
 
 }
 
+/**
+ * @brief implementazione della review_card
+ */
 void review_card(int board_sock, int user_sock){
     
     // Richiedo la lista degli utenti
-    handle_command("REQUEST_USER_LIST\0", board_sock, user_data._status);
+    handle_command("REQUEST_USER_LIST\0");
         
     // Salvo gli utenti attuali
     refresh_review_users(&review, &user_data);
@@ -153,12 +160,14 @@ void review_card(int board_sock, int user_sock){
 void handle_board_request(Board_to_User_command command, int user_socket){
     
 
-    printf("SONO DENTRO\n");
-
     // Controllo le richieste provenienti dalla lavagna
     if (command == BU_HANLDE_CARD) {
         
         handle_card(user_socket);
+        if (_access == 0) {
+            handle_command("SHOW_LAVAGNA\0");
+            _access++;
+        }
     
     }else if (command == BU_PING_USER){
 
@@ -171,15 +180,24 @@ void handle_board_request(Board_to_User_command command, int user_socket){
 
 }   
 
-
+/**
+ * @brief implementazione della review_ok
+ */
 void review_ok(int user_sock){
 
-    printf("L'utente che deve essere revisionato è %d\n", user_data._users_need_review[0]);
-    send_user_ok(&review, user_sock, user_data._users_need_review[0]);
+    printf("L'utente che deve essere revisionato è %d\n", user_data._users_need_review[0].user);
+
+    // Invio all'utente la notifica di revisione
+    send_user_ok(&review, user_sock, user_data._users_need_review[0].user);
+    
+    // Elimino l'utente dal pool
     pop_user_review(&user_data);
 
 }
 
+/**
+ * @brief implementazione della resend_review_to_users
+ */
 void resend_review_to_users(int p){
 
     if (review._remaning_users != 0) timer_scaduto = 1; 
@@ -188,9 +206,31 @@ void resend_review_to_users(int p){
 }
 
 /**
+ * @brief implementazione della ack_card
+ */
+void ack_card(){
+
+    // Avvio del thread
+    pthread_t tid;
+    int n = (rand() % 21) + 10; // Genero un numero casuale da 10 a 30
+    int *duration = malloc(sizeof(int));
+    *duration = n;
+    pthread_create(&tid, NULL, thread_simulate_job, duration);
+    pthread_detach(tid);
+
+    // Mi pongo in stato di attesa
+    user_data._status = SLEEP_CARD;
+
+}
+
+/**
  * @brief implementazione della handle_command
  */
-void handle_command(char* command, int board_sock, User_Status status){
+void handle_command(char* command){
+
+    // Ottengo le variabili
+    int board_sock = user_data._board_socket;
+    User_Status status = user_data._status; 
 
     // Controllo i comandi
     if (strcmp(command, "QUIT") == 0) {
@@ -211,15 +251,7 @@ void handle_command(char* command, int board_sock, User_Status status){
         printf("Inizio a svolgere la card con id %d\n", user_data._card_id);
         send_command(UB_ACK_CARD);
         
-        // Avvio del thread
-        pthread_t tid;
-        int n = (rand() % 21) + 10; // Genero un numero da 20 a 30
-        int *duration = malloc(sizeof(int));
-        *duration = n;
-        pthread_create(&tid, NULL, thread_simulate_job, duration);
-        pthread_detach(tid);
-        
-        user_data._status = SLEEP_CARD;
+        ack_card();
 
     }else if (strcmp(command, "PONG_LAVAGNA") == 0 && status == PING_USER){
 
@@ -233,7 +265,6 @@ void handle_command(char* command, int board_sock, User_Status status){
         user_card_done();
         send_command(UB_CARD_DONE);
         review.req = 0;
-        printf("ULTIMO CARD DONE\n");
     
     }else if (strncmp(command, "CREATE_CARD", 11) == 0 && (status != PING_USER && status != SLEEP_CARD)){
 
@@ -247,7 +278,7 @@ void handle_command(char* command, int board_sock, User_Status status){
             printf("Formato errato! Usa: CREATE_CARD <id> <descrizione del task>\n");
         }
 
-    }else if (strcmp(command, "REQUEST_USER_LIST") == 0 && ( status >= CARD && status <= PING_USER)){
+    }else if (strcmp(command, "REQUEST_USER_LIST") == 0 ){
 
         send_command(UB_REQUEST_USER_LIST);
         user_request_user_list(board_sock);
@@ -287,6 +318,7 @@ void listen_to_server(){
 
     // Inizializzo il seed
     srand(time(NULL));
+    _access = 0;
 
     // Apro la PIPE
     if (pipe(pipe_fd) == -1){
@@ -302,32 +334,33 @@ void listen_to_server(){
 
     // Stampo i comandi per la prima volta
     handle_print(user_data._status, user_data._card_id, user_data._users_need_review, user_data._users_need_review_number);
-
+    fd_set readfds;
+    
     for(;;){
-
-        fd_set readfds;
+        
         FD_ZERO(&readfds);
-
         FD_SET(board_socket, &readfds); // socket TCP
         FD_SET(user_socket, &readfds); // socket UDP
         FD_SET(STDIN_FILENO, &readfds); // stdin
         FD_SET(pipe_fd[0], &readfds); // Pipe
 
+        // Socket & altro
         int maxfd = board_socket;
         if (user_socket > maxfd) maxfd = user_socket;
         if (STDIN_FILENO > maxfd) maxfd = STDIN_FILENO;
         if (pipe_fd[0] > maxfd) maxfd = pipe_fd[0];
-        
+
+
         int activity = select(maxfd + 1, &readfds, NULL, NULL, NULL);
         
         if (timer_scaduto == 1){
             
-            handle_command("REQUEST_USER_LIST\0", user_data._board_socket, user_data._status);
+            handle_command("REQUEST_USER_LIST\0");
             filter_disconnected_users(&review, user_data._others, user_data._connected_users);
             send_all_users_notification(&review, user_data._user_socket, user_data._card_id);
             timer_scaduto = 0;
             
-            if (review._remaning_users_number == 0) handle_print(user_data._status, user_data._card_id, review._remaning_users, review._remaning_users_number);
+            if (review._remaning_users_number == 0) handle_print(user_data._status, user_data._card_id, user_data._users_need_review, review._remaning_users_number);
             else alarm(USER_REVIEW_TIMER);
 
         }
@@ -359,8 +392,9 @@ void listen_to_server(){
             
                 // Gestione output server
                 printf("Ricevuto comando %d dal server\n", com);
-                handle_board_request(com, board_socket);
+                handle_board_request(com, board_socket); // Gestisco la richiesta della lavagna
                 handle_print(user_data._status, user_data._card_id, user_data._users_need_review, user_data._users_need_review_number);
+            
             }else{
                 
                 printf("Mi disconnetto a seguito di un'errore\n");
@@ -385,12 +419,21 @@ void listen_to_server(){
                 // Conversione porta utente e comando
                 uint16_t review_port = (uint16_t) ntohs(user_buffer._sender_port);
                 int16_t review_command = (int16_t) ntohs(user_buffer._command);
-
-                printf("Messaggio UDP ricevuto: %d con porta: %d e prima %d\n", review_command, review_port, sender_addr.sin_port);
+                
+                printf("Messaggio in arrivo dall'utente %d: ", review_port);
+                if (review_command == -1) printf("ha revisionato con successo la card %d\n", user_data._card_id);
+                else printf("devi revisionare il suo task %d\n", review_command);
                 
                 // Nel caso in cui il comando sia -1, ho ricevuto risposta al mio REVIEW_CARD
                 // In caso contrario devo verificare il task dell'utente
-                if(review_command != -1) push_user_review(&user_data, review_port);
+                if(review_command != -1) {
+                    
+                    Review_User user_to_review;
+                    user_to_review.card_id = review_command;
+                    user_to_review.user = review_port; 
+
+                    push_user_review(&user_data, user_to_review);
+                }
                 else review_complete(&user_data, review_port);
                 
                 handle_print(user_data._status, user_data._card_id, user_data._users_need_review, user_data._users_need_review_number);
@@ -410,8 +453,7 @@ void listen_to_server(){
                 input[strcspn(input, "\n")] = 0; // Sanificazione dell'input
                 
                 // Gestione input utente
-                printf("Comando richiesto: %s\n", input);
-                handle_command(input, board_socket, user_data._status);
+                handle_command(input);
                 handle_print(user_data._status, user_data._card_id, user_data._users_need_review, user_data._users_need_review_number);
 
             }

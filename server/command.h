@@ -10,6 +10,7 @@
 #ifndef COMMAND_H
 #define COMMAND_h
 
+#include <string.h>
 #include <stdio.h>
 #include <arpa/inet.h>
 #include <sys/types.h>
@@ -22,6 +23,8 @@
 #include <netinet/in.h>
 #include <sys/select.h>
 #include "functions/functions_board.h" 
+#include "classes/timer.h"
+#include "network/utils.h"
 
 // Variabili globali
 // Utilizzate per gestire la select
@@ -133,7 +136,7 @@ int request_user_list(User_s* user);
  * 
  * @return 0 se la funzione ha avuto successo, 1 se l'utente ha chiamato la QUIT, -1 viceversa
  */
-int handle_command(Board_to_User_command command, int sock);
+int handle_command(User_to_Board_command command, int sock);
 
 /**
  * @brief Funzione che invia la ping all'utente
@@ -142,7 +145,7 @@ int handle_command(Board_to_User_command command, int sock);
  * 
  * @param user utente da eliminare
  */
-void *ping_user(User_t user);
+void ping_user(User_t user);
 
 /**
  * @brief Funzione handler per la ACK mancata
@@ -151,7 +154,7 @@ void *ping_user(User_t user);
  * 
  * @param user utente da eliminare
  */
-void *ack_alert(User_t user);
+void ack_alert(User_t user);
 
 /**
  * @brief Funzione che gestisce la mancata pong_lavagna
@@ -160,6 +163,6 @@ void *ack_alert(User_t user);
  * 
  * @param user utente da eliminare
  */
-void *pong_user(User_t user);
+void pong_user(User_t user);
 
 #endif

@@ -1,10 +1,5 @@
-#include "functions/functions_board.h"
-#include "classes/timer.h"
-#include <stdio.h>
-#include <errno.h>
-#include <string.h>
-#include <stdlib.h>
-#include <sys/signal.h>
+#include "functions_board.h"
+
 
 extern int timer_pipe[2];
 
@@ -46,11 +41,10 @@ int user_assign_card(Board_s* kanban, User_s* user, int* card_id){
     if (assign_card_to_User(kanban, port, &cid) == -1) return -1;
     *card_id = cid;
 
-    int sc = set_User_card(user, *card_id);
-    int ss = set_User_status(user, USR_TO_DO);
+    set_User_card(user, *card_id);
+    set_User_status(user, USR_TO_DO);
 
-    if (!sc || !ss ) return -1;
-    else return 0;
+    return 0;
 
 }
 
@@ -64,12 +58,10 @@ int user_confirm_card(Board_s* kanban, User_t port, int status){
     if(user == NULL) return -1;
     int card_id = get_User_card(user);
 
-    printf("Card id: %d\n", card_id);
-
     if (status == 0){
 
         // Status == 0 --> l'utente ha accettato la card
-        printf("L'utente ha accettato la card\n");
+        printf("L'utente %d ha accettato la card\n", port);
         confirm_card_to_User(kanban, card_id);
         set_User_status(user, USR_DOING);
 
@@ -94,7 +86,7 @@ int user_confirm_card(Board_s* kanban, User_t port, int status){
 int user_exit(Board_s *kanban, User_s* user){
 
     // Controllo se l'utente esiste
-    int sock = user->_socket;
+    int sock = get_User_socket(user);
     int port = get_User_port(user); // Ottengo la porta dell'utente
 
     if (user== NULL) return -1;
@@ -106,12 +98,10 @@ int user_exit(Board_s *kanban, User_s* user){
 
         // Devo riportare la card ad uno stato consistente
         User_card_status status = get_User_status(user);
-        if (status == USR_TO_DO){
-            edit_Card_user(kanban->_colonne[TO_DO]._card, card_id, 0);
-        }else if (status == USR_DOING){
-            edit_Card_user(kanban->_colonne[TO_DO]._card, card_id, 0);
-            swap_card_between_Column(card_id, &kanban->_colonne[DOING], &kanban->_colonne[DONE]);
-        }
+        edit_Card_user(kanban->_colonne[status == USR_TO_DO ? TO_DO : DOING]._card, card_id, 0); // Elimino l'utente di riferimento
+        
+        // Se è in DOING la riporto a TO_DO
+        if (status == USR_DOING) swap_card_between_Column(card_id, &kanban->_colonne[DOING], &kanban->_colonne[TO_DO]);
         
     }
 
@@ -177,13 +167,10 @@ int switch_card_between_columns(Board_s* board, int card_id, Column_type from, C
  */
 void generate_event_in_Timer(Timer_s** timer, User_t port, Timer_Operation_Type operation_type, void* operation_function, int add_time){
 
-    // Inserimento dell'evento in lista 
+    // Inserimento dell'evento in lista ACK_CARD
     time_t event_time = time(NULL) + add_time;
     int ins = insert_Timer_in_list(timer, event_time, operation_function, port, operation_type);
     
-    printf("INS IMPORTANTE: %d\n", ins);
     if (ins == 1) alarm(add_time); // Nel caso in cui aggiunga un elemento in testa, resetto il timer
-    
-    print_timer_list(*timer);
 
 }
