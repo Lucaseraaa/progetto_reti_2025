@@ -98,12 +98,10 @@ int user_exit(Board_s *kanban, User_s* user){
 
         // Devo riportare la card ad uno stato consistente
         User_card_status status = get_User_status(user);
-        if (status == USR_TO_DO){
-            edit_Card_user(kanban->_colonne[TO_DO]._card, card_id, 0);
-        }else if (status == USR_DOING){
-            edit_Card_user(kanban->_colonne[TO_DO]._card, card_id, 0);
-            swap_card_between_Column(card_id, &kanban->_colonne[DOING], &kanban->_colonne[TO_DO]);
-        }
+        edit_Card_user(kanban->_colonne[status == USR_TO_DO ? TO_DO : DOING]._card, card_id, 0); // Elimino l'utente di riferimento
+        
+        // Se è in DOING la riporto a TO_DO
+        if (status == USR_DOING) swap_card_between_Column(card_id, &kanban->_colonne[DOING], &kanban->_colonne[TO_DO]);
         
     }
 
