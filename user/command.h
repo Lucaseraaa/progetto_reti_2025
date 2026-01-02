@@ -26,7 +26,7 @@
 #include "user/peer.h"
 #include "network/utils.h"
 
-#define COMMAND_LEN 50
+#define COMMAND_LEN 2048
 
 extern User_Data_s user_data;
 
