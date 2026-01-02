@@ -81,7 +81,7 @@ int other_users(User_Data_s* ud, int connected_user, User_t users[]){
     free(ud->_others); // Libero l'array precedente 
 
     if(connected_user > 0){
-
+        // printf("\nRicevuti utenti: ");
         ud->_others = malloc(connected_user*sizeof(User_t));
         for(int i = 0; i < ud->_connected_users; i++) {
 

@@ -102,7 +102,7 @@ int user_exit(Board_s *kanban, User_s* user){
             edit_Card_user(kanban->_colonne[TO_DO]._card, card_id, 0);
         }else if (status == USR_DOING){
             edit_Card_user(kanban->_colonne[TO_DO]._card, card_id, 0);
-            swap_card_between_Column(card_id, &kanban->_colonne[DOING], &kanban->_colonne[DONE]);
+            swap_card_between_Column(card_id, &kanban->_colonne[DOING], &kanban->_colonne[TO_DO]);
         }
         
     }

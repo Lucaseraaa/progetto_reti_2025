@@ -130,7 +130,7 @@ void user_request_user_list(int user_socket){
     // Ottengo l'array di utenti
     if (n_users != 0){
         User_t users[n_users];
-        recv(user_socket, &users, n_users*sizeof(User_t), 0);
+        recv(user_socket, &users, n_users*sizeof(User_t), MSG_WAITALL);
         other_users(&user_data, n_users, users);
     }else {
         other_users(&user_data, n_users, NULL);
@@ -278,7 +278,7 @@ void handle_command(char* command){
             printf("Formato errato! Usa: CREATE_CARD <id> <descrizione del task>\n");
         }
 
-    }else if (strcmp(command, "REQUEST_USER_LIST") == 0 && ( status >= CARD && status <= PING_USER)){
+    }else if (strcmp(command, "REQUEST_USER_LIST") == 0 ){
 
         send_command(UB_REQUEST_USER_LIST);
         user_request_user_list(board_sock);
