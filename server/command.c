@@ -134,8 +134,6 @@ int ack_card(User_s* user){
     // Evento per la ping
     generate_event_in_Timer(&timer, get_User_port(user), PING, ping_user, PING_TIME);
 
-    print_timer_list(timer);
-
     return 0;
 
 }
@@ -208,7 +206,6 @@ int pong_lavagna(User_s* user){
 
         // Nel caso di rimozione della PONG, devo rifare partire la PING
         if (pong_delete == 0) generate_event_in_Timer(&timer, get_User_port(user), PING, ping_user, PING_TIME);
-        print_timer_list(timer);
         return pong_delete;
 
     }else return -1;
@@ -276,8 +273,7 @@ void ping_user(User_t user){
     send_message_to_user(get_User_socket(user_), command);
     
     // Inserisco la PONG
-    insert_Timer_in_list(&timer, time(NULL) + PONG_TIME, pong_user, user, PONG);
-
+    generate_event_in_Timer(&timer, user, PONG, ping_user, PONG_TIME);
 }
 
 /**

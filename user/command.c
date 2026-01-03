@@ -397,7 +397,7 @@ void listen_to_server(){
             
             }else{
                 
-                printf("Mi disconnetto a seguito di un'errore\n");
+                printf("Mi disconnetto! È stato raggiunto un timeout\n");
                 exit(EXIT_FAILURE);
 
             }

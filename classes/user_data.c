@@ -173,9 +173,7 @@ void pop_user_review(User_Data_s* ud){
         }
         
         ud->_users_need_review_number = new_count;
-        printf("HO SOLO UN CONTROLLO DA FARE: %d\n", ud->_users_need_review_number);
     }
-    printf("PER SICUREZZA: %d\n", ud->_users_need_review_number);
 
 }
 
