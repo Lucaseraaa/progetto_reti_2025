@@ -4,6 +4,7 @@
 #define MAX_LINES 64
 #define SEP " | "
 #define MAX_LINES 64
+#define BUFFER_WRITE_LEN 16384
 
 /**
  * @brief implementazione della Board_init
@@ -137,15 +138,16 @@ int wrap_text(const char* text, char lines[MAX_LINES][COL_WIDTH + 1]) {
  * @brief implementazione della board_to_string
  */
 char* board_to_string(Board_s* board) {
-    char* buffer = malloc(16384); // buffer grande per sicurezza
+
+    // Alloco un buffer per scrivere la lavagna
+    char* buffer = malloc(BUFFER_WRITE_LEN); 
     if (!buffer) return NULL;
     buffer[0] = '\0';
 
     char temp[512];
 
-    // Titolo centrato
-    sprintf(temp, "\n%ld %sLavagna - %d\n\n",
-            (COL_WIDTH * 3 + strlen(SEP) * 2 - 12)/2, "", board->_id);
+    // Titolo 
+    sprintf(temp, "\nLavagna - %d\n\n", board->_id);
     strcat(buffer, temp);
 
     // Intestazioni colonne
